@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Matches{% endblock %}</h1>
+  {% if g.user %}
+    <hr>
+    <a href="{{ url_for('match.create') }}">New</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% for match in matches %}
+    <div>
+      <h2>
+        Match Id {{ match['id'] }}
+        <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
+      </h2>
+      <p>{{ match['white_player_name'] }} : {{ match['black_player_name'] }}</p>
+      <p>
+        <a style="padding-right: 20px" href="{{ url_for('match.show', id=match['id']) }}">Play</a>
+        {% if g.user['id'] == match['user_id'] %}
+          <a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a>
+        {% endif %}
+      </p>
+    </div>
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+{% endblock %}

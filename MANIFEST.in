@@ -1,0 +1,6 @@
+
+include josh/schema.sql
+graft josh/static
+graft josh/templates
+global-exclude *.pyc
+

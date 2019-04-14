@@ -1,0 +1,33 @@
+
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>
+      {% block title %}Match{% endblock %} 
+      id:{{ match['id'] }}, on {{ match['created'].strftime('%Y-%m-%d') }}
+      ddd
+      {% if g.user['id'] == match['user_id'] %}
+        <a href="{{ url_for('match.update', id=match['id']) }}">Edit</a>
+      {% endif %}
+  </h1>
+  <p>
+    Level: {{ match['level'] }}, Status: {{ match['status'] }}
+    White Player: {{ match['white_player_name'] }} is_human: {{ match['white_player_is_human'] }}
+    Black Player: {{ match['black_player_name'] }} is_human: {{ match['black_player_is_human'] }}
+  </p>
+{% endblock %}
+
+{% block content %}
+  <div id="board" matchid="{{ match['id'] }}" movecnt="999">
+  {% for cell in board %}
+    {% if cell.value == "blk" %}
+       <div id="{{ cell.id }}" class="{{ cell.color }}-cell">&nbsp;</div>
+    {% else %}
+        <div id="{{ cell.id }}" class="{{ cell.color }}-cell"><img src="{{ url_for('static', filename='img/' + cell.value + '.png') }}"></div>
+    {% endif %}
+  {% endfor %}
+  </div>
+{% endblock %}
+
+
+

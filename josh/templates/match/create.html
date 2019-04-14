@@ -1,0 +1,56 @@
+
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}New Match{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form method="post">
+    <label for="level">Level</label>
+    <select name="level" id="level">
+        {% if request.form['level'] == "0" %}
+            <option value="0" selected>0</option>
+        {% else %}
+            <option value="0">0</option>
+        {% endif %}
+        {% if request.form['level'] == "1" %}
+            <option value="1" selected>1</option>
+        {% else %}
+            <option value="1">1</option>
+        {% endif %}
+        {% if request.form['level'] == "2" %}
+            <option value="2" selected>2</option>
+        {% else %}
+            <option value="2">2</option>
+        {% endif %}
+        {% if request.form['level'] == "3" %}
+            <option value="3" selected>3</option>
+        {% else %}
+            <option value="3">3</option>
+        {% endif %}
+    </select> 
+
+    <label for="white_player_name">White Player Name</label>
+    <input name="white_player_name" id="white_player_name" value="{{ request.form['white_player_name'] }}" required>
+
+    <label for="white_player_is_human">White Player is human</label>
+    {% if request.form['white_player_is_human'] == "0" %}
+        <input type="checkbox" name="white_player_is_human" value="1" checked>
+    {% else %}
+        <input type="checkbox" name="white_player_is_human" value="0">
+    {% endif %}
+
+    <label for="black_player_name">Black Player Name</label>
+    <input name="black_player_name" id="black_player_name" value="{{ request.form['black_player_name'] }}" required>
+
+    <label for="black_player_is_human">Black Player is human</label>
+    {% if request.form['black_player_is_human'] == "0" %}
+        <input type="checkbox" name="black_player_is_human" value="1" checked>
+    {% else %}
+        <input type="checkbox" name="black_player_is_human" value="0">
+    {% endif %}
+
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}
