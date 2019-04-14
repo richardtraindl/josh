@@ -2,6 +2,9 @@
 <!doctype html>
 <title>{% block title %}{% endblock %} - Josh</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="{{ url_for('static', filename='jquery-1.11.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
+<script src="{{ url_for('static', filename='custom.js') }}"></script>
 <nav>
   <h1><a href="{{ url_for('match.index') }}">Josh and His Friends</a></h1>
   <ul>

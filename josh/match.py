@@ -140,6 +140,15 @@ def show(id):
     return render_template('match/show.html', match=match, board=newboard)
 
 
+@bp.route('/<int:id>/domove', methods=('POST',))
+def domove(id):
+    match = get_match(id)
+
+    print("domove")
+
+    return redirect(url_for('match.show', id=match['id'],))
+
+
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):

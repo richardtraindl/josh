@@ -3,30 +3,120 @@
 
 {% block header %}
   <h1>
-      {% block title %}Match{% endblock %} 
-      id:{{ match['id'] }}, on {{ match['created'].strftime('%Y-%m-%d') }}
-      ddd
-      {% if g.user['id'] == match['user_id'] %}
-        <a href="{{ url_for('match.update', id=match['id']) }}">Edit</a>
-      {% endif %}
+      {% block title %}Match Id {{ match['id'] }}{% endblock %} 
+      <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
   </h1>
-  <p>
-    Level: {{ match['level'] }}, Status: {{ match['status'] }}
-    White Player: {{ match['white_player_name'] }} is_human: {{ match['white_player_is_human'] }}
-    Black Player: {{ match['black_player_name'] }} is_human: {{ match['black_player_is_human'] }}
+
+  <p class="unit">
+    {% if match['white_player_is_human'] %}
+        <span style="font-weight: bold">{{ match['white_player_name'] }}</span>
+    {% else %}
+        {{ match['white_player_name'] }}
+    {% endif %}
+    &nbsp;:&nbsp;
+    {% if match['black_player_is_human'] %}
+        <span style="font-weight: bold">{{ match['black_player_name'] }}</span>
+    {% else %}
+        {{ match['black_player_name'] }}
+    {% endif %}
   </p>
+
+  <p class="unit">
+    Level: {{ match['level'] }}
+    &nbsp;&nbsp;&nbsp;
+    Status: {{ match['status'] }}
+  </p>
+
+  {% if g.user['id'] == match['user_id'] %}
+    <p class="unit">
+      <a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a>
+    </p>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
   <div id="board" matchid="{{ match['id'] }}" movecnt="999">
   {% for cell in board %}
     {% if cell.value == "blk" %}
-       <div id="{{ cell.id }}" class="{{ cell.color }}-cell">&nbsp;</div>
+       <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable">&nbsp;</div>
     {% else %}
-        <div id="{{ cell.id }}" class="{{ cell.color }}-cell"><img src="{{ url_for('static', filename='img/' + cell.value + '.png') }}"></div>
+        <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable"><img class="draggable" src="{{ url_for('static', filename='img/' + cell.value + '.png') }}"></div>
     {% endif %}
   {% endfor %}
   </div>
+
+  <div id="white-pieces" class="promotion invisible">
+    <p value="wQu"><img src="{{ url_for('static', filename='img/wQu.png') }}"></p>
+    <p value="wRk"><img src="{{ url_for('static', filename='img/wRk.png') }}"></p>
+    <p value="wBp"><img src="{{ url_for('static', filename='img/wBp.png') }}"></p>
+    <p value="wKn"><img src="{{ url_for('static', filename='img/wKn.png') }}"></p>
+  </div>
+  <div id="black-pieces" class="promotion invisible">
+    <p value="bQu"><img src="{{ url_for('static', filename='img/bQu.png') }}"></p>
+    <p value="bBp"><img src="{{ url_for('static', filename='img/bRk.png') }}"></p>
+    <p value="bKn"><img src="{{ url_for('static', filename='img/bBp.png') }}"></p>
+    <p value="bRk"><img src="{{ url_for('static', filename='img/bKn.png') }}"></p>
+  </div>
+  <form id="move" method="post" action="{{ url_for('match.domove', id=match['id']) }}" style="display: none;">
+    <input name="move_src" id="move-src" value="" required>
+    <input name="move_dst" id="move-dst" value="" required>
+    <input name="prom_piece" id="prom-piece" value="blk" required>
+    <input type="submit" value="submit" />
+  </form>
+
+  <script>
+    $(document).ready(function() {
+        performMove();
+        drag();
+        drop();
+
+        $('.promotion p').click(function(){
+            var piece;
+            piece = $(this).attr("value");
+            $('#prom-piece').val(piece);
+            $('#move').submit();
+        });
+
+        setInterval(function(){
+            var matchid;
+            var movecnt;
+            var newcomment;
+            var result;
+            var url;
+            matchid = $('#board').attr("matchid");
+            movecnt = $('#board').attr("movecnt");
+            url = "/" + matchid.toString() + "/show"
+
+            $.get('/kate/fetchmatch/', { matchid: matchid, movecnt: movecnt }, function(data){
+                result = data.split("|");
+                if(result[0] == 1){
+                    location.href = url;
+                }
+                else{
+                    $('#white-time').text(result[1]);
+                    $('#black-time').text(result[2]);
+                }
+            });
+      {% if match['level'] == 0 %}
+        }, 20000);
+      {% else %}
+        }, 40000);
+      {% endif %}
+
+      {% if match['white_player_human'] and match['black_player_human'] %}
+        setInterval(function() {
+            var matchid;
+            matchid = $('#addcomment').attr("matchid");
+            url = "/" + matchid.toString() + "/fetchcomments"
+            $.get(url, { matchid: matchid }, function(data){
+                if(data.length > 0){
+                    $('#comments').html(data);
+                }
+            });
+        }, 23000);
+      {% endif %}
+    });
+  </script>
 {% endblock %}
 
 
