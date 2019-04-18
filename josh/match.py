@@ -6,7 +6,13 @@ from werkzeug.exceptions import abort
 
 from josh.auth import login_required
 from josh.db import get_db
+from josh.dbaccess import *
+from josh.mapper import import_to_engine, domove_and_export_to_db
 
+from .engine2.values import *
+from .engine2.helper import coord_to_index, index_to_coord, index_to_Uppercoord, reverse_lookup
+from .engine2.move import cGenMove
+from .engine2.calc import calc_move
 
 bp = Blueprint('match', __name__)
 
@@ -14,12 +20,7 @@ bp = Blueprint('match', __name__)
 @bp.route('/')
 def index():
     db = get_db()
-    matches = db.execute(
-        'SELECT m.id, status, level, created, white_player_name, white_player_is_human, '
-        'black_player_name, black_player_is_human, user_id, username'
-        ' FROM match m JOIN user u ON m.user_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+    matches = get_matches()
     return render_template('match/index.html', matches=matches)
 
 
@@ -28,123 +29,141 @@ def index():
 def create():
     if request.method == 'POST':
         level = request.form['level']
-        white_player_name = request.form['white_player_name']
-        if(request.form.get('white_player_is_human')):
-            white_player_is_human = 1
-        else:
-            white_player_is_human = 0
-        black_player_name = request.form['black_player_name']
-        if(request.form.get('black_player_is_human')):
-            black_player_is_human = 1
-        else:
-            black_player_is_human = 0
-        error = None
 
-        if not white_player_name or not black_player_name:
-            error = 'white_player_name and black_player_name are required.'
+        wplayer_name = request.form['wplayer_name']
+
+        if(request.form.get('wplayer_ishuman')):
+            wplayer_ishuman = 1
+        else:
+            wplayer_ishuman = 0
+
+        bplayer_name = request.form['bplayer_name']
+
+        if(request.form.get('bplayer_ishuman')):
+            bplayer_ishuman = 1
+        else:
+            bplayer_ishuman = 0
+
+        error = None
+        if not wplayer_name or not bplayer_name:
+            error = 'White Player name and Black Player name are required.'
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO match (level, white_player_name, white_player_is_human, black_player_name, black_player_is_human, user_id)'
-                ' VALUES (?, ?, ?, ?, ?, ?)',
-                (level, white_player_name, white_player_is_human, black_player_name, black_player_is_human, g.user['id'])
-            )
-            db.commit()
+            new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuman)
             return redirect(url_for('match.index'))
-
-    return render_template('match/create.html')
-
-
-def get_match(id, check_user=True):
-    match = get_db().execute(
-        'SELECT m.id, status, level, created, white_player_name, white_player_is_human, '
-        'black_player_name, black_player_is_human, board, user_id, username'
-        ' FROM match m JOIN user u ON m.user_id = u.id'
-        ' WHERE m.id = ?',
-        (id,)
-    ).fetchone()
-
-    if match is None:
-        abort(404, "Match id {0} doesn't exist.".format(id))
-
-    if check_user and match['user_id'] != g.user['id']:
-        abort(403)
-
-    return match
+    else:
+        return render_template('match/create.html')
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
-    match = get_match(id)
+    oldmatch = get_match(id)
+    oldwplayer = get_player(id, 1)
+    oldbplayer = get_player(id, 0)
 
     if request.method == 'POST':
         level = request.form['level']
-        white_player_name = request.form['white_player_name']
-        if(request.form.get('white_player_is_human')):
-            white_player_is_human = 1
-        else:
-            white_player_is_human = 0
-        black_player_name = request.form['black_player_name']
-        if(request.form.get('black_player_is_human')):
-            black_player_is_human = 1
-        else:
-            black_player_is_human = 0
-        error = None
 
-        if not white_player_name or not black_player_name:
-            error = 'white_player_name and black_player_name are required.'
+        wplayer_name = request.form['wplayer_name']
+
+        if(request.form.get('wplayer_ishuman')):
+            wplayer_ishuman = 1
+        else:
+            wplayer_ishuman = 0
+
+        bplayer_name = request.form['bplayer_name']
+
+        if(request.form.get('bplayer_ishuman')):
+            bplayer_ishuman = 1
+        else:
+            bplayer_ishuman = 0
+
+        error = None
+        if not wplayer_name or not bplayer_name:
+            error = 'White Player name and Black Player name are required.'
 
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'UPDATE match SET level = ?, white_player_name = ?, white_player_is_human = ?, black_player_name = ?, black_player_is_human = ?'
-                ' WHERE id = ?',
-                (level, white_player_name, white_player_is_human, black_player_name, black_player_is_human, id)
-            )
-            db.commit()
+            status = oldmatch['status']
+            board = oldmatch['board']
+            wplayer_consumedsecs = oldwplayer['consumedsecs']
+            bplayer_consumedsecs = oldbplayer['consumedsecs']
+            match = update_match(id, status, level, board, wplayer_name, \
+                 wplayer_ishuman, wplayer_consumedsecs, \
+                 bplayer_name, bplayer_ishuman, bplayer_consumedsecs)
             return redirect(url_for('match.index'))
-
-    return render_template('match/update.html', match=match)
+    else:
+        return render_template('match/update.html', match=oldmatch, wplayer=oldwplayer, bplayer=oldbplayer)
 
 
 @bp.route('/<int:id>/show')
 @login_required
 def show(id):
     match = get_match(id)
+    wplayer = get_player(id, 1)
+    bplayer = get_player(id, 0)
 
-    board = match['board']
+    mboard = match['board']
     class Cell:
         def __init__(self, cell_id, color, value): 
             self.id = cell_id
             self.color = color
             self.value = value
 
-    newboard = []
+    board = []
     for j in range(7, -1, -1):
         for i in range(8):
             idx = j * 8 * 4 + i * 4
-            cell_id = chr(i + ord('A')) + chr(j + ord('1'))
+            cell_id = chr(i + ord('a')) + chr(j + ord('1'))
             if((j + i) % 2 == 0):
                 cell_color = "black"
             else:
                 cell_color = "white"
-            cell = Cell(cell_id, cell_color, board[idx:idx+3])
-            newboard.append(cell)
+            cell = Cell(cell_id, cell_color, mboard[idx:idx+3])
+            board.append(cell)
 
-    return render_template('match/show.html', match=match, board=newboard)
+    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, bplayer=bplayer)
 
 
 @bp.route('/<int:id>/domove', methods=('POST',))
 def domove(id):
     match = get_match(id)
+    moves = get_moves(id)
+    wplayer = get_player(id, 1)
+    bplayer = get_player(id, 0)
 
-    print("domove")
+    ematch = import_to_engine(match, moves)
+
+    mvsrc = request.form['move_src']
+    mvdst = request.form['move_dst']
+    mvprompiece = request.form['prom_piece']
+
+    srcx, srcy = coord_to_index(mvsrc) 
+    dstx, dsty = coord_to_index(mvdst)
+    if(mvprompiece == "" or mvprompiece == "blk"):
+        mvprompiece = None
+        prompiece = PIECES['blk']
+    else:
+        prompiece = PIECES[mvprompiece]
+
+    isvalid, error = ematch.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
+
+    if(isvalid):
+        gmove = cGenMove(ematch, srcx, srcy, dstx, dsty, prompiece)
+        domove_and_export_to_db(ematch, gmove)
+
+        if((ematch.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
+           (ematch.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
+            candidates = calc_move(ematch, None)
+            if(candidates):
+                gmove = candidates[0]
+                domove_and_export_to_db(ematch, gmove)
+    else:
+        flash("oje " + reverse_lookup(ematch.RETURN_CODES, error))
 
     return redirect(url_for('match.show', id=match['id'],))
 
@@ -152,9 +171,6 @@ def domove(id):
 @bp.route('/<int:id>/delete', methods=('POST',))
 @login_required
 def delete(id):
-    get_match(id)
-    db = get_db()
-    db.execute('DELETE FROM match WHERE id = ?', (id,))
-    db.commit()
+    delete_match(id)
     return redirect(url_for('match.index'))
 

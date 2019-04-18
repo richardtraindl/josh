@@ -34,24 +34,26 @@
     </div>
 
     <div>
-        <label for="white_player_name">White Player Name</label>
-        <input name="white_player_name" id="white_player_name" value="{{ request.form['white_player_name'] }}" required>
-        <label for="white_player_is_human">Human</label>
-        {% if request.form['white_player_is_human'] == "0" %}
-            <input type="checkbox" name="white_player_is_human" value="1" checked>
+        <label for="wplayer_name">White Player Name</label>
+        <input name="wplayer_name" id="wplayer_name" value="{{ request.form['wplayer_name'] }}" required>
+
+        <label for="wplayer_ishuman">Human</label>
+        {% if request.form['wplayer_ishuman'] == 1 %}
+            <input type="checkbox" name="wplayer_ishuman" value="1" checked>
         {% else %}
-            <input type="checkbox" name="white_player_is_human" value="0">
+            <input type="checkbox" name="wplayer_ishuman" value="0">
         {% endif %}
     </div>
     
     <div>
-        <label for="black_player_name">Black Player Name</label>
-        <input name="black_player_name" id="black_player_name" value="{{ request.form['black_player_name'] }}" required>
-        <label for="black_player_is_human">Human</label>
-        {% if request.form['black_player_is_human'] == "0" %}
-            <input type="checkbox" name="black_player_is_human" value="1" checked>
+        <label for="bplayer_name">Black Player Name</label>
+        <input name="bplayer_name" id="bplayer_name" value="{{ request.form['bplayer_name'] }}" required>
+
+        <label for="bplayer_ishuman">Human</label>
+        {% if request.form['bplayer_ishuman'] == 1 %}
+            <input type="checkbox" name="bplayer_ishuman" value="1" checked>
         {% else %}
-            <input type="checkbox" name="black_player_is_human" value="0">
+            <input type="checkbox" name="bplayer_ishuman" value="0">
         {% endif %}
     </div>
 

@@ -16,18 +16,18 @@
         Match Id {{ match['id'] }}
         <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
       </h2>
-
+      <p>Level {{ match['level'] }}</p>
       <p>
-          {% if match['white_player_is_human'] == 1 %}
-            <span style="font-weight: bold">{{ match['white_player_name'] }}</span>
+          {% if match['wplayer_ishuman'] == 1 %}
+            <span style="font-weight: bold">{{ match['wplayer_name'] }}</span>
           {% else %}
-            {{ match['white_player_name'] }}
+            {{ match['wplayer_name'] }}
           {% endif %}
           &nbsp;:&nbsp;
-          {% if match['black_player_name'] == 1 %}
-            <span style="font-weight: bold">{{ match['black_player_name'] }}</span>
+          {% if match['bplayer_ishuman'] == 1 %}
+            <span style="font-weight: bold">{{ match['bplayer_name'] }}</span>
           {% else %}
-            {{ match['black_player_name'] }}
+            {{ match['bplayer_name'] }}
           {% endif %}
       </p>
 

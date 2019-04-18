@@ -10,22 +10,22 @@
     <div>
         <label for="level">Level</label>
         <select name="level" id="level">
-            {% if match['level'] == "0" %}
+            {% if match['level'] == 0 %}
                 <option value="0" selected>0</option>
             {% else %}
                 <option value="0">0</option>
             {% endif %}
-            {% if match['level'] == "1" %}
+            {% if match['level'] == 1 %}
                 <option value="1" selected>1</option>
             {% else %}
                 <option value="1">1</option>
             {% endif %}
-            {% if match['level'] == "2" %}
+            {% if match['level'] == 2 %}
                 <option value="2" selected>2</option>
             {% else %}
                 <option value="2">2</option>
             {% endif %}
-            {% if match['level'] == "3" %}
+            {% if match['level'] == 3 %}
                 <option value="3" selected>3</option>
             {% else %}
                 <option value="3">3</option>
@@ -34,24 +34,26 @@
     </div>
 
     <div>
-        <label for="white_player_name">White Player Name</label>
-        <input name="white_player_name" id="white_player_name" value="{{ match['white_player_name'] }}" required>
-        <label for="white_player_is_human">Human</label>
-        {% if match['white_player_is_human'] == 1 %}
-            <input type="checkbox" name="white_player_is_human" value="1" checked>
+        <label for="wplayer_name">White Player Name</label>
+        <input name="wplayer_name" id="wplayer_name" value="{{ wplayer['name'] }}" required>
+
+        <label for="wplayer_ishuman">Human</label>
+        {% if wplayer['ishuman'] == 1 %}
+            <input type="checkbox" name="wplayer_ishuman" value="1" checked>
         {% else %}
-            <input type="checkbox" name="white_player_is_human" value="0">
+            <input type="checkbox" name="wplayer_ishuman" value="0">
         {% endif %}
     </div>
 
     <div>
-        <label for="black_player_name">Black Player Name</label>
-        <input name="black_player_name" id="black_player_name" value="{{ match['black_player_name'] }}" required>
-        <label for="black_player_is_human">Human</label>
-        {% if match['black_player_is_human'] == 1 %}
-            <input type="checkbox" name="black_player_is_human" value="1" checked>
+        <label for="bplayer_name">Black Player Name</label>
+        <input name="bplayer_name" id="bplayer_name" value="{{ bplayer['name'] }}" required>
+
+        <label for="bplayer_ishuman">Human</label>
+        {% if bplayer['ishuman'] == 1 %}
+            <input type="checkbox" name="bplayer_ishuman" value="1" checked>
         {% else %}
-            <input type="checkbox" name="black_player_is_human" value="0">
+            <input type="checkbox" name="bplayer_ishuman" value="0">
         {% endif %}
     </div>
 

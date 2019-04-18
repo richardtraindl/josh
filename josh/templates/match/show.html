@@ -8,16 +8,16 @@
   </h1>
 
   <p class="unit">
-    {% if match['white_player_is_human'] %}
-        <span style="font-weight: bold">{{ match['white_player_name'] }}</span>
+    {% if wplayer['ishuman'] %}
+        <span style="font-weight: bold">{{ wplayer['name'] }}</span>
     {% else %}
-        {{ match['white_player_name'] }}
+        {{ wplayer['name'] }}
     {% endif %}
     &nbsp;:&nbsp;
-    {% if match['black_player_is_human'] %}
-        <span style="font-weight: bold">{{ match['black_player_name'] }}</span>
+    {% if bplayer['ishuman'] %}
+        <span style="font-weight: bold">{{ bplayer['name'] }}</span>
     {% else %}
-        {{ match['black_player_name'] }}
+        {{ bplayer['name'] }}
     {% endif %}
   </p>
 
@@ -103,7 +103,7 @@
         }, 40000);
       {% endif %}
 
-      {% if match['white_player_human'] and match['black_player_human'] %}
+      {% if match['wplayer_ishuman'] and match['bplayer_ishuman'] %}
         setInterval(function() {
             var matchid;
             matchid = $('#addcomment').attr("matchid");
