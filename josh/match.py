@@ -1,6 +1,9 @@
 
+import random, threading 
+from datetime import datetime
+
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, Flask, current_app, Response
 )
 from werkzeug.exceptions import abort
 
@@ -140,9 +143,9 @@ def domove(id):
     wplayer = get_player(id, 1)
     bplayer = get_player(id, 0)
 
-    ematch = cMatch()
-    map_sqlmatch_to_engine(match, ematch)
-    map_sqlmoves_to_engine(moves, ematch)
+    engine = cMatch()
+    map_sqlmatch_to_engine(match, engine)
+    map_sqlmoves_to_engine(moves, engine)
 
     mvsrc = request.form['move_src']
     mvdst = request.form['move_dst']
@@ -156,38 +159,84 @@ def domove(id):
     else:
         prompiece = PIECES[mvprompiece]
 
-    isvalid, error = ematch.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
+    isvalid, error = engine.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
     if(isvalid):
-        emove = ematch.do_move(srcx, srcy, dstx, dsty, prompiece)
-        status = ematch.evaluate_status()
-        strboard = map_cboard_to_strboard(ematch.board)        
-        update_match(id, status, match['level'], strboard, \
-                     wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], \
-                     bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
+        cmove = engine.do_move(srcx, srcy, dstx, dsty, prompiece)
+        status = engine.evaluate_status()
+        strboard = map_cboard_to_strboard(engine.board)        
+        update_match(id, status, match['level'], strboard, None, None, None, None, None, None)
 
-        move = map_engine_move_to_sql(emove)
+        move = map_engine_move_to_sql(cmove)
         new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
                  move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
 
-        if((ematch.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
-           (ematch.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
-            candidates = calc_move(ematch, None)
-            if(candidates):
-                gmove = candidates[0]
-                emove = ematch.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
-                status = ematch.evaluate_status()
-                strboard = map_cboard_to_strboard(ematch.board)        
-                update_match(id, status, match['level'], strboard, \
-                             wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], \
-                             bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
-
-                move = map_engine_move_to_sql(emove)
-                new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
-                         move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+        if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
+           (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
+            calc_move_for_immanuel(engine)
     else:
-        flash("oje " + reverse_lookup(ematch.RETURN_CODES, error))
+        flash("oje " + reverse_lookup(engine.RETURN_CODES, error))
 
     return redirect(url_for('match.show', id=match['id'],))
+
+
+class ImmanuelsThread(threading.Thread):
+    def __init__(self, name, engine):
+        threading.Thread.__init__(self)
+        self.name = name
+        self.engine = engine
+        self.app = current_app._get_current_object()
+
+    def run(self):
+        #app = Flask(__name__)
+        with self.app.app_context():
+            print("Thread starting " + str(self.name))
+            candidates = calc_move(self.engine, None)
+            if(len(candidates) > 0):
+                gmove = candidates[0]
+                cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
+                status = self.engine.evaluate_status()
+                strboard = map_cboard_to_strboard(self.engine.board)        
+                update_match(self.engine.id, status, self.engine.level, strboard, None, None, None, None, None, None)
+
+                move = map_engine_move_to_sql(cmove)
+                new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
+                         move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+            else:
+                print("no move found or thread outdated!")
+
+
+def calc_move_for_immanuel(engine):
+    status = engine.evaluate_status()
+    if(status != engine.STATUS['open']):
+        return False, status
+    else:
+        thread = ImmanuelsThread("immanuel-" + str(random.randint(0, 100000)), engine)
+        thread.start()
+        return True, engine.RETURN_CODES['ok']
+
+
+@bp.route('/<int:id>/fetch', methods=('GET',))
+def fetch(id):
+    matchid = request.args.get('matchid')
+    
+    match = get_match(id)
+    wplayer = get_player(id, 1)
+    bplayer = get_player(id, 0)
+    movecnt = get_movecnt(matchid)
+    
+    if(match['clockstart'] is not None):
+        clockstart = datetime.fromtimestamp(match['clockstart'])
+        timediff = datetime.datetime.now().timestamp() - clockstart
+        print(timediff)
+    else:
+        timediff = 0
+
+    if(movecnt % 2 == 0):
+        data = str(movecnt) + "|" + str(wplayer['consumedsecs'] + timediff) + "|" + str(bplayer['consumedsecs'])
+    else:
+        data = str(movecnt) + "|" + str(wplayer['consumedsecs']) + "|" + str(bplayer['consumedsecs'] + timediff)
+
+    return Response(data)
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))

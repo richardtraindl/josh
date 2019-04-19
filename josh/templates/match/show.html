@@ -85,12 +85,12 @@
             var url;
             matchid = $('#board').attr("matchid");
             movecnt = $('#board').attr("movecnt");
-            url = "/" + matchid.toString() + "/show"
-
-            $.get('/kate/fetchmatch/', { matchid: matchid, movecnt: movecnt }, function(data){
+            url = "/" + matchid.toString() + "/fetch"
+            $.get(url, { }, function(data){
                 result = data.split("|");
-                if(result[0] == 1){
-                    location.href = url;
+                if(result[0] != movecnt){
+                    location.reload();
+                    /* location.href = url; */
                 }
                 else{
                     $('#white-time').text(result[1]);

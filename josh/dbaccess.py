@@ -7,7 +7,7 @@ from josh.db import get_db
 
 def get_match(id):
     match = get_db().execute(
-        'SELECT m.id, status, level, created, board, user_id, guest_id, username'
+        'SELECT m.id, status, level, created, board, clockstart, user_id, guest_id, username'
         ' FROM match m JOIN user u ON m.user_id = u.id'
         ' WHERE m.id = ?',
         (id,)
@@ -48,12 +48,11 @@ def get_moves(match_id):
 
 
 def get_movecnt(match_id):
-    move = get_db().execute(
-        'SELECT COUNT(*) FROM move mv'
-        ' WHERE mv.match_id = ?',
-        (match_id,)
-    )
-    return move
+    move = get_last_move(match_id)
+    if(move is not None):
+        return move['count']
+    else:
+        return 0
 
 
 def get_last_move(match_id):
@@ -102,19 +101,21 @@ def update_match(id, status, level, board, wplayer_name, \
     )
     db.commit()
 
-    db.execute(
-        'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
-        ' WHERE match_id = ? and iswhite = 1',
-        (wplayer_name, wplayer_ishuman, wplayer_consumedsecs, id)
-    )
-    db.commit()
+    if(wplayer_name is not None and wplayer_ishuman is not None):
+        db.execute(
+            'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
+            ' WHERE match_id = ? and iswhite = 1',
+            (wplayer_name, wplayer_ishuman, wplayer_consumedsecs, id)
+        )
+        db.commit()
 
-    db.execute(
-        'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
-        ' WHERE match_id = ? and iswhite = 0',
-        (bplayer_name, bplayer_ishuman, bplayer_consumedsecs, id)
-    )
-    db.commit()
+    if(bplayer_name is not None and bplayer_ishuman is not None):
+        db.execute(
+            'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
+            ' WHERE match_id = ? and iswhite = 0',
+            (bplayer_name, bplayer_ishuman, bplayer_consumedsecs, id)
+        )
+        db.commit()
 
 
 def new_move(match_id, newcount, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece):
