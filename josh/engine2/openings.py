@@ -40,7 +40,7 @@ def retrieve_move(match):
         return cGenMove(match, srcx, srcy, dstx, dstx, PIECES['blk'])
 
 
-DEPTH = 4
+DEPTH = 0
 
 
 class cNode:

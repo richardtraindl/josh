@@ -312,8 +312,7 @@ def calc_move(match, candidate):
         score, candidates = alphabeta(match, 1, slimits, alpha, beta, maximizing, None, candidate)
 
     msg = "result: " + str(score) + " match: " + str(match.id) + " "
-
-    #print(msg + concat_fmt_gmoves(match, candidates))
+    print(msg + concat_fmt_gmoves(match, candidates))
 
     prnt_fmttime("\ncalc-time: ", time.time() - time_start)
 

@@ -7,11 +7,11 @@ from werkzeug.exceptions import abort
 from josh.auth import login_required
 from josh.db import get_db
 from josh.dbaccess import *
-from josh.mapper import import_to_engine, domove_and_export_to_db
+from josh.mapper import *
 
 from .engine2.values import *
-from .engine2.helper import coord_to_index, index_to_coord, index_to_Uppercoord, reverse_lookup
-from .engine2.move import cGenMove
+from .engine2.helper import coord_to_index, reverse_lookup
+from .engine2.match import cMatch
 from .engine2.calc import calc_move
 
 bp = Blueprint('match', __name__)
@@ -45,16 +45,18 @@ def create():
             bplayer_ishuman = 0
 
         error = None
-        if not wplayer_name or not bplayer_name:
+        if(not wplayer_name or not bplayer_name):
             error = 'White Player name and Black Player name are required.'
+        elif(wplayer_ishuman == 0 and bplayer_ishuman == 0):
+            error = 'At least one Player has to be human.'
 
-        if error is not None:
+        if(error is not None):
             flash(error)
         else:
             new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuman)
             return redirect(url_for('match.index'))
-    else:
-        return render_template('match/create.html')
+
+    return render_template('match/create.html')
 
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
@@ -84,6 +86,8 @@ def update(id):
         error = None
         if not wplayer_name or not bplayer_name:
             error = 'White Player name and Black Player name are required.'
+        elif(wplayer_ishuman == 0 and bplayer_ishuman == 0):
+            error = 'At least one Player has to be human.'
 
         if error is not None:
             flash(error)
@@ -96,8 +100,8 @@ def update(id):
                  wplayer_ishuman, wplayer_consumedsecs, \
                  bplayer_name, bplayer_ishuman, bplayer_consumedsecs)
             return redirect(url_for('match.index'))
-    else:
-        return render_template('match/update.html', match=oldmatch, wplayer=oldwplayer, bplayer=oldbplayer)
+
+    return render_template('match/update.html', match=oldmatch, wplayer=oldwplayer, bplayer=oldbplayer)
 
 
 @bp.route('/<int:id>/show')
@@ -136,7 +140,9 @@ def domove(id):
     wplayer = get_player(id, 1)
     bplayer = get_player(id, 0)
 
-    ematch = import_to_engine(match, moves)
+    ematch = cMatch()
+    map_sqlmatch_to_engine(match, ematch)
+    map_sqlmoves_to_engine(moves, ematch)
 
     mvsrc = request.form['move_src']
     mvdst = request.form['move_dst']
@@ -151,17 +157,33 @@ def domove(id):
         prompiece = PIECES[mvprompiece]
 
     isvalid, error = ematch.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
-
     if(isvalid):
-        gmove = cGenMove(ematch, srcx, srcy, dstx, dsty, prompiece)
-        domove_and_export_to_db(ematch, gmove)
+        emove = ematch.do_move(srcx, srcy, dstx, dsty, prompiece)
+        status = ematch.evaluate_status()
+        strboard = map_cboard_to_strboard(ematch.board)        
+        update_match(id, status, match['level'], strboard, \
+                     wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], \
+                     bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
+
+        move = map_engine_move_to_sql(emove)
+        new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
+                 move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
 
         if((ematch.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
            (ematch.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
             candidates = calc_move(ematch, None)
             if(candidates):
                 gmove = candidates[0]
-                domove_and_export_to_db(ematch, gmove)
+                emove = ematch.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
+                status = ematch.evaluate_status()
+                strboard = map_cboard_to_strboard(ematch.board)        
+                update_match(id, status, match['level'], strboard, \
+                             wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], \
+                             bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
+
+                move = map_engine_move_to_sql(emove)
+                new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
+                         move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
     else:
         flash("oje " + reverse_lookup(ematch.RETURN_CODES, error))
 

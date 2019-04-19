@@ -1,97 +1,74 @@
 
 from josh.db import get_db
 
-from .engine2.values import PIECES, COLORS
-from .engine2.match import cMatch
+from .engine2.values import PIECES
 from .engine2.move import cMove
-from .engine2.helper import coord_to_index, index_to_Uppercoord, reverse_lookup
+from .engine2.helper import coord_to_index, index_to_coord, reverse_lookup
 
 
-def import_to_engine(sqlmatch, sqlmoves):
-    match = cMatch()
-    match.id = sqlmatch['id']
-    match.status = sqlmatch['status']
-    match.score = 0
-    match.level = sqlmatch['level']
-    match.seconds_per_move = 0
-    match.begin = sqlmatch['created']
-    match.time_start = 0
-    match.move_list = []
+def map_sqlmatch_to_engine(sqlmatch, ematch):
+    ematch.id = sqlmatch['id']
+    ematch.status = sqlmatch['status']
+    ematch.level = sqlmatch['level']
 
     aryboard = sqlmatch['board'].split(";")
     for y in range(8):
         for x in range(8):
-            match.board.writefield(x, y, PIECES[aryboard[y * 8 + x]])
+            ematch.board.writefield(x, y, PIECES[aryboard[y * 8 + x]])
 
+    ematch.update_attributes()
+
+
+def map_sqlmoves_to_engine(sqlmoves, ematch):
     for sqlmove in sqlmoves:
-        move = cMove()
-        move.id = sqlmove['id']
-        move.match = sqlmove['match_id']
-        move.count = sqlmove['count']
-        move.iscastling = sqlmove['iscastling'] == 1
-        move.srcx, move.srcy = coord_to_index(sqlmove['srcfield'])
-        move.dstx, move.dsty = coord_to_index(sqlmove['dstfield'])
+        cmove = cMove()
+        cmove.id = sqlmove['id']
+        cmove.match = sqlmove['match_id']
+        cmove.count = sqlmove['count']
+        cmove.iscastling = sqlmove['iscastling'] == 1
+        cmove.srcx, cmove.srcy = coord_to_index(sqlmove['srcfield'])
+        cmove.dstx, cmove.dsty = coord_to_index(sqlmove['dstfield'])
         if(sqlmove['enpassfield']):
-            print("enpassfield")
-            move.enpassx, move.enpassy = coord_to_index(sqlmove['enpassfield'])
+            cmove.enpassx, cmove.enpassy = coord_to_index(sqlmove['enpassfield'])
         if(sqlmove['captpiece']):
-            move.captured_piece = PIECES[sqlmove['captpiece']]
+            cmove.captured_piece = PIECES[sqlmove['captpiece']]
         if(sqlmove['prompiece']):
-            print("prompiece")
-            move.prom_piece = PIECES[sqlmove['prompiece']]
-
-        match.move_list.append(move)
-
-    match.update_attributes()
-    
-    return match
+            cmove.prom_piece = PIECES[sqlmove['prompiece']]
+        ematch.move_list.append(cmove)
 
 
-def domove_and_export_to_db(ematch, gmove):
-    mvsrc = index_to_Uppercoord(gmove.srcx, gmove.srcy)
-    mvdst = index_to_Uppercoord(gmove.dstx, gmove.dsty)
-
-    if((ematch.board.readfield(gmove.srcx, gmove.srcy) == PIECES['wKg'] or
-        ematch.board.readfield(gmove.srcx, gmove.srcy) == PIECES['bKg']) and
-        abs(gmove.srcx - gmove.dstx) > 1):
-        iscastling = 1
+def map_engine_move_to_sql(emove):
+    sqlmove = {
+        "match_id": 0,
+        "count": 0,
+        "iscastling": 0,
+        "srcfield": "",
+        "dstfield": "",
+        "enpassfield": "",
+        "captpiece": "",
+        "prompiece": ""
+    }
+    sqlmove["match_id"] = emove.match.id
+    sqlmove["count"] = emove.count
+    sqlmove["iscastling"] = emove.iscastling
+    sqlmove["srcfield"] = index_to_coord(emove.srcx, emove.srcy)
+    sqlmove["dstfield"] = index_to_coord(emove.dstx, emove.dsty)
+    if(emove.enpassx and emove.enpassy):
+        sqlmove["enpassfield"] = index_to_coord(emove.enpassx, emove.enpassy)
     else:
-        iscastling = 0
-
-    if((ematch.board.readfield(gmove.srcx, gmove.srcy) == PIECES['wPw'] or
-        ematch.board.readfield(gmove.srcx, gmove.srcy) == PIECES['bPw']) and
-        ematch.board.readfield(gmove.dstx, gmove.dsty) == PIECES['blk']):
-        enpassfield = index_to_Uppercoord(gmove.dstx, gmove.srcy)
+        sqlmove["enpassfield"] = None
+    sqlmove["captpiece"] = reverse_lookup(PIECES, emove.captpiece)
+    if(emove.prompiece):
+        sqlmove["prompiece"] = reverse_lookup(PIECES, emove.prompiece)
     else:
-        enpassfield = None
+        sqlmove["prompiece"] = None
+    return sqlmove
 
-    captpiece = reverse_lookup(PIECES, ematch.board.readfield(gmove.dstx, gmove.dsty))
-    
-    mvprompiece = None
-    if(gmove.prompiece and gmove.prompiece == "blk"):
-        mvprompiece = None
-    else:
-        mvprompiece = reverse_lookup(PIECES, gmove.prompiece)
 
-    ematch.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
-
-    db = get_db()
-    db.execute(
-        'INSERT INTO move (match_id, count, iscastling, srcfield, dstfield, '
-        'enpassfield, captpiece, prompiece)'
-        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        (ematch.id, ematch.movecnt() + 1, iscastling, mvsrc, mvdst, enpassfield, captpiece, mvprompiece,)
-    )
-    db.commit()
-
+def map_cboard_to_strboard(cboard):
     strboard = ""
     for y in range(8):
         for x in range(8):
-            piece = ematch.board.readfield(x, y)
+            piece = cboard.readfield(x, y)
             strboard += reverse_lookup(PIECES, piece) + ";"
-    db.execute(
-        'UPDATE match SET board = ?'
-        ' WHERE id = ?',
-        (strboard, ematch.id,)
-    )
-    db.commit()
+    return strboard

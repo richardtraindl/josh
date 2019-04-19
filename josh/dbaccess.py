@@ -47,6 +47,15 @@ def get_moves(match_id):
     return moves
 
 
+def get_movecnt(match_id):
+    move = get_db().execute(
+        'SELECT COUNT(*) FROM move mv'
+        ' WHERE mv.match_id = ?',
+        (match_id,)
+    )
+    return move
+
+
 def get_last_move(match_id):
     move = get_db().execute(
         'SELECT * FROM move mv'
@@ -108,23 +117,20 @@ def update_match(id, status, level, board, wplayer_name, \
     db.commit()
 
 
-def new_move(match_id, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece):
-    last_move = get_last_move(match_id)
-    if(last_move is None):
-        last_move = 0
-
+def new_move(match_id, newcount, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece):
     db = get_db()
     db.execute(
         'INSERT INTO move (match_id, count, iscastling, srcfield, dstfield, '
         'enpassfield, captpiece, prompiece)'
         ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        (match_id, last_move + 1, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece,)
+        (match_id, newcount, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece,)
     )
     db.commit()
 
 
 def delete_match(id):
     db = get_db()
+    db.execute("PRAGMA foreign_keys = ON")
     db.execute('DELETE FROM match WHERE id = ?', (id,))
     db.commit()
 
