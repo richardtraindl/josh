@@ -6,6 +6,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, Flask, current_app, Response
 )
 from werkzeug.exceptions import abort
+from werkzeug.contrib.cache import SimpleCache
 
 from josh.auth import login_required
 from josh.db import get_db
@@ -136,6 +137,21 @@ def show(id):
     return render_template('match/show.html', match=match, board=board, wplayer=wplayer, bplayer=bplayer)
 
 
+def get_clockstart():
+    cache = SimpleCache()
+    clockstart = cache.get('clockstart')
+    if clockstart is not None:
+        return datetime.fromtimestamp(clockstart)
+    else:
+        return None
+
+
+def set_new_clockstart():
+    cache = SimpleCache()
+    clockstart = datetime.now().timestamp()
+    cache.set('clockstart', clockstart, timeout=60 * 60)
+
+
 @bp.route('/<int:id>/domove', methods=('POST',))
 def domove(id):
     match = get_match(id)
@@ -161,10 +177,25 @@ def domove(id):
 
     isvalid, error = engine.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
     if(isvalid):
+        clockstart = get_clockstart()
+        if(clockstart is not None):
+            timediff = datetime.datetime.now().timestamp() - clockstart
+        else:
+            timediff = 0
+        print(timediff)
+        set_new_clockstart()
+
+        wconsumedsecs = wplayer['consumedsecs']
+        bconsumedsecs = bplayer['consumedsecs']
+        if(engine.next_color() == COLORS['white']):
+            wconsumedsecs += timediff
+        else:
+            bconsumedsecs += timediff
+
         cmove = engine.do_move(srcx, srcy, dstx, dsty, prompiece)
         status = engine.evaluate_status()
-        strboard = map_cboard_to_strboard(engine.board)        
-        update_match(id, status, match['level'], strboard, None, None, None, None, None, None)
+        strboard = map_cboard_to_strboard(engine.board)
+        update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wconsumedsecs, bplayer['name'], bplayer['ishuman'], bconsumedsecs)
 
         move = map_engine_move_to_sql(cmove)
         new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
@@ -192,11 +223,29 @@ class ImmanuelsThread(threading.Thread):
             print("Thread starting " + str(self.name))
             candidates = calc_move(self.engine, None)
             if(len(candidates) > 0):
+                wplayer = get_player(self.engine.id, 1)
+                bplayer = get_player(self.engine.id, 0)
+
+                clockstart = get_clockstart()
+                if(clockstart is not None):
+                    timediff = datetime.datetime.now().timestamp() - clockstart
+                else:
+                    timediff = 0
+                print(timediff)
+                set_new_clockstart()
+
+                wconsumedsecs = wplayer['consumedsecs']
+                bconsumedsecs = bplayer['consumedsecs']
+                if(self.engine.next_color() == COLORS['white']):
+                    wconsumedsecs += timediff
+                else:
+                    bconsumedsecs += timediff
+
                 gmove = candidates[0]
                 cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
                 status = self.engine.evaluate_status()
                 strboard = map_cboard_to_strboard(self.engine.board)        
-                update_match(self.engine.id, status, self.engine.level, strboard, None, None, None, None, None, None)
+                update_match(self.engine.id, status, self.engine.level, strboard, wplayer['name'], wplayer['ishuman'], wconsumedsecs, bplayer['name'], bplayer['ishuman'], bconsumedsecs)
 
                 move = map_engine_move_to_sql(cmove)
                 new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
@@ -224,12 +273,12 @@ def fetch(id):
     bplayer = get_player(id, 0)
     movecnt = get_movecnt(matchid)
     
-    if(match['clockstart'] is not None):
-        clockstart = datetime.fromtimestamp(match['clockstart'])
+    clockstart = get_clockstart()
+    if clockstart is not None:
         timediff = datetime.datetime.now().timestamp() - clockstart
-        print(timediff)
     else:
         timediff = 0
+    print(timediff)
 
     if(movecnt % 2 == 0):
         data = str(movecnt) + "|" + str(wplayer['consumedsecs'] + timediff) + "|" + str(bplayer['consumedsecs'])

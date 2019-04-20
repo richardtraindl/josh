@@ -89,8 +89,17 @@ def new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuma
     return get_match(match_id)
 
 
-def update_match(id, status, level, board, wplayer_name, \
-                 wplayer_ishuman, wplayer_consumedsecs, \
+def update_player(match_id, iswhite, name, ishuman, consumedsecs):
+    db.execute(
+        'UPDATE player SET iswhite = ?, name = ?, ishuman = ?, consumedsecs = ?'
+        ' WHERE match_id = ? and iswhite = ?',
+        (iswhite, name, ishuman, consumedsecs, match_id, iswhite)
+    )
+    db.commit()
+
+
+def update_match(id, status, level, board, \
+                 wplayer_name, wplayer_ishuman, wplayer_consumedsecs, \
                  bplayer_name, bplayer_ishuman, bplayer_consumedsecs):
 
     db = get_db()
