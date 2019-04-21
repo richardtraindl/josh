@@ -7,7 +7,7 @@ from josh.db import get_db
 
 def get_match(id):
     match = get_db().execute(
-        'SELECT m.id, status, level, created, board, clockstart, user_id, guest_id, username'
+        'SELECT m.id, status, level, created, board, user_id, guest_id, username'
         ' FROM match m JOIN user u ON m.user_id = u.id'
         ' WHERE m.id = ?',
         (id,)

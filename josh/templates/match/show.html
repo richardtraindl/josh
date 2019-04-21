@@ -1,4 +1,5 @@
 
+
 {% extends 'base.html' %}
 
 {% block header %}
@@ -7,19 +8,34 @@
       <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
   </h1>
 
-  <p class="unit">
-    {% if wplayer['ishuman'] %}
-        <span style="font-weight: bold">{{ wplayer['name'] }}</span>
-    {% else %}
-        {{ wplayer['name'] }}
-    {% endif %}
-    &nbsp;:&nbsp;
-    {% if bplayer['ishuman'] %}
-        <span style="font-weight: bold">{{ bplayer['name'] }}</span>
-    {% else %}
-        {{ bplayer['name'] }}
-    {% endif %}
-  </p>
+  <table>
+      <tr>
+        <td>
+        {% if wplayer['ishuman'] %}
+            <span style="font-weight: bold">{{ wplayer['name'] }}</span>
+        {% else %}
+            {{ wplayer['name'] }}
+        {% endif %}
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;</td>
+        <td>
+        {% if bplayer['ishuman'] %}
+            <span style="font-weight: bold">{{ bplayer['name'] }}</span>
+        {% else %}
+            {{ bplayer['name'] }}
+        {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>
+            T: <span id="white-time">{{ wsecs | fmttime }}</span>
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;</td>
+        <td>
+            T: <span id="black-time">{{ bsecs | fmttime }}</span>
+        </td>
+      </tr>
+  </table>
 
   <p class="unit">
     Level: {{ match['level'] }}
@@ -28,9 +44,16 @@
   </p>
 
   {% if g.user['id'] == match['user_id'] %}
-    <p class="unit">
-      <a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a>
-    </p>
+    <div class="unit">
+      {% if match['status'] == 10 %}
+        <div style="padding-right: 20px;"><a href="{{ url_for('match.pause', id=match['id']) }}">Pause</a></div>
+      {% endif %}
+      {% if match['status'] == 14 %}
+        <div style="padding-right: 20px;"><a href="{{ url_for('match.resume', id=match['id']) }}">Resume</a></div>
+      {% endif %}
+
+      <div><a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a></div>
+    </div>
   {% endif %}
 {% endblock %}
 
@@ -98,9 +121,9 @@
                 }
             });
       {% if match['level'] == 0 %}
-        }, 20000);
+        }, 30000);
       {% else %}
-        }, 40000);
+        }, 60000);
       {% endif %}
 
       {% if match['wplayer_ishuman'] and match['bplayer_ishuman'] %}
@@ -113,7 +136,7 @@
                     $('#comments').html(data);
                 }
             });
-        }, 23000);
+        }, 45000);
       {% endif %}
     });
   </script>
