@@ -22,23 +22,17 @@ bp = Blueprint('match', __name__)
 cache = SimpleCache()
 
 
-def get_clockstart(id):
-    clockstart = cache.get(str(id) + "-clockstart")
-    return clockstart
+def cache_set(key, value, timeout):
+    cache.set(key, value, timeout = timeout)
 
 
-def set_new_clockstart(id, secs):
-    clockstart = int(datetime.now().timestamp())
-    cache.set(str(id) + "-clockstart", clockstart, timeout = secs)
-
-
-def calc_total_secs(id, consumedsecs):
-    clockstart = get_clockstart(id)
+def calc_total_secs(key, secs):
+    clockstart = cache.get(key)
     if(clockstart is not None):
         timediff = int(datetime.now().timestamp()) - clockstart
     else:
         timediff = 0
-    return consumedsecs + timediff
+    return secs + timediff
 
 
 @bp.route('/')
@@ -118,11 +112,10 @@ def update(id):
         else:
             status = oldmatch['status']
             board = oldmatch['board']
-            wplayer_consumedsecs = oldwplayer['consumedsecs']
-            bplayer_consumedsecs = oldbplayer['consumedsecs']
+            wsecs = oldwplayer['consumedsecs']
+            bsecs = oldbplayer['consumedsecs']
             match = update_match(id, status, level, board, wplayer_name, \
-                    wplayer_ishuman, wplayer_consumedsecs, \
-                    bplayer_name, bplayer_ishuman, bplayer_consumedsecs)
+                    wplayer_ishuman, wsecs, bplayer_name, bplayer_ishuman, bsecs)
             return redirect(url_for('match.index'))
 
     return render_template('match/update.html', match=oldmatch, wplayer=oldwplayer, bplayer=oldbplayer)
@@ -158,9 +151,9 @@ def show(id):
     wsecs = wplayer['consumedsecs']
     bsecs = bplayer['consumedsecs']
     if(movecnt % 2 == 0):
-        wsecs = calc_total_secs(id, wsecs)
+        wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
     else:
-        bsecs = calc_total_secs(id, bsecs)
+        bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
 
     return render_template('match/show.html', match=match, board=board, wplayer=wplayer, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs)
 
@@ -193,11 +186,9 @@ def domove(id):
         wsecs = wplayer['consumedsecs']
         bsecs = bplayer['consumedsecs']
         if(engine.next_color() == COLORS['white']):
-            wsecs = calc_total_secs(id, wsecs)
+            wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
         else:
-            bsecs = calc_total_secs(id, bsecs)
-
-        set_new_clockstart(id, 60 * 60)
+            bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
 
         cmove = engine.do_move(srcx, srcy, dstx, dsty, prompiece)
 
@@ -212,6 +203,8 @@ def domove(id):
         move = map_engine_move_to_sql(cmove)
         new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
                  move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+
+        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
 
         if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
            (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
@@ -241,11 +234,9 @@ class ImmanuelsThread(threading.Thread):
                 wsecs = wplayer['consumedsecs']
                 bsecs = bplayer['consumedsecs']
                 if(self.engine.next_color() == COLORS['white']):
-                    wsecs = calc_total_secs(self.engine.id, wsecs)
+                    wsecs = calc_total_secs(str(self.engine.id) + "-clockstart", wsecs)
                 else:
-                    bsecs = calc_total_secs(self.engine.id, bsecs)
-
-                set_new_clockstart(self.engine.id, 60 * 60)
+                    bsecs = calc_total_secs(str(self.engine.id) + "-clockstart", bsecs)
 
                 gmove = candidates[0]
                 cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
@@ -259,6 +250,8 @@ class ImmanuelsThread(threading.Thread):
                 move = map_engine_move_to_sql(cmove)
                 new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
                          move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+
+                cache_set(str(self.engine.id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
             else:
                 print("no move found or match is paused!")
 
@@ -283,10 +276,10 @@ def fetch(id):
     wsecs = wplayer['consumedsecs']
     bsecs = bplayer['consumedsecs']
     if(movecnt % 2 == 0):
-        wsecs = calc_total_secs(id, wsecs)
+        wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
     else:
-        bsecs = calc_total_secs(id, bsecs)
-
+        bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+             
     data = str(movecnt) + "|" + str(wsecs) + "|" + str(bsecs)
 
     return Response(data)
@@ -300,27 +293,24 @@ def fetch(id):
 @bp.route('/<int:id>/pause', methods=('GET',))
 def pause(id):
     match = get_match(id)
-    wplayer = get_player(id, 1)
-    bplayer = get_player(id, 0)
 
     if(match['status'] == 10):
         status = 14 # 10=open, 11=draw, 12=winner_white, 13=winner_black, 14=paused, 15=setup
 
-        clockstart = get_clockstart(id)
-        if(clockstart is not None):
-            timediff = int(datetime.now().timestamp()) - clockstart
-        else:
-            timediff = 0
-        set_new_clockstart(id, 1)
+        wplayer = get_player(id, 1)
+        bplayer = get_player(id, 0)
+        movecnt = get_movecnt(id)
 
-        wconsumedsecs = wplayer['consumedsecs']
-        bconsumedsecs = bplayer['consumedsecs']
-        if(get_movecnt(id) % 2 == 0):
-            wconsumedsecs += timediff
+        wsecs = wplayer['consumedsecs']
+        bsecs = bplayer['consumedsecs']
+        if(movecnt % 2 == 0):
+            wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
         else:
-            bconsumedsecs += timediff
+            bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
 
-        update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wconsumedsecs, bplayer['name'], bplayer['ishuman'], bconsumedsecs)
+        update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
+
+        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 1)
 
     return redirect(url_for('match.show', id=id,))
 
@@ -330,12 +320,24 @@ def resume(id):
     match = get_match(id)
 
     if(match['status'] == 14):
+        status = 10 # 10=open, 11=draw, 12=winner_white, 13=winner_black, 14=paused, 15=setup
+
         wplayer = get_player(id, 1)
         bplayer = get_player(id, 0)
 
-        status = 10 # 10=open, 11=draw, 12=winner_white, 13=winner_black, 14=paused, 15=setup
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
-        set_new_clockstart(id, 60 * 60)
+
+        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+
+        movecnt = get_movecnt(id)
+        if((movecnt % 2 == 0 and wplayer['ishuman'] == 0) or
+           (movecnt % 2 == 1 and bplayer['ishuman'] == 0)):
+            match = get_match(id)
+            moves = get_moves(id)
+            engine = cMatch()
+            map_sqlmatch_to_engine(match, engine)
+            map_sqlmoves_to_engine(moves, engine)
+            calc_move_for_immanuel(engine)
 
     return redirect(url_for('match.show', id=id,))
 
