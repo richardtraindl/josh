@@ -52,6 +52,8 @@
         <div style="padding-right: 20px;"><a href="{{ url_for('match.resume', id=match['id']) }}">Resume</a></div>
       {% endif %}
 
+      <div style="padding-right: 20px;"><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></div>
+
       <div><a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a></div>
     </div>
   {% endif %}

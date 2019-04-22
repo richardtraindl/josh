@@ -104,18 +104,24 @@ def score_kings_safety(match):
 
 def score_penalty_for_lost_castlings(match):
     value = 0
-    
-    """if(match.board.white_movecnt_short_castling_lost > 0 and match.board.white_movecnt_long_castling_lost > 0):
-        short_move = match.move_list[match.board.white_movecnt_short_castling_lost - 1]
-        long_move = match.move_list[match.board.white_movecnt_long_castling_lost - 1]
-        if(short_move.move_type != short_move.TYPES['short_castling'] and long_move.move_type != long_move.TYPES['long_castling']):
-            value += ATTACKED_SCORES[PIECES['wRk']] * 2
+    wcastling = False
+    bcastling = False
 
-    if(match.board.black_movecnt_short_castling_lost > 0 and match.board.black_movecnt_long_castling_lost > 0):
-        short_move = match.move_list[match.board.black_movecnt_short_castling_lost - 1]
-        long_move = match.move_list[match.board.black_movecnt_long_castling_lost - 1]
-        if(short_move.move_type != short_move.TYPES['short_castling'] and long_move.move_type != long_move.TYPES['long_castling']):
-            value += ATTACKED_SCORES[PIECES['bRk']] * 22"""
+    for move in match.move_list:
+        if(move.iscastling is not None):
+            if(move.count % 2 == 1):
+                wcastling = True
+            else:
+                bcastling = True
+
+    if(wcastling == False and (match.board.wKg_first_move_on is not None or
+       (match.board.wRkA_first_move_on is not None or match.board.wRkH_first_move_on is not None))):
+        value += ATTACKED_SCORES[PIECES['wRk']] * 2
+    
+    if(bcastling == False and (match.board.bKg_first_move_on is not None or
+       (match.board.bRkA_first_move_on is not None or match.board.bRkH_first_move_on is not None))):
+        value += ATTACKED_SCORES[PIECES['bRk']] * 22
+
     return value
 
 

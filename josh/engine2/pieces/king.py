@@ -100,22 +100,14 @@ class cKing(cPiece):
             board.writefield(self.xpos - 4, self.ypos, PIECES['blk'])
             board.writefield(dstx + 1, dsty, rook)
 
-        if(move.iscastling):
-            if(self.color == COLORS['white']):
-                if(board.white_movecnt_short_castling_lost == 0):
-                    board.white_movecnt_short_castling_lost = move.count
-                if(board.white_movecnt_long_castling_lost == 0):
-                    board.white_movecnt_long_castling_lost = move.count
-            else:
-                if(board.black_movecnt_short_castling_lost == 0):
-                    board.black_movecnt_short_castling_lost = move.count
-                if(board.black_movecnt_long_castling_lost == 0):
-                    board.black_movecnt_long_castling_lost = move.count
-
         if(self.piece == PIECES['wKg']):
+            if(board.wKg_first_move_on is None):
+                board.wKg_first_move_on = move.count
             board.wKg_x = dstx
             board.wKg_y = dsty
         else:
+            if(board.bKg_first_move_on is None):
+                board.bKg_first_move_on = move.count
             board.bKg_x = dstx
             board.bKg_y = dsty
 
@@ -138,9 +130,13 @@ class cKing(cPiece):
                 board.writefield(move.dstx - 2, move.dsty, rook)
 
         if(self.piece == PIECES['wKg']):
+            if(board.wKg_first_move_on is not None and board.wKg_first_move_on == move.count):
+                board.wKg_first_move_on = None
             board.wKg_x = move.srcx
             board.wKg_y = move.srcy
         else:
+            if(board.bKg_first_move_on is not None and board.bKg_first_move_on == move.count):
+                board.bKg_first_move_on = None
             board.bKg_x = move.srcx
             board.bKg_y = move.srcy
 
@@ -154,16 +150,16 @@ class cKing(cPiece):
             field = self.match.board.readfield(fieldx, self.ypos)
             if(field != PIECES['blk']):
                 return False
-        if( self.match.is_inbounds(dstx + 1, dsty)):
-            rook = self.match.board.readfield(dstx + 1, dsty)
-        else:
-            return False
+
         if(self.color == COLORS['white']):
-            if(self.match.board.white_movecnt_short_castling_lost > 0 or rook != PIECES['wRk']):
+            if(self.match.board.wKg_first_move_on is not None or 
+               self.match.board.wRkH_first_move_on is not None):
                 return False
         else:
-            if(self.match.board.black_movecnt_short_castling_lost > 0 or rook != PIECES['bRk']):
-                return False            
+            if(self.match.board.bKg_first_move_on is not None or 
+               self.match.board.bRkH_first_move_on is not None):
+                return False          
+
         self.match.board.writefield(self.xpos, self.ypos, PIECES['blk'])
         for i in range(3):
             castlingx = self.xpos + i
@@ -181,16 +177,16 @@ class cKing(cPiece):
             field = self.match.board.readfield(fieldx, self.ypos)
             if(field != PIECES['blk']):
                 return False
-        if(self.match.is_inbounds(dstx - 2, dsty)):
-            rook = self.match.board.readfield(dstx - 2, dsty)
-        else:
-            return False
+
         if(self.color == COLORS['white']):
-            if(self.match.board.white_movecnt_long_castling_lost > 0 or rook != PIECES['wRk']):
+            if(self.match.board.wKg_first_move_on is not None or 
+               self.match.board.wRkA_first_move_on is not None):
                 return False
         else:
-            if(self.match.board.black_movecnt_long_castling_lost > 0 or rook != PIECES['bRk']):
+            if(self.match.board.bKg_first_move_on is not None or 
+               self.match.board.bRkA_first_move_on is not None):
                 return False
+
         self.match.board.writefield(self.xpos, self.ypos, PIECES['blk'])
         for i in range(0, -3, -1):
             castlingx = self.xpos + i

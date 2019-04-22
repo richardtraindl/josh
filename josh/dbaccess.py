@@ -144,3 +144,10 @@ def delete_match(id):
     db.execute('DELETE FROM match WHERE id = ?', (id,))
     db.commit()
 
+
+def delete_move(id):
+    db = get_db()
+    db.execute("PRAGMA foreign_keys = ON")
+    db.execute('DELETE FROM move WHERE id = ?', (id,))
+    db.commit()
+

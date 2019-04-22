@@ -6,7 +6,7 @@ from .engine2.move import cMove
 from .engine2.helper import coord_to_index, index_to_coord, reverse_lookup
 
 
-def map_sqlmatch_to_engine(sqlmatch, ematch):
+def map_sqlmatch_to_engine(sqlmatch, sqlmoves, ematch):
     ematch.id = sqlmatch['id']
     ematch.status = sqlmatch['status']
     ematch.level = sqlmatch['level']
@@ -16,10 +16,6 @@ def map_sqlmatch_to_engine(sqlmatch, ematch):
         for x in range(8):
             ematch.board.writefield(x, y, PIECES[aryboard[y * 8 + x]])
 
-    ematch.update_attributes()
-
-
-def map_sqlmoves_to_engine(sqlmoves, ematch):
     for sqlmove in sqlmoves:
         cmove = cMove()
         cmove.id = sqlmove['id']
@@ -35,6 +31,8 @@ def map_sqlmoves_to_engine(sqlmoves, ematch):
         if(sqlmove['prompiece']):
             cmove.prom_piece = PIECES[sqlmove['prompiece']]
         ematch.move_list.append(cmove)
+
+    ematch.update_attributes()
 
 
 def map_engine_move_to_sql(emove):

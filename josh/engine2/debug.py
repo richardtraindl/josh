@@ -25,14 +25,16 @@ def list_match_attributes(match):
     attributes.append(ClassAttr(match.status, "status"))
     attributes.append(ClassAttr(match.score, "score"))
     attributes.append(ClassAttr(match.level, "level"))
-    attributes.append(ClassAttr(match.board.white_movecnt_short_castling_lost, "board.white_movecnt_short_castling_lost"))
-    attributes.append(ClassAttr(match.board.white_movecnt_long_castling_lost, "board.white_movecnt_long_castling_lost"))
-    attributes.append(ClassAttr(match.board.black_movecnt_short_castling_lost, "board.black_movecnt_short_castling_lost"))
-    attributes.append(ClassAttr(match.board.black_movecnt_long_castling_lost, "board.black_movecnt_long_castling_lost"))
     attributes.append(ClassAttr(match.board.wKg_x, "board.wKg_x"))
     attributes.append(ClassAttr(match.board.wKg_y, "board.wKg_y"))
     attributes.append(ClassAttr(match.board.bKg_x, "board.bKg_x"))
     attributes.append(ClassAttr(match.board.bKg_y, "board.bKg_y"))
+    attributes.append(ClassAttr(match.board.wKg_first_move_on, "board.wKg_first_move_on"))
+    attributes.append(ClassAttr(match.board.bKg_first_move_on, "board.bKg_first_move_on"))
+    attributes.append(ClassAttr(match.board.wRkA_first_move_on, "board.wRkA_first_move_on"))
+    attributes.append(ClassAttr(match.board.wRkH_first_move_on, "board.wRkH_first_move_on"))
+    attributes.append(ClassAttr(match.board.bRkA_first_move_on, "board.bRkA_first_move_on"))
+    attributes.append(ClassAttr(match.board.bRkH_first_move_on, "board.bRkH_first_move_on"))
     attributes.append(ClassAttr(match.board.wQu_cnt, "board.wQu_cnt"))
     attributes.append(ClassAttr(match.board.bQu_cnt, "board.bQu_cnt"))
     attributes.append(ClassAttr(match.board.wOfficer_cnt, "board.wOfficer_cnt"))
@@ -57,14 +59,6 @@ def prnt_matches_diff(match1, match2):
         print("level " + str(match2.level))
     if(match1.movecnt() != match2.movecnt()):
         print("movecnt " + str(match1.movecnt()) + " " + str(match2.movecnt()))
-    if(match1.board.white_movecnt_short_castling_lost != match2.board.white_movecnt_short_castling_lost):
-        print("white_mvcnt_sh_castling_lost " + str(match2.board.white_movecnt_short_castling_lost))
-    if(match1.board.white_movecnt_long_castling_lost != match2.board.white_movecnt_long_castling_lost):
-        print("black_mvcnt_sh_castling_lost " + str(match2.board.white_movecnt_long_castling_lost))
-    if(match1.board.black_movecnt_short_castling_lost != match2.board.black_movecnt_short_castling_lost):
-        print("white_mvcnt_lg_castling_lost " + str(match2.board.black_movecnt_short_castling_lost))
-    if(match1.board.black_movecnt_long_castling_lost != match2.board.black_movecnt_long_castling_lost):
-        print("black_mvcnt_lg_castling_lost " + str(match2.board.black_movecnt_long_castling_lost))
     if(match1.board.wKg_x != match2.board.wKg_x):
         print("wKg_x " + str(match2.board.wKg_x))
     if(match1.board.wKg_y != match2.board.wKg_y):
@@ -73,6 +67,18 @@ def prnt_matches_diff(match1, match2):
         print("bKg_x " + str(match2.board.bKg_x))
     if(match1.board.bKg_y != match2.board.bKg_y):
         print("bKg_y " + str(match2.board.bKg_y))
+    if(match1.board.wKg_first_move_on != match2.board.wKg_first_move_on):
+        print("wKg_first_move_on " + str(match2.board.wKg_first_move_on))
+    if(match1.board.bKg_first_move_on != match2.board.bKg_first_move_on):
+        print("bKg_first_move_on " + str(match2.board.bKg_first_move_on))
+    if(match1.board.wRkA_first_move_on != match2.board.wRkA_first_move_on):
+        print("wRkA_first_move_on " + str(match2.board.wRkA_first_move_on))
+    if(match1.board.wRkH_first_move_on != match2.board.wRkH_first_move_on):
+        print("wRkH_first_move_on " + str(match2.board.wRkH_first_move_on))
+    if(match1.board.bRkA_first_move_on != match2.board.bRkA_first_move_on):
+        print("bRkA_first_move_on " + str(match2.board.bRkA_first_move_on))
+    if(match1.board.bRkH_first_move_on != match2.board.bRkH_first_move_on):
+        print("bRkH_first_move_on " + str(match2.board.bRkH_first_move_on))
     if(match1.board.wQu_cnt != match2.board.wQu_cnt):
         print("wQu_cnt " + str(match2.board.wQu_cnt))
     if(match1.board.bQu_cnt != match2.board.bQu_cnt):

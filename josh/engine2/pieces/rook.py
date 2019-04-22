@@ -38,35 +38,41 @@ class cRook(cPiece):
         else:
             return None, None
 
-    def does_move_effect_short_castling(self, move):
+################
+    def do_move(self, dstx, dsty, prompiece=PIECES['blk']):
         board = self.match.board
-        if(self.color == COLORS['white']):
-            if(board.white_movecnt_short_castling_lost == 0 and 
-               move.srcx == board.COLS['H'] and move.srcy == board.RANKS['1']):
-                return True, COLORS['white']
-            else:
-                return super().does_move_effect_short_castling(move)
-        else:
-            if(board.black_movecnt_short_castling_lost == 0 and 
-               move.srcx == board.COLS['H'] and move.srcy == board.RANKS['8']):
-                return True, COLORS['black']
-            else:
-                return super().does_move_effect_short_castling(move)
+        dstpiece = board.readfield(dstx, dsty)
+        move = super().do_move(dstx, dsty, prompiece)
 
-    def does_move_effect_long_castling(self, move):
-        board = self.match.board
         if(self.color == COLORS['white']):
-            if(board.white_movecnt_long_castling_lost == 0 and 
-               move.srcx == board.COLS['A'] and move.srcy == board.RANKS['1']):
-                return True, COLORS['white']
-            else:
-                return super().does_move_effect_long_castling(move)
+            if(self.xpos == board.COLS['A'] and self.ypos == board.RANKS['1'] and board.wRkA_first_move_on is None):
+                board.wRkA_first_move_on = move.count
+            elif(self.xpos == board.COLS['H'] and self.ypos == board.RANKS['1'] and board.wRkH_first_move_on is None):
+                board.wRkH_first_move_on = move.count
         else:
-            if(board.black_movecnt_long_castling_lost == 0 and 
-               move.srcx == board.COLS['A'] and move.srcy == board.RANKS['8']):
-                return True, COLORS['black']
-            else:
-                return super().does_move_effect_short_castling(move)
+            if(self.xpos == board.COLS['A'] and self.ypos == board.RANKS['8'] and board.bRkA_first_move_on is None):
+                board.bRkA_first_move_on = move.count
+            elif(self.xpos == board.COLS['H'] and self.ypos == board.RANKS['8'] and board.bRkH_first_move_on is None):
+                board.bRkH_first_move_on = move.count
+
+        return move
+
+    def undo_move(self, move):
+        board = self.match.board
+        super().undo_move(move)
+
+        if(self.piece == PIECES['wRk']):
+            if(board.wRkA_first_move_on is not None and board.wRkA_first_move_on == move.count):
+                board.wRkA_first_move_on = None
+            elif(board.wRkH_first_move_on is not None and board.wRkH_first_move_on == move.count):
+                board.wRkH_first_move_on = None
+        else:
+            if(board.bRkA_first_move_on is not None and board.bRkA_first_move_on == move.count):
+                board.bRkA_first_move_on = None
+            elif(board.bRkH_first_move_on is not None and board.bRkH_first_move_on == move.count):
+                board.bRkH_first_move_on = None
+
+        return move
 
 # class end
 

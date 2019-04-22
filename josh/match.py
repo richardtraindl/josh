@@ -166,8 +166,7 @@ def domove(id):
     bplayer = get_player(id, 0)
 
     engine = cMatch()
-    map_sqlmatch_to_engine(match, engine)
-    map_sqlmoves_to_engine(moves, engine)
+    map_sqlmatch_to_engine(match, moves, engine)
 
     mvsrc = request.form['move_src']
     mvdst = request.form['move_dst']
@@ -227,7 +226,8 @@ class ImmanuelsThread(threading.Thread):
             print("Thread starting " + str(self.name))
             candidates = calc_move(self.engine, None)
             match = get_match(self.engine.id)
-            if(match['status'] == 10 and len(candidates) > 0):
+            movecnt = get_movecnt(self.engine.id)
+            if(match['status'] == 10 and movecnt == self.engine.movecnt() and len(candidates) > 0):
                 wplayer = get_player(self.engine.id, 1)
                 bplayer = get_player(self.engine.id, 0)
 
@@ -266,6 +266,42 @@ def calc_move_for_immanuel(engine):
         return True, engine.RETURN_CODES['ok']
 
 
+@bp.route('/<int:id>/undomove', methods=('GET',))
+def undomove(id):
+    match = get_match(id)
+    moves = get_moves(id)
+
+    if(len(moves) > 0):
+        engine = cMatch()
+        map_sqlmatch_to_engine(match, moves, engine)
+
+        move = engine.undo_move()
+
+        if(move is not None):
+            wplayer = get_player(id, 1)
+            bplayer = get_player(id, 0)
+            wsecs = wplayer['consumedsecs']
+            bsecs = bplayer['consumedsecs']
+            if(engine.next_color() == COLORS['white']):
+                wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+            else:
+                bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+
+            status = engine.evaluate_status()
+            if(status == 14): # set paused to open
+                status = 10
+
+            strboard = map_cboard_to_strboard(engine.board)
+
+            update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
+
+            delete_move(move.id)
+
+            cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+
+    return redirect(url_for('match.show', id=id,))
+
+
 @bp.route('/<int:id>/fetch', methods=('GET',))
 def fetch(id):
     match = get_match(id)
@@ -283,11 +319,6 @@ def fetch(id):
     data = str(movecnt) + "|" + str(wsecs) + "|" + str(bsecs)
 
     return Response(data)
-
-
-#@bp.route('/<int:id>/undomove', methods=('GET',))
-    #def undo_move(id):
-    #return redirect(url_for('match.show', id=match['id'],))"""
 
 
 @bp.route('/<int:id>/pause', methods=('GET',))
@@ -335,8 +366,7 @@ def resume(id):
             match = get_match(id)
             moves = get_moves(id)
             engine = cMatch()
-            map_sqlmatch_to_engine(match, engine)
-            map_sqlmoves_to_engine(moves, engine)
+            map_sqlmatch_to_engine(match, moves, engine)
             calc_move_for_immanuel(engine)
 
     return redirect(url_for('match.show', id=id,))

@@ -79,14 +79,30 @@ class cMatch:
         if(len(self.move_list) > 0):
             move = self.move_list[-1]
             for move in self.move_list:
-                if(self.board.white_movecnt_short_castling_lost == move.count):
-                    self.board.white_movecnt_short_castling_lost = move.count
-                if(self.board.white_movecnt_long_castling_lost == move.count):
-                    self.board.white_movecnt_long_castling_lost = move.count
-                if(self.board.black_movecnt_short_castling_lost == move.count):
-                    self.board.black_movecnt_short_castling_lost = move.count
-                if(self.board.black_movecnt_long_castling_lost == move.count):
-                    self.board.black_movecnt_long_castling_lost = move.count
+                if(self.board.wKg_first_move_on is None and 
+                   move.srcx == self.board.COLS['E'] and move.srcy == self.board.RANKS['1']):
+                    self.board.wKg_first_move_on = move.count
+                    continue
+                if(self.board.bKg_first_move_on is None and 
+                   move.srcx == self.board.COLS['E'] and move.srcy == self.board.RANKS['8']):
+                    self.board.bKg_first_move_on = move.count
+                    continue
+                if(self.board.wRkA_first_move_on is None and 
+                   move.srcx == self.board.COLS['A'] and move.srcy == self.board.RANKS['1']):
+                    self.board.wRkA_first_move_on = move.count
+                    continue
+                if(self.board.wRkH_first_move_on is None and 
+                   move.srcx == self.board.COLS['H'] and move.srcy == self.board.RANKS['1']):
+                    self.board.wRkH_first_move_on = move.count
+                    continue
+                if(self.board.bRkA_first_move_on is None and 
+                   move.srcx == self.board.COLS['A'] and move.srcy == self.board.RANKS['8']):
+                    self.board.bRkA_first_move_on = move.count
+                    continue
+                if(self.board.bRkH_first_move_on is None and 
+                   move.srcx == self.board.COLS['H'] and move.srcy == self.board.RANKS['8']):
+                    self.board.bRkH_first_move_on = move.count
+                    continue
 
         self.score = 0
         self.board.wQu_cnt = 0

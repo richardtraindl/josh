@@ -92,63 +92,18 @@ class cPiece:
             y += stepy
         return False
 
-    def does_move_effect_short_castling(self, move):
-        board = self.match.board
-        if(self.color == COLORS['white']):
-            if(board.black_movecnt_short_castling_lost == 0 and 
-               move.dstx == board.COLS['H'] and move.dsty == board.RANKS['8']):
-                return True, COLORS['black']
-            else:
-                return False, COLORS['black']
-        else:
-            if(board.white_movecnt_short_castling_lost == 0 and 
-               move.dstx == board.COLS['H'] and move.dsty == board.RANKS['1']):
-                return True, COLORS['white']
-            else:
-                return False, COLORS['white']
-
-    def does_move_effect_long_castling(self, move):
-        board = self.match.board
-        if(self.color == COLORS['white']):
-            if(board.black_movecnt_long_castling_lost == 0 and 
-               move.dstx == board.COLS['A'] and move.dsty == board.RANKS['8']):
-                return True, COLORS['black']
-            else:
-                return False, COLORS['black']
-        else:
-            if(board.white_movecnt_long_castling_lost == 0 and 
-               move.dstx == board.COLS['A'] and move.dsty == board.RANKS['1']):
-                return True, COLORS['white']
-            else:
-                return False, COLORS['white']
-
 ################
     def do_move(self, dstx, dsty, prompiece=PIECES['blk']):
         board = self.match.board
         dstpiece = board.readfield(dstx, dsty)
-
         move = cMove(self.match, self.match.movecnt() + 1, False, \
                      self.xpos, self.ypos, dstx, dsty, \
                      None, None, dstpiece, prompiece)
 
         board.writefield(move.srcx, move.srcy, PIECES['blk'])
         board.writefield(move.dstx, move.dsty, self.piece)
-
-        flag, color = self.does_move_effect_short_castling(move)
-        if(flag and color == COLORS['white']):
-            board.white_movecnt_short_castling_lost = move.count
-        if(flag and color == COLORS['black']):
-            board.black_movecnt_short_castling_lost = move.count
-        flag, color = self.does_move_effect_long_castling(move)
-        if(flag and color == COLORS['white']):
-            board.white_movecnt_long_castling_lost = move.count
-        if(flag and color == COLORS['black']):
-            board.black_movecnt_long_castling_lost = move.count
-
         board.decr_officer_counter(dstpiece)
-
         self.match.score += SCORES[dstpiece]
-
         return move
 ################
 
@@ -158,16 +113,6 @@ class cPiece:
         board.writefield(move.srcx, move.srcy, self.piece)
         board.writefield(move.dstx, move.dsty, move.captpiece)
         self.match.score -= SCORES[move.captpiece]
-        
-        if(board.white_movecnt_short_castling_lost == move.count):
-            board.white_movecnt_short_castling_lost = 0
-        if(board.white_movecnt_long_castling_lost == move.count):
-            board.white_movecnt_long_castling_lost = 0
-        if(board.black_movecnt_short_castling_lost == move.count):
-            board.black_movecnt_short_castling_lost = 0
-        if(board.black_movecnt_long_castling_lost == move.count):
-            board.black_movecnt_long_castling_lost = 0
-
         board.incr_officer_counter(move)
         return move
 ################
