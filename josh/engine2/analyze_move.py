@@ -450,7 +450,6 @@ def controles_file(gmove):
 
 
 def is_tactical_draw(gmove):
-    return False
     match = gmove.match
     if(match.is_fifty_moves_rule()):
         return True
