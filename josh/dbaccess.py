@@ -127,13 +127,13 @@ def update_match(id, status, level, board, \
         db.commit()
 
 
-def new_move(match_id, newcount, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece):
+def new_move(match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece):
     db = get_db()
     db.execute(
-        'INSERT INTO move (match_id, count, iscastling, srcfield, dstfield, '
-        'enpassfield, captpiece, prompiece)'
+        'INSERT INTO move (match_id, count, srcfield, dstfield, '
+        'enpassfield, srcpiece, captpiece, prompiece)'
         ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        (match_id, newcount, iscastling, srcfield, dstfield, enpassfield, captpiece, prompiece,)
+        (match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece,)
     )
     db.commit()
 

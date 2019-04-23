@@ -197,13 +197,13 @@ def list_move_attributes(move):
     attributes = []
     attributes.append(ClassAttr(move.match, "match"))
     attributes.append(ClassAttr(move.count, "count"))
-    attributes.append(ClassAttr(move.iscastling, "iscastling"))
     attributes.append(ClassAttr(move.srcx, "srcx"))
     attributes.append(ClassAttr(move.srcy, "srcy"))
     attributes.append(ClassAttr(move.dstx, "dstx"))
     attributes.append(ClassAttr(move.dsty, "dsty"))
     attributes.append(ClassAttr(move.enpassx, "enpassx"))
     attributes.append(ClassAttr(move.enpassy, "enpassy"))
+    attributes.append(ClassAttr(move.srcpiece, "srcpiece"))
     attributes.append(ClassAttr(move.captpiece, "captpiece"))
     attributes.append(ClassAttr(move.prompiece, "prompiece"))
     return attributes

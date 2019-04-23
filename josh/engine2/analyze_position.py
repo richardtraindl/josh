@@ -108,7 +108,7 @@ def score_penalty_for_lost_castlings(match):
     bcastling = False
 
     for move in match.move_list:
-        if(move.iscastling is not None):
+        if(move.is_castling()):
             if(move.count % 2 == 1):
                 wcastling = True
             else:

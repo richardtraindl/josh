@@ -90,12 +90,10 @@ class cKing(cPiece):
         move = super().do_move(dstx, dsty, prompiece)
 
         if(dstx - self.xpos == 2):
-            move.iscastling = True
             rook = board.readfield(self.xpos + 3, self.ypos)
             board.writefield(self.xpos + 3, self.ypos, PIECES['blk'])
             board.writefield(dstx - 1, dsty, rook)
         elif(dstx - self.xpos == -2):
-            move.iscastling = True
             rook = board.readfield(self.xpos - 4, self.ypos)
             board.writefield(self.xpos - 4, self.ypos, PIECES['blk'])
             board.writefield(dstx + 1, dsty, rook)
@@ -119,7 +117,7 @@ class cKing(cPiece):
         board = self.match.board
         super().undo_move(move)
 
-        if(move.iscastling):
+        if(move.is_castling()):
             if(move.dstx == 6):
                 rook = board.readfield(move.dstx - 1, move.dsty)
                 board.writefield(move.dstx - 1, move.dsty, PIECES['blk'])

@@ -96,9 +96,9 @@ class cPiece:
     def do_move(self, dstx, dsty, prompiece=PIECES['blk']):
         board = self.match.board
         dstpiece = board.readfield(dstx, dsty)
-        move = cMove(self.match, self.match.movecnt() + 1, False, \
+        move = cMove(self.match, self.match.movecnt() + 1, \
                      self.xpos, self.ypos, dstx, dsty, \
-                     None, None, dstpiece, prompiece)
+                     None, None, self.piece, dstpiece, prompiece)
 
         board.writefield(move.srcx, move.srcy, PIECES['blk'])
         board.writefield(move.dstx, move.dsty, self.piece)

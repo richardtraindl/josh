@@ -200,8 +200,8 @@ def domove(id):
         update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
         move = map_engine_move_to_sql(cmove)
-        new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
-                 move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+        new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
+                 move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
         cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
 
@@ -248,8 +248,8 @@ class ImmanuelsThread(threading.Thread):
                 update_match(self.engine.id, status, self.engine.level, strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
                 move = map_engine_move_to_sql(cmove)
-                new_move(move["match_id"], move["count"], move["iscastling"], move["srcfield"], \
-                         move["dstfield"], move["enpassfield"], move["captpiece"], move["prompiece"])
+                new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
+                         move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
                 cache_set(str(self.engine.id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
             else:

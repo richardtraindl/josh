@@ -30,10 +30,11 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
-    from . import match
-    app.register_blueprint(match.bp)
+    from . import josh
+    app.register_blueprint(josh.bp)
     app.add_url_rule('/', endpoint='index')
 
+    #from .util import filters
     from .util.filters import fmttime
     app.jinja_env.filters['fmttime'] = fmttime
 

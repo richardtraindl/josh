@@ -37,10 +37,10 @@ CREATE TABLE move (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     match_id INTEGER NOT NULL,
     count INTEGER NOT NULL,
-    iscastling INTEGER NOT NULL,
     srcfield TEXT NOT NULL,
     dstfield TEXT NOT NULL,
     enpassfield TEXT,
+    srcpiece TEXT NOT NULL,
     captpiece TEXT NOT NULL,
     prompiece TEXT,
     CONSTRAINT fk_match FOREIGN KEY (match_id) REFERENCES match(id) ON DELETE CASCADE

@@ -5,29 +5,36 @@ from .helper import reverse_lookup, index_to_coord
 class cMove:
     def __init__(self, match=None, 
                        count=None, 
-                       iscastling=None,
                        srcx=None, 
                        srcy=None, 
                        dstx=None, 
                        dsty=None, 
                        enpassx=None, 
                        enpassy=None, 
+                       srcpiece=None, 
                        captpiece=PIECES['blk'], 
                        prompiece=PIECES['blk']):
         self.match = match
         self.count = count
-        self.iscastling = iscastling
         self.srcx = srcx
         self.srcy = srcy
         self.dstx = dstx
         self.dsty = dsty
         self.enpassx = enpassx
         self.enpassy = enpassy
+        self.srcpiece = srcpiece
         self.captpiece = captpiece
         self.prompiece = prompiece
 
+    def is_castling(self):
+        if((self.srcpiece == PIECES['wKg'] or self.srcpiece == PIECES['bKg']) and 
+           abs(self.srcx - self.dstx) > 1):
+            return True
+        else:
+            return False
+
     def format_move(self):
-        if(self.iscastling):
+        if(self.is_castling()):
             if(self.dstx == 6):
                 return "0-0"
             else:
