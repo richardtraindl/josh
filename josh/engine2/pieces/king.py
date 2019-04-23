@@ -1,3 +1,4 @@
+
 from . piece import *
 from . rook import cRook
 from . bishop import cBishop

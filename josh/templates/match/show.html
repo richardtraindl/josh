@@ -40,7 +40,7 @@
   <p class="unit">
     Level: {{ match['level'] }}
     &nbsp;&nbsp;&nbsp;
-    Status: {{ match['status'] }}
+    Status: {{ match['status'] | mapstatus }}
   </p>
 
   {% if g.user['id'] == match['user_id'] %}

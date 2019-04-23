@@ -6,6 +6,7 @@ def reverse_lookup(dic, value):
             return key
     return None
 
+
 def coord_to_index(coord):
     if(ord(coord[0]) > ord('H')):
         x = ord(coord[0]) - ord('a')
@@ -14,14 +15,17 @@ def coord_to_index(coord):
     y = ord(coord[1]) - ord('1')
     return x,y
 
+
 def index_to_coord(x, y):
     col = chr(x + ord('a'))
     row = chr(y + ord('1'))
     coord = str(col + row)
     return coord
 
+
 def index_to_Uppercoord(x, y):
     col = chr(x + ord('A'))
     row = chr(y + ord('1'))
     coord = str(col + row)
     return coord
+

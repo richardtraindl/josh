@@ -1,9 +1,13 @@
+
 from operator import attrgetter
 import copy
+
 from .match import *
 from .move import *
 from .helper import reverse_lookup
 from .analyze_helper import *
+from .generator import cGenerator
+
 from .pieces.white_pawn import cWhitePawn
 from .pieces.black_pawn import cBlackPawn
 from .pieces.bishop import cBishop
@@ -12,7 +16,6 @@ from .pieces.king import cKing
 from .pieces.queen import cQueen
 from .pieces.touch import cTouch
 from .pieces.search_for_piece import list_all_field_touches, list_field_touches_beyond
-from .generator import cGenerator
 
 
 def castles(gmove):

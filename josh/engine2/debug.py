@@ -1,3 +1,4 @@
+
 from .match import *
 from .move import *
 from .helper import *
@@ -22,7 +23,6 @@ class ClassAttr:
 
 def list_match_attributes(match):
     attributes = []
-    attributes.append(ClassAttr(match.status, "status"))
     attributes.append(ClassAttr(match.score, "score"))
     attributes.append(ClassAttr(match.level, "level"))
     attributes.append(ClassAttr(match.board.wKg_x, "board.wKg_x"))
@@ -51,8 +51,6 @@ def prnt_match_attributes(match, delimiter):
 
 
 def prnt_matches_diff(match1, match2):
-    if(match1.status != match2.status):
-        print("status " + str(match2.status))
     if(match1.score != match2.score):
         print("score " + str(match2.score))
     if(match1.level != match2.level):

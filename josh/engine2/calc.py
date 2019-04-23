@@ -1,5 +1,7 @@
-import time, copy
+
+import time
 from operator import attrgetter
+
 from .match import *
 from .move import *
 from .openings import retrieve_move

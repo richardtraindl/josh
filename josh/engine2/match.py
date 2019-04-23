@@ -1,6 +1,7 @@
-from datetime import datetime
+
 from .values import *
 from .board import cBoard
+
 from .pieces.white_pawn import cWhitePawn
 from .pieces.black_pawn import cBlackPawn
 from .pieces.knight import cKnight
@@ -8,7 +9,6 @@ from .pieces.bishop import cBishop
 from .pieces.rook import cRook
 from .pieces.king import cKing
 from .pieces.queen import cQueen
-from .pieces.pawnfield import cPawnField
 from .pieces.search_for_piece import cSearchForRook, cSearchForBishop, is_field_touched
 
 
@@ -17,9 +17,7 @@ class cMatch:
             'open' : 10,
             'draw' : 11,
             'winner_white' : 12,
-            'winner_black' : 13,
-            'paused' : 14,
-            'setup' : 15 }
+            'winner_black' : 13 }
 
     LEVELS = {
             'blitz' : 0,
@@ -292,8 +290,6 @@ class cMatch:
         return False
 
     def evaluate_status(self):
-        if(self.status == self.STATUS['paused'] or self.status == self.STATUS['setup']):
-            return self.status
         if(self.is_move_available()):
             return self.STATUS['open']
         else:
