@@ -1,6 +1,9 @@
+
 from operator import attrgetter
+
 from .values import *
 from .match import *
+
 from .pieces.white_pawn import cWhitePawn
 from .pieces.black_pawn import cBlackPawn
 from .pieces.knight import cKnight

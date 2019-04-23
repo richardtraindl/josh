@@ -450,29 +450,16 @@ def controles_file(gmove):
 
 
 def is_tactical_draw(gmove):
-    newmatch = copy.deepcopy(gmove.match)
-    newmatch.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
-    
-    if(newmatch.is_fifty_moves_rule()):
+    return False
+    match = gmove.match
+    if(match.is_fifty_moves_rule()):
         return True
 
-    if(len(newmatch.move_list) < 9):
-        return False
-    boards = []
-    for i in range(9):
-        str_board = ""
-        for y in range(8):
-            for x in range(8):
-                piece = newmatch.board.readfield(x, y)
-                str_board += reverse_lookup(PIECES, piece)
-        boards.append(str_board)
-        newmatch.undo_move()
-    count = 0
-    str_board = boards[0]
-    for i in range(1, 9):
-        if(boards[i] == str_board):
-            count += 1
-    return count >= 2
+    match.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
+    newmatch = copy.deepcopy(match)
+    is_move_repetition = newmatch.is_move_repetition()
+    match.undo_move()
+    return is_move_repetition
 
 
 def is_progress(gmove):

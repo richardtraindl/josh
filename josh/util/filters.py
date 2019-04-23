@@ -14,9 +14,9 @@ def mapstatus(status):
     if(mstatus is not None):
         return mstatus
     else:
-        if(STATUS['paused'] == status):
+        if(status == 14):
             return "paused"
-        elif(STATUS['setup'] == status):
+        elif(status == 15):
             return "setup"
         else:
             return "?"

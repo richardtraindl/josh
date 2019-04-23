@@ -1,6 +1,9 @@
 
+import copy
+
 from .values import *
 from .board import cBoard
+from .helper import reverse_lookup
 
 from .pieces.white_pawn import cWhitePawn
 from .pieces.black_pawn import cBlackPawn
@@ -138,9 +141,39 @@ class cMatch:
         count = self.board.wQu_cnt + self.board.wOfficer_cnt + self.board.bQu_cnt + self.board.bOfficer_cnt
         return count <= 6
 
+    # 100 Züge davor kein Bauernzug und keine Figur geschlagen
     def is_fifty_moves_rule(self):
-        # 100 Züge davor kein Bauernzug und keine Figur geschlagen
+        cnt = 0
+        maxlen = len(self.move_list)
+        for move in reversed(self.move_list):
+            if(move.srcpiece == PIECES['wPw'] or move.srcpiece == PIECES['bPw'] or
+               move.captpiece != PIECES['blk']):
+                cnt = 0                
+            else:
+                cnt += 1
+                if(cnt > 100):
+                    return True
+                if(maxlen - cnt < 100):
+                    return False
         return False
+
+    def is_move_repetition(self):
+        newmatch = copy.deepcopy(self)
+        str_boards = []
+        for i in range(9):
+            str_board = ""
+            for y in range(8):
+                for x in range(8):
+                    piece = newmatch.board.readfield(x, y)
+                    str_board += reverse_lookup(PIECES, piece)
+            str_boards.append(str_board)
+            newmatch.undo_move()
+        count = 0
+        str_board = str_boards[0]
+        for i in range(1, 9):
+            if(str_boards[i] == str_board):
+                count += 1
+        return count >= 2
 
     def is_last_move_capture(self):
         if(len(self.move_list) > 0):
