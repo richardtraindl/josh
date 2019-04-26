@@ -1,4 +1,5 @@
 
+
 from .. engine2.match import cMatch
 from .. engine2.helper import reverse_lookup
 
@@ -14,10 +15,15 @@ def mapstatus(status):
     if(mstatus is not None):
         return mstatus
     else:
-        if(status == 14):
+        if(status == 0):
+            return "open"
+        elif(status == 1):
             return "paused"
-        elif(status == 15):
+        elif(status == 2):
             return "setup"
         else:
             return "?"
 
+def maplevel(level):
+    mlevel = reverse_lookup(cMatch.LEVELS, level)
+    return mlevel

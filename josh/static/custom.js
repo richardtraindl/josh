@@ -82,3 +82,28 @@
           }
         });
     }
+
+    function addThreeMins(fmttime) {
+        var ary_time = fmttime.split(":");
+        var secs = parseInt(ary_time[2]);
+        var mins = parseInt(ary_time[1]) * 60;
+        var hours = parseInt(ary_time[0]) * 3600;
+        var newtime = hours + mins + secs + 3;
+        hours = parseInt(newtime / 3600);
+        mins = parseInt(newtime % 3600 / 60);
+        secs = parseInt(newtime % 3600 % 60);
+        var str_hours = hours.toString();
+        var str_mins = mins.toString();
+        var str_secs = secs.toString();
+        if(str_hours.length == 1){
+            str_hours = "0" + str_hours;
+        }
+        if(str_mins.length == 1){
+            str_mins = "0" + str_mins;
+        }
+        if(str_secs.length == 1){
+            str_secs = "0" + str_secs;
+        }
+        return str_hours + ":" + str_mins + ":" + str_secs;
+    }
+

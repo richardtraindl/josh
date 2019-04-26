@@ -17,7 +17,7 @@ from .pieces.search_for_piece import cSearchForRook, cSearchForBishop, is_field_
 
 class cMatch:
     STATUS = {
-            'open' : 10,
+            'active' : 10,
             'draw' : 11,
             'winner_white' : 12,
             'winner_black' : 13 }
@@ -69,7 +69,7 @@ class cMatch:
     }
 
     def __init__(self):
-        self.status = self.STATUS['open']
+        self.status = self.STATUS['active']
         self.score = 0
         self.level = self.LEVELS['blitz']
         self.board = cBoard()
@@ -324,7 +324,7 @@ class cMatch:
 
     def evaluate_status(self):
         if(self.is_move_available()):
-            return self.STATUS['open']
+            return self.STATUS['active']
         else:
             if(self.next_color() == COLORS['white']):
                 if(is_field_touched(self, self.board.wKg_x, self.board.wKg_y, COLORS['black'], self.EVAL_MODES['ignore-pins'])):

@@ -268,7 +268,7 @@ def score_endgame(match):
 def score_position(match, movecnt):
     status = match.evaluate_status()
 
-    if(movecnt == 0 and status != match.STATUS['open']):
+    if(movecnt == 0 and status != match.STATUS['active']):
         if(status == match.STATUS['winner_black']):
             return ( SCORES[PIECES['wKg']] + match.movecnt() )
         elif(status == match.STATUS['winner_white']):

@@ -27,8 +27,8 @@ input[type=submit] { align-self: start; min-width: 10em; }
     margin: 0px auto;
     padding: 20px 0px 20px 0px;
     display: grid;
-    #grid-template-rows: 2;
-    grid-template-columns: 2;
+    /* grid-template-rows: 2; */
+    /* grid-template-columns: auto auto; */
 }
 
 #board {

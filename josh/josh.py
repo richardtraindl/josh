@@ -80,9 +80,9 @@ def create():
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
 @login_required
 def update(id):
-    oldmatch = get_match(id)
-    oldwplayer = get_player(id, 1)
-    oldbplayer = get_player(id, 0)
+    match = get_match(id)
+    wplayer = get_player(id, 1)
+    bplayer = get_player(id, 0)
 
     if request.method == 'POST':
         level = request.form['level']
@@ -110,15 +110,15 @@ def update(id):
         if error is not None:
             flash(error)
         else:
-            status = oldmatch['status']
-            board = oldmatch['board']
-            wsecs = oldwplayer['consumedsecs']
-            bsecs = oldbplayer['consumedsecs']
-            match = update_match(id, status, level, board, wplayer_name, \
-                    wplayer_ishuman, wsecs, bplayer_name, bplayer_ishuman, bsecs)
+            status = match['status']
+            board = match['board']
+            wsecs = wplayer['consumedsecs']
+            bsecs = bplayer['consumedsecs']
+            update_match(id, status, level, board, wplayer_name, \
+                         wplayer_ishuman, wsecs, bplayer_name, bplayer_ishuman, bsecs)
             return redirect(url_for('match.index'))
 
-    return render_template('match/update.html', match=oldmatch, wplayer=oldwplayer, bplayer=oldbplayer)
+    return render_template('match/update.html', match=match, wplayer=wplayer, bplayer=bplayer)
 
 
 @bp.route('/<int:id>/show')
@@ -154,8 +154,14 @@ def show(id):
         wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
     else:
         bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+        
+    clockstart = cache.get(str(id) + "-clockstart")
+    if(clockstart is not None):
+        isactive = 1
+    else:
+        isactive = 0
 
-    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs)
+    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, isactive=isactive)
 
 
 @bp.route('/<int:id>/domove', methods=('POST',))
@@ -167,6 +173,11 @@ def domove(id):
 
     engine = cMatch()
     map_sqlmatch_to_engine(match, moves, engine)
+
+    if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
+       (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
+        flash("Wrong Player")
+        return redirect(url_for('match.show', id=id,))
 
     mvsrc = request.form['move_src']
     mvdst = request.form['move_dst']
@@ -192,8 +203,8 @@ def domove(id):
         cmove = engine.do_move(srcx, srcy, dstx, dsty, prompiece)
 
         status = engine.evaluate_status()
-        if(status == 14): # set paused to open
-            status = 10
+        if(status == engine.STATUS['active']):
+            status = 0
 
         strboard = map_cboard_to_strboard(engine.board)
 
@@ -227,7 +238,7 @@ class ImmanuelsThread(threading.Thread):
             candidates = calc_move(self.engine, None)
             match = get_match(self.engine.id)
             movecnt = get_movecnt(self.engine.id)
-            if(match['status'] == 10 and movecnt == self.engine.movecnt() and len(candidates) > 0):
+            if(match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
                 wplayer = get_player(self.engine.id, 1)
                 bplayer = get_player(self.engine.id, 0)
 
@@ -242,6 +253,8 @@ class ImmanuelsThread(threading.Thread):
                 cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
 
                 status = self.engine.evaluate_status()
+                if(status == self.engine.STATUS['active']):
+                    status = 0
 
                 strboard = map_cboard_to_strboard(self.engine.board)        
 
@@ -258,7 +271,7 @@ class ImmanuelsThread(threading.Thread):
 
 def calc_move_for_immanuel(engine):
     status = engine.evaluate_status()
-    if(status != engine.STATUS['open']):
+    if(status != engine.STATUS['active']):
         return False, status
     else:
         thread = ImmanuelsThread("immanuel-" + str(random.randint(0, 100000)), engine)
@@ -288,8 +301,8 @@ def undomove(id):
                 bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
 
             status = engine.evaluate_status()
-            if(status == 14): # set paused to open
-                status = 10
+            if(status == engine.STATUS['active']):
+                status = 0
 
             strboard = map_cboard_to_strboard(engine.board)
 
@@ -325,9 +338,8 @@ def fetch(id):
 def pause(id):
     match = get_match(id)
 
-    if(match['status'] == 10):
-        status = 14 # 10=open, 11=draw, 12=winner_white, 13=winner_black, 14=paused, 15=setup
-
+    if(match['status'] == 0):
+        status = 1
         wplayer = get_player(id, 1)
         bplayer = get_player(id, 0)
         movecnt = get_movecnt(id)
@@ -350,8 +362,8 @@ def pause(id):
 def resume(id):
     match = get_match(id)
 
-    if(match['status'] == 14):
-        status = 10 # 10=open, 11=draw, 12=winner_white, 13=winner_black, 14=paused, 15=setup
+    if(match['status'] == 1):
+        status = 0
 
         wplayer = get_player(id, 1)
         bplayer = get_player(id, 0)

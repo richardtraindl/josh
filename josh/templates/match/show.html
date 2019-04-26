@@ -38,17 +38,17 @@
   </table>
 
   <p class="unit">
-    Level: {{ match['level'] }}
+    Level: {{ match['level'] | maplevel }}
     &nbsp;&nbsp;&nbsp;
     Status: {{ match['status'] | mapstatus }}
   </p>
 
   {% if g.user['id'] == match['user_id'] %}
     <div class="unit">
-      {% if match['status'] == 10 %}
+      {% if match['status'] == 0 %}
         <div style="padding-right: 20px;"><a href="{{ url_for('match.pause', id=match['id']) }}">Pause</a></div>
       {% endif %}
-      {% if match['status'] == 14 %}
+      {% if match['status'] == 1 %}
         <div style="padding-right: 20px;"><a href="{{ url_for('match.resume', id=match['id']) }}">Resume</a></div>
       {% endif %}
 
@@ -60,7 +60,7 @@
 {% endblock %}
 
 {% block content %}
-  <div id="board" matchid="{{ match['id'] }}" movecnt="999">
+  <div id="board" matchid="{{ match['id'] }}" movecnt="{{ movecnt }}">
   {% for cell in board %}
     {% if cell.value == "blk" %}
        <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable">&nbsp;</div>
@@ -102,6 +102,20 @@
             $('#move').submit();
         });
 
+        {% if isactive == 1 %}
+            {% if movecnt % 2 == 0 %}
+                setInterval(function() {
+                    var fmttime = $('#white-time').text();
+                    $('#white-time').text(addThreeMins(fmttime));
+                }, 2600);
+            {% else %}
+                setInterval(function() {
+                    var fmttime = $('#black-time').text();
+                    $('#black-time').text(addThreeMins(fmttime));
+                }, 2600);
+            {% endif %}
+        {% endif %}
+
         setInterval(function(){
             var matchid;
             var movecnt;
@@ -116,10 +130,6 @@
                 if(result[0] != movecnt){
                     location.reload();
                     /* location.href = url; */
-                }
-                else{
-                    $('#white-time').text(result[1]);
-                    $('#black-time').text(result[2]);
                 }
             });
       {% if match['level'] == 0 %}
