@@ -1,13 +1,20 @@
 
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Edit "{{ match['created'] }}"{% endblock %}</h1>
+
+{% block title %}
+  Edit Match
 {% endblock %}
 
+
 {% block content %}
+  <div>
+    <h2>Edit Match <span style="font-size: 12px; font-weight: normal;">{{ match['created'] }}</span></h2>
+    <hr>
+  </div>
+
   <form method="post">
-    <div>
+    <div class="fourcols">
         <label for="level">Level</label>
         <select name="level" id="level">
             {% if match['level'] == 0 %}
@@ -31,9 +38,9 @@
                 <option value="3">3</option>
             {% endif %}
         </select> 
-    </div>
+        <div></div>
+        <div></div>
 
-    <div>
         <label for="wplayer_name">White Player Name</label>
         <input name="wplayer_name" id="wplayer_name" value="{{ wplayer['name'] }}" required>
 
@@ -43,9 +50,7 @@
         {% else %}
             <input type="checkbox" name="wplayer_ishuman" value="0">
         {% endif %}
-    </div>
 
-    <div>
         <label for="bplayer_name">Black Player Name</label>
         <input name="bplayer_name" id="bplayer_name" value="{{ bplayer['name'] }}" required>
 
@@ -57,9 +62,13 @@
         {% endif %}
     </div>
 
-    <input type="submit" value="Save">
+    <div>
+        <input type="submit" value="Save">
+    </div>
   </form>
+
   <hr>
+
   <form action="{{ url_for('match.delete', id=match['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>

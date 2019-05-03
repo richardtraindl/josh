@@ -2,64 +2,58 @@
 
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>
-      {% block title %}Match Id {{ match['id'] }}{% endblock %} 
-      <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
-  </h1>
 
-  <table>
-      <tr>
-        <td>
-        {% if wplayer['ishuman'] %}
-            <span style="font-weight: bold">{{ wplayer['name'] }}</span>
-        {% else %}
-            {{ wplayer['name'] }}
-        {% endif %}
-        </td>
-        <td>&nbsp;&nbsp;&nbsp;</td>
-        <td>
-        {% if bplayer['ishuman'] %}
-            <span style="font-weight: bold">{{ bplayer['name'] }}</span>
-        {% else %}
-            {{ bplayer['name'] }}
-        {% endif %}
-        </td>
-      </tr>
-      <tr>
-        <td>
-            T: <span id="white-time">{{ wsecs | fmttime }}</span>
-        </td>
-        <td>&nbsp;&nbsp;&nbsp;</td>
-        <td>
-            T: <span id="black-time">{{ bsecs | fmttime }}</span>
-        </td>
-      </tr>
-  </table>
-
-  <p class="unit">
-    Level: {{ match['level'] | maplevel }}
-    &nbsp;&nbsp;&nbsp;
-    Status: {{ match['status'] | mapstatus }}
-  </p>
-
-  {% if g.user['id'] == match['user_id'] %}
-    <div class="unit">
-      {% if match['status'] == 0 %}
-        <div style="padding-right: 20px;"><a href="{{ url_for('match.pause', id=match['id']) }}">Pause</a></div>
-      {% endif %}
-      {% if match['status'] == 1 %}
-        <div style="padding-right: 20px;"><a href="{{ url_for('match.resume', id=match['id']) }}">Resume</a></div>
-      {% endif %}
-
-      <div style="padding-right: 20px;"><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></div>
-
-      <div><a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a></div>
-    </div>
-  {% endif %}
+{% block title %}
+  Play Match
 {% endblock %}
 
+
 {% block content %}
+  <div>
+    <h2>Match Id: {{ match['id'] }}
+        <span style="font-size: 12px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
+    </h2>
+  </div>
+
+  <div class="flex-row" style="margin: 0.4em 0;">
+    {% if match['status'] == 0 %}
+      <p>Status: <a href="{{ url_for('match.pause', id=match['id']) }}">{{ match['status'] | mapstatus }}</a></p>
+    {% else %}
+      <p>Status: <a href="{{ url_for('match.resume', id=match['id']) }}">{{ match['status'] | mapstatus }}</a></p>
+    {% endif %}
+
+    <p>Score: {{ score }}</p>
+
+    <p>Level: <a href="{{ url_for('match.update', id=match['id']) }}">{{ match['level'] | maplevel }}</a></p>
+
+    <p><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></p>
+  </div>
+
+  <div class="twocols">
+    <div style="padding-right: 3em; text-align: right;">
+      <h3>
+        {% if wplayer['ishuman'] %}
+          {{ wplayer['name'] }}
+        {% else %}
+          <span style="font-weight: normal">{{ wplayer['name'] }}</span>
+        {% endif %}
+          &nbsp;
+        <span id="white-time">{{ wsecs | fmttime }}</span>
+      </h3>
+    </div>
+    <div>
+      <h3>
+        {% if bplayer['ishuman'] %}
+          {{ bplayer['name'] }}
+        {% else %}
+          <span style="font-weight: normal">{{ bplayer['name'] }}</span>
+        {% endif %}
+        &nbsp;
+        <span id="black-time">{{ bsecs | fmttime }}</span>
+      </h3>
+    </div>
+  </div>
+
   <div id="board" matchid="{{ match['id'] }}" movecnt="{{ movecnt }}">
   {% for cell in board %}
     {% if cell.value == "blk" %}
@@ -88,6 +82,16 @@
     <input name="prom_piece" id="prom-piece" value="blk" required>
     <input type="submit" value="submit" />
   </form>
+
+  <div style="padding-top: 0.9em;">
+    <p>Minutes</p>
+    
+    <div id="minutes">
+      {% for minute in minutes %}
+        <p>{{ minute }}</p>
+      {% endfor %}
+    </div>
+  </div>
 
   <script>
     $(document).ready(function() {

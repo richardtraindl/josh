@@ -22,7 +22,15 @@ bp = Blueprint('match', __name__)
 cache = SimpleCache()
 
 
-def cache_set(key, value, timeout):
+def cache_set(key, value, level):
+    if(level == 0):
+        timeout = 10 * 60 * 60
+    elif(level == 1):
+        timeout = 20 * 60 * 60
+    elif(level == 2):
+        timeout = 30 * 60 * 60
+    else:
+        timeout = 60 * 60 * 60
     cache.set(key, value, timeout = timeout)
 
 
@@ -127,7 +135,11 @@ def show(id):
     match = get_match(id)
     wplayer = get_player(id, 1)
     bplayer = get_player(id, 0)
-    movecnt = get_movecnt(id)
+    moves = get_moves(id)
+    movecnt = len(moves)
+
+    engine = cMatch()
+    map_sqlmatch_to_engine(match, moves, engine)
 
     mboard = match['board']
     class Cell:
@@ -161,7 +173,19 @@ def show(id):
     else:
         isactive = 0
 
-    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, isactive=isactive)
+    minutes = []
+    if(movecnt % 2 == 0):
+        cnt = min(movecnt, 8)
+    else:
+        cnt = min(movecnt, 9)
+    for move in moves[(movecnt - cnt):]:
+        cmove = map_sql_move_to_engine(move)
+        if(cmove.count % 2 == 1):
+            minutes.append(str(cmove.count // 2 + 1) + ". " + cmove.format_move())
+        else:
+            minutes.append(cmove.format_move())
+
+    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, score=engine.score , isactive=isactive)
 
 
 @bp.route('/<int:id>/domove', methods=('POST',))
@@ -214,7 +238,7 @@ def domove(id):
         new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
                  move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
-        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
            (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
@@ -264,7 +288,7 @@ class ImmanuelsThread(threading.Thread):
                 new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
                          move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
-                cache_set(str(self.engine.id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+                cache_set(str(self.engine.id) + "-clockstart", int(datetime.now().timestamp()), self.engine.level)
             else:
                 print("no move found or match is paused!")
 
@@ -310,7 +334,7 @@ def undomove(id):
 
             delete_move(move.id)
 
-            cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+            cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
     return redirect(url_for('match.show', id=id,))
 
@@ -353,7 +377,7 @@ def pause(id):
 
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
-        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 1)
+        cache.set(str(id) + "-clockstart", int(datetime.now().timestamp()), 1)
 
     return redirect(url_for('match.show', id=id,))
 
@@ -370,7 +394,7 @@ def resume(id):
 
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
 
-        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), 60 * 60)
+        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         movecnt = get_movecnt(id)
         if((movecnt % 2 == 0 and wplayer['ishuman'] == 0) or

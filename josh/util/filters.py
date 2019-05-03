@@ -16,7 +16,7 @@ def mapstatus(status):
         return mstatus
     else:
         if(status == 0):
-            return "open"
+            return "active"
         elif(status == 1):
             return "paused"
         elif(status == 2):
@@ -27,3 +27,8 @@ def mapstatus(status):
 def maplevel(level):
     mlevel = reverse_lookup(cMatch.LEVELS, level)
     return mlevel
+
+
+def iseven(count):
+    return ((count % 2) == 0)
+

@@ -1,37 +1,44 @@
 
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Matches{% endblock %}</h1>
-  {% if g.user %}
-    <hr>
-    <a href="{{ url_for('match.create') }}">New</a>
-  {% endif %}
+
+{% block title %}
+  Matches
 {% endblock %}
 
+
 {% block content %}
+    <div>
+      <h2>Matches</h2>
+        {% if g.user %}
+          <a href="{{ url_for('match.create') }}">New</a>
+          <hr>
+        {% endif %}
+    </div>
+
   {% for match in matches %}
     <div>
       <h2>
-        Match Id {{ match['id'] }}
+        Match Id: {{ match['id'] }}
         <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
       </h2>
-      <p>Level {{ match['level'] }}</p>
       <p>
-          {% if match['wplayer_ishuman'] == 1 %}
-            <span style="font-weight: bold">{{ match['wplayer_name'] }}</span>
-          {% else %}
-            {{ match['wplayer_name'] }}
-          {% endif %}
+        {% if match['wplayer_ishuman'] == 1 %}
+          <span style="font-weight: bold">{{ match['wplayer_name'] }}</span>
+        {% else %}
+          {{ match['wplayer_name'] }}
+        {% endif %}
 
-          &nbsp;:&nbsp;
+        &nbsp;:&nbsp;
 
-          {% if match['bplayer_ishuman'] == 1 %}
-            <span style="font-weight: bold">{{ match['bplayer_name'] }}</span>
-          {% else %}
-            {{ match['bplayer_name'] }}
-          {% endif %}
+        {% if match['bplayer_ishuman'] == 1 %}
+          <span style="font-weight: bold">{{ match['bplayer_name'] }}</span>
+        {% else %}
+          {{ match['bplayer_name'] }}
+        {% endif %}
       </p>
+
+      <p>Level: {{ match['level'] | maplevel }}</p>
 
       <p>
         <a style="padding-right: 20px" href="{{ url_for('match.show', id=match['id']) }}">Play</a>

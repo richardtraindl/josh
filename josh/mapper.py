@@ -17,6 +17,13 @@ def map_sqlmatch_to_engine(sqlmatch, sqlmoves, ematch):
             ematch.board.writefield(x, y, PIECES[aryboard[y * 8 + x]])
 
     for sqlmove in sqlmoves:
+        cmove = map_sql_move_to_engine(sqlmove)
+        ematch.move_list.append(cmove)
+
+    ematch.update_attributes()
+
+
+def map_sql_move_to_engine(sqlmove):
         cmove = cMove()
         cmove.id = sqlmove['id']
         cmove.match = sqlmove['match_id']
@@ -35,9 +42,7 @@ def map_sqlmatch_to_engine(sqlmatch, sqlmoves, ematch):
         if(sqlmove['prompiece']):
             cmove.prom_piece = PIECES[sqlmove['prompiece']]
 
-        ematch.move_list.append(cmove)
-
-    ematch.update_attributes()
+        return cmove
 
 
 def map_engine_move_to_sql(emove):

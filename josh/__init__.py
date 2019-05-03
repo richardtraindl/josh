@@ -35,10 +35,11 @@ def create_app(test_config=None):
     app.register_blueprint(josh.bp)
     app.add_url_rule('/', endpoint='index')
 
-    from .util.filters import fmttime, mapstatus, maplevel
+    from .util.filters import fmttime, mapstatus, maplevel, iseven
     app.jinja_env.filters['fmttime'] = fmttime
     app.jinja_env.filters['mapstatus'] = mapstatus
     app.jinja_env.filters['maplevel'] = maplevel
+    app.jinja_env.filters['iseven'] = iseven
 
     return app
  
