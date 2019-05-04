@@ -15,14 +15,14 @@
     </h2>
   </div>
 
-  <div class="flex-row" style="margin: 0.4em 0;">
+  <div class="fourcols" style="margin: 0.4em 0;">
     {% if status == 0 %}
       <p>Status: <a href="{{ url_for('match.pause', id=match['id']) }}">{{ status | mapstatus }}</a></p>
     {% else %}
       {% if status == 1 %}
         <p>Status: <a href="{{ url_for('match.resume', id=match['id']) }}">{{ status | mapstatus }}</a></p>
       {% else %}
-        <p>Status: {{ status | mapstatus }}</p>
+        <p>Status: <span class="red-bold">{{ status | mapstatus }}</span></p>
       {% endif %}
     {% endif %}
 
@@ -33,7 +33,7 @@
     <p><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></p>
   </div>
 
-  <div class="twocols">
+  <div  id="player" class="twocols">
     <div style="padding-right: 3em; text-align: right;">
       <h3>
         {% if wplayer['ishuman'] %}
@@ -88,7 +88,7 @@
   </form>
 
   <div style="padding-top: 0.9em;">
-    <p>Minutes</p>
+    <p>Minutes:</p>
     
     <div id="minutes">
       {% for minute in minutes %}
