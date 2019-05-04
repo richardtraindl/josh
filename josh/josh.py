@@ -79,8 +79,8 @@ def create():
         if(error is not None):
             flash(error)
         else:
-            new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuman)
-            return redirect(url_for('match.index'))
+            match = new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuman)
+            return redirect(url_for('match.show', id=match['id'],))
 
     return render_template('match/create.html')
 
@@ -124,7 +124,7 @@ def update(id):
             bsecs = bplayer['consumedsecs']
             update_match(id, status, level, board, wplayer_name, \
                          wplayer_ishuman, wsecs, bplayer_name, bplayer_ishuman, bsecs)
-            return redirect(url_for('match.index'))
+            return redirect(url_for('match.show', id=id,))
 
     return render_template('match/update.html', match=match, wplayer=wplayer, bplayer=bplayer)
 
@@ -140,6 +140,10 @@ def show(id):
 
     engine = cMatch()
     map_sqlmatch_to_engine(match, moves, engine)
+
+    status = engine.evaluate_status()
+    if(status == cMatch.STATUS['active']):
+        status = match['status']
 
     mboard = match['board']
     class Cell:
@@ -185,7 +189,7 @@ def show(id):
         else:
             minutes.append(cmove.format_move())
 
-    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, score=engine.score , isactive=isactive)
+    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, status=status, score=engine.score , isactive=isactive)
 
 
 @bp.route('/<int:id>/domove', methods=('POST',))

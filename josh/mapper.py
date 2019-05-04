@@ -37,24 +37,24 @@ def map_sql_move_to_engine(sqlmove):
         cmove.srcpiece = PIECES[sqlmove['srcpiece']]
 
         if(sqlmove['captpiece']):
-            cmove.captured_piece = PIECES[sqlmove['captpiece']]
+            cmove.captpiece = PIECES[sqlmove['captpiece']]
 
         if(sqlmove['prompiece']):
-            cmove.prom_piece = PIECES[sqlmove['prompiece']]
+            cmove.prompiece = PIECES[sqlmove['prompiece']]
 
         return cmove
 
 
 def map_engine_move_to_sql(emove):
     sqlmove = {
-        "match_id": 0,
-        "count": 0,
-        "srcfield": "",
-        "dstfield": "",
-        "enpassfield": "",
-        "srcpiece": "",
-        "captpiece": "",
-        "prompiece": ""
+        "match_id": None,
+        "count": None,
+        "srcfield": None,
+        "dstfield": None,
+        "enpassfield": None,
+        "srcpiece": None,
+        "captpiece": None,
+        "prompiece": None
     }
     sqlmove["match_id"] = emove.match.id
     sqlmove["count"] = emove.count

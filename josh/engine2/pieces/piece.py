@@ -112,7 +112,7 @@ class cPiece:
 ################
     def undo_move(self, move):
         board = self.match.board
-        board.writefield(move.srcx, move.srcy, self.piece)
+        board.writefield(move.srcx, move.srcy, move.srcpiece)
         board.writefield(move.dstx, move.dsty, move.captpiece)
         self.match.score -= SCORES[move.captpiece]
         board.incr_officer_counter(move)

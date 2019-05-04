@@ -2,12 +2,13 @@
 * { font-weight: normal; font-size: 1.0em; }
 html { font-family: serif; background: #eee; padding: 1em; }
 body { max-width: 40em; margin: 0 auto; background: white; }
-h1, h1 a { margin: 0.4em 0; padding: 0; font-size: 1.4em; }
-h2, h2 a { margin: 0.3em 0; padding: 0; font-size: 1.3em; }
-h3, h3 a { margin: 0; padding: 0; font-size: 1.2em; }
-p, label, input { margin: 0; padding: 0; font-size: 1.0em; }
+h1, h1 a { margin: 0.4em 0; padding: 0; font-size: 1.3em; }
+h2, h2 a { margin: 0.3em 0; padding: 0; font-size: 1.2em; }
+h3, h3 a { margin: 0.2em 0; padding: 0; font-size: 1.1em; }
+p, label, input { margin: 0.1em 0; padding: 0; font-size: 1.0em; }
 a { color: #377ba8; text-decoration: none;}
 hr { border: none; border-top: 1px solid lightgray; }
+
 header { 
     background: lightgray; 
     display: flex; 
@@ -19,9 +20,10 @@ header {
 header h1 { width: 70%; padding-left: 20px; }
 header p { width: 30%; text-align: right; }
 header * { padding-right: 20px; }
+
 .twocols { 
     margin: 0.5em 0; 
-    padding-top: 0.9em;
+    /* padding-top: 0.9em; */
     display: grid; 
     grid-template-columns: auto auto; 
     column-gap: 1em; 
@@ -39,11 +41,14 @@ header * { padding-right: 20px; }
 }
 
 #level { width: 4em ;}
+
 #white-time, #black-time { font-size: 0.8em; }
+
 #content-wrapper { padding: 10px; }
 .flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }
 .flex-row { display: flex; flex-direction: row; align-items: center; }
 .flex-row * { padding-right: 20px; }
+
 form { margin: 0px }
 input.danger { color: #cc2f2e; }
 input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
@@ -52,7 +57,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
     width: 32em;
     height: 32em;
     margin: 0px auto;
-    padding: 0.9em 0 0 0;
+    padding: 0.2em 0 0 0;
     display: grid;
     grid-template-rows: repeat(8, 4em);
     grid-template-columns: repeat(8, 4em);

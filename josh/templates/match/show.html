@@ -10,21 +10,25 @@
 
 {% block content %}
   <div>
-    <h2>Match Id: {{ match['id'] }}
-        <span style="font-size: 12px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
+    <h2><a href="{{ url_for('match.update', id=match['id']) }}"> Match Id: {{ match['id'] }}</a>
+        <span style="font-size: 12px;">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
     </h2>
   </div>
 
   <div class="flex-row" style="margin: 0.4em 0;">
-    {% if match['status'] == 0 %}
-      <p>Status: <a href="{{ url_for('match.pause', id=match['id']) }}">{{ match['status'] | mapstatus }}</a></p>
+    {% if status == 0 %}
+      <p>Status: <a href="{{ url_for('match.pause', id=match['id']) }}">{{ status | mapstatus }}</a></p>
     {% else %}
-      <p>Status: <a href="{{ url_for('match.resume', id=match['id']) }}">{{ match['status'] | mapstatus }}</a></p>
+      {% if status == 1 %}
+        <p>Status: <a href="{{ url_for('match.resume', id=match['id']) }}">{{ status | mapstatus }}</a></p>
+      {% else %}
+        <p>Status: {{ status | mapstatus }}</p>
+      {% endif %}
     {% endif %}
 
     <p>Score: {{ score }}</p>
 
-    <p>Level: <a href="{{ url_for('match.update', id=match['id']) }}">{{ match['level'] | maplevel }}</a></p>
+    <p>Level: {{ match['level'] | maplevel }}</p>
 
     <p><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></p>
   </div>
@@ -33,9 +37,9 @@
     <div style="padding-right: 3em; text-align: right;">
       <h3>
         {% if wplayer['ishuman'] %}
-          {{ wplayer['name'] }}
+          <span class="fbold">{{ wplayer['name'] }}</span>
         {% else %}
-          <span style="font-weight: normal">{{ wplayer['name'] }}</span>
+          {{ wplayer['name'] }}
         {% endif %}
           &nbsp;
         <span id="white-time">{{ wsecs | fmttime }}</span>
@@ -44,9 +48,9 @@
     <div>
       <h3>
         {% if bplayer['ishuman'] %}
-          {{ bplayer['name'] }}
+          <span class="fbold">{{ bplayer['name'] }}</span>
         {% else %}
-          <span style="font-weight: normal">{{ bplayer['name'] }}</span>
+          {{ bplayer['name'] }}
         {% endif %}
         &nbsp;
         <span id="black-time">{{ bsecs | fmttime }}</span>

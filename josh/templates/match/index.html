@@ -20,11 +20,11 @@
     <div>
       <h2>
         Match Id: {{ match['id'] }}
-        <span style="font-size: 14px; font-weight: normal">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
+        <span style="font-size: 14px;">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
       </h2>
       <p>
         {% if match['wplayer_ishuman'] == 1 %}
-          <span style="font-weight: bold">{{ match['wplayer_name'] }}</span>
+          <span class="fbold">{{ match['wplayer_name'] }}</span>
         {% else %}
           {{ match['wplayer_name'] }}
         {% endif %}
@@ -32,7 +32,7 @@
         &nbsp;:&nbsp;
 
         {% if match['bplayer_ishuman'] == 1 %}
-          <span style="font-weight: bold">{{ match['bplayer_name'] }}</span>
+          <span class="fbold">{{ match['bplayer_name'] }}</span>
         {% else %}
           {{ match['bplayer_name'] }}
         {% endif %}

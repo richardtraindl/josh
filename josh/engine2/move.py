@@ -4,17 +4,8 @@ from .helper import reverse_lookup, index_to_coord
 
 
 class cMove:
-    def __init__(self, match=None, 
-                       count=None, 
-                       srcx=None, 
-                       srcy=None, 
-                       dstx=None, 
-                       dsty=None, 
-                       enpassx=None, 
-                       enpassy=None, 
-                       srcpiece=None, 
-                       captpiece=PIECES['blk'], 
-                       prompiece=PIECES['blk']):
+    def __init__(self, match=None, count=None, srcx=None, srcy=None, dstx=None, dsty=None, \
+                 enpassx=None, enpassy=None, srcpiece=None, captpiece=None, prompiece=None):
         self.match = match
         self.count = count
         self.srcx = srcx
