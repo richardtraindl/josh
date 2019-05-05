@@ -32,3 +32,9 @@ def maplevel(level):
 def iseven(count):
     return ((count % 2) == 0)
 
+
+def reverseview(view):
+    if(view == 0):
+        return 1
+    else:
+        return 0

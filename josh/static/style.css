@@ -2,45 +2,56 @@
 * { font-weight: normal; font-size: 1.0em; }
 html { font-family: serif; background: #eee; padding: 1em; }
 body { max-width: 40em; margin: 0 auto; background: white; }
-h1, h1 a { margin: 0.4em 0; padding: 0; font-size: 1.3em; }
-h2, h2 a { margin: 0.3em 0; padding: 0; font-size: 1.2em; }
-h3, h3 a { margin: 0.2em 0; padding: 0; font-size: 1.1em; }
-p, label, input { margin: 0.1em 0; padding: 0; font-size: 1.0em; }
+h1, h1 a { margin:0; padding: 0; font-size: 1.3em; }
+h2, h2 a { margin: 0.4em 0; padding: 0; font-size: 1.2em; text-decoration: underline; }
+h3, h3 a { margin: 0; padding: 0; font-size: 1.1em; }
+p, label, input { margin: 0; padding: 0; font-size: 1.0em; }
 a { color: #377ba8; text-decoration: none;}
 hr { border: none; border-top: 1px solid lightgray; }
 
-#content-wrapper { padding: 0.6em; }
+#content-wrapper { padding: 0.5em; }
 
 .flash { margin: 1em 0; padding: 1em; background: #cae6f6; border: 1px solid #377ba8; }
 
 header { 
     background: lightgray; 
-    margin: 20px, 0px; 
-    align-content: center; 
-    align-items: center 
+    padding: 0.6em 0;
 } 
 header h1 { padding-left: 20px; }
 header p { padding-right: 20px; justify-items: end; text-align: right; }
 
-.twocols { 
-    margin: 0.5em 0; 
-    /* padding-top: 0.9em; */
+.row-grid { 
     display: grid; 
-    grid-template-columns: auto auto; 
-    column-gap: 1em; 
-    grid-row-gap: 0.5em; 
-    vertical-align: middle; 
 }
-
-.fourcols { 
-    margin: 0.5em 0; 
-    display: inline-grid; 
-    grid-template-columns: auto auto auto auto; 
-    column-gap: 1em; 
+.row-grid { 
+    margin: 0; 
+    grid-auto-flow: column;
+    column-gap: 1em;
     grid-row-gap: 0.5em;
-    vertical-align: middle;  
+    align-items: center;
+    vertical-align: middle;
 }
 
+.twocols {
+    display: inline-grid; 
+    grid-template-columns: auto auto; 
+    grid-template-rows: auto; 
+    grid-auto-flow: row;
+    align-items: center;
+    justify-items: start;
+}
+.twocols > * { margin: 0.6em 0.6em 0 0 }
+
+.flex-container {
+    display: flex; 
+    flex-direction: row; 
+    flex-wrap: wrap;  
+    /* justify-content: space-between; */
+    align-content: space-between;
+    align-items: center;
+}
+.flex-container > * { margin-right: 0.6em; }
+ 
 #level { width: 4em ;}
 
 #white-time, #black-time { font-size: 0.8em; }
@@ -58,7 +69,6 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
     grid-template-rows: repeat(8, 4em);
     grid-template-columns: repeat(8, 4em);
 }
-
 #board img {
     display: block;
     margin: 0.4em auto 0 auto;
@@ -66,13 +76,8 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
     width: 3em;
 }
 
-.white-cell {
-    background-color: Linen;
-}
-
-.black-cell {
-    background-color: Gray;
-}
+.white-cell { background-color: Linen; }
+.black-cell { background-color: Gray; }
 
 #minutes {
     width: 32em;
@@ -81,7 +86,6 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
     display: grid; 
     grid-template-columns: max-content max-content; 
 }
-
 #minutes * { padding-right: 3em; text-align: left; }
 
 .fbold { font-weight: bold; }
@@ -91,12 +95,9 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
 
 @media only all and (max-width: 999px) { 
     body { min-width: 19.6em; max-width: 19.6em; }
-    #content-wrapper { padding: 0.2em; }
-    .twocols { grid-template-columns: auto; }
-    .fourcols { grid-template-columns: auto auto; }
-
+    #content-wrapper { padding: 0.3em; }
+    header { grid-template-rows: auto auto; }
     #player { justify-items: start; }
-
     #board { 
         margin: 0;
         padding: 0.2em 0 0 0;
@@ -105,6 +106,8 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
         grid-template-rows: repeat(8, 2.4em);
         grid-template-columns: repeat(8, 2.4em); 
     }
-
     #board img { margin: 0; width: 2.4em; }
+    .twocols { grid-template-columns: auto; }
+    .twocols > *:nth-child(odd) { margin: 0 0 0 0 }
+    .twocols > *:nth-child(even) { margin: 0 0 0.6em 0 }
 }

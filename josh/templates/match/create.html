@@ -14,7 +14,7 @@
   </div>
   
   <form method="post">
-    <div class="fourcols">
+    <div class="twocols">
         <label for="level">Level</label>
         <select name="level" id="level">
             {% if request.form['level'] == "0" %}
@@ -38,9 +38,7 @@
                 <option value="3">3</option>
             {% endif %}
         </select>
-        <div></div>
-        <div></div>
-    
+
         <label for="wplayer_name">White Player Name</label>
         <input name="wplayer_name" id="wplayer_name" value="{{ request.form['wplayer_name'] }}" required>
 
@@ -50,7 +48,7 @@
         {% else %}
             <input type="checkbox" name="wplayer_ishuman" value="0">
         {% endif %}
-    
+
         <label for="bplayer_name">Black Player Name</label>
         <input name="bplayer_name" id="bplayer_name" value="{{ request.form['bplayer_name'] }}" required>
 
@@ -62,7 +60,7 @@
         {% endif %}
     </div>
     
-    <div>
+    <div style="margin-top: 0.6em">
         <input type="submit" value="Save">
     </div>
   </form>

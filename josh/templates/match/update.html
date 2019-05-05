@@ -8,13 +8,14 @@
 
 
 {% block content %}
-  <div>
-    <h2>Edit Match <span style="font-size: 12px;">{{ match['created'] }}</span></h2>
+  <div class="flex-container">
+    <h2>Edit Match</h2>
+    <p>{{ match['created'] }}</p>
     <hr>
   </div>
 
   <form method="post">
-    <div class="fourcols">
+    <div class="twocols">
         <label for="level">Level</label>
         <select name="level" id="level">
             {% if match['level'] == 0 %}
@@ -38,8 +39,6 @@
                 <option value="3">3</option>
             {% endif %}
         </select> 
-        <div></div>
-        <div></div>
 
         <label for="wplayer_name">White Player Name</label>
         <input name="wplayer_name" id="wplayer_name" value="{{ wplayer['name'] }}" required>
@@ -62,7 +61,7 @@
         {% endif %}
     </div>
 
-    <div>
+    <div style="margin-top: 0.6em">
         <input type="submit" value="Save">
     </div>
   </form>

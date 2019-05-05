@@ -8,14 +8,16 @@
         <script src="{{ url_for('static', filename='custom.js') }}"></script>
     </head>
     <body>
-        <header class="twocols">
+        <header class="row-grid">
             <h1><a href="{{ url_for('match.index') }}">Josh and His Friends</a></h1>
             <p>
               {% if g.user %}
                 <span>{{ g.user['username'] }}</span>
+                &nbsp;
                 <a href="{{ url_for('auth.logout') }}">Log Out</a>
               {% else %}
                 <a href="{{ url_for('auth.register') }}">Register</a>
+                &nbsp;
                 <a href="{{ url_for('auth.login') }}">Log In</a>
               {% endif %}
             </p>

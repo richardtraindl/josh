@@ -9,18 +9,17 @@
 
 
 {% block content %}
-  <div>
-    <h2><a href="{{ url_for('match.update', id=match['id']) }}"> Match Id: {{ match['id'] }}</a>
-        <span style="font-size: 12px;">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
-    </h2>
+  <div class="flex-container">
+    <h2><a href="{{ url_for('match.update', id=match['id']) }}"> Match Id: {{ match['id'] }}</a></h2>
+    <p>by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</p>
   </div>
 
-  <div class="fourcols" style="margin: 0.4em 0;">
+  <div class="flex-container" style="margin: 0.4em 0;">
     {% if status == 0 %}
-      <p>Status: <a href="{{ url_for('match.pause', id=match['id']) }}">{{ status | mapstatus }}</a></p>
+      <p>Status: <a href="{{ url_for('match.pause', id=match['id'], view=view) }}">{{ status | mapstatus }}</a></p>
     {% else %}
       {% if status == 1 %}
-        <p>Status: <a href="{{ url_for('match.resume', id=match['id']) }}">{{ status | mapstatus }}</a></p>
+        <p>Status: <a href="{{ url_for('match.resume', id=match['id'], view=view) }}">{{ status | mapstatus }}</a></p>
       {% else %}
         <p>Status: <span class="red-bold">{{ status | mapstatus }}</span></p>
       {% endif %}
@@ -30,10 +29,12 @@
 
     <p>Level: {{ match['level'] | maplevel }}</p>
 
-    <p><a href="{{ url_for('match.undomove', id=match['id']) }}">Withdraw Move</a></p>
+    <p><a href="{{ url_for('match.show', id=match['id'], view=view | reverseview) }}">Switch Board</a></p>
+
+    <p><a href="{{ url_for('match.undomove', id=match['id'], view=view) }}">Withdraw Move</a></p>
   </div>
 
-  <div  id="player" class="twocols">
+  <div  id="player" class="row-grid">
     <div style="padding-right: 3em; text-align: right;">
       <h3>
         {% if wplayer['ishuman'] %}
@@ -41,7 +42,6 @@
         {% else %}
           {{ wplayer['name'] }}
         {% endif %}
-          &nbsp;
         <span id="white-time">{{ wsecs | fmttime }}</span>
       </h3>
     </div>
@@ -52,13 +52,12 @@
         {% else %}
           {{ bplayer['name'] }}
         {% endif %}
-        &nbsp;
         <span id="black-time">{{ bsecs | fmttime }}</span>
       </h3>
     </div>
   </div>
 
-  <div id="board" matchid="{{ match['id'] }}" movecnt="{{ movecnt }}">
+  <div id="board" matchid="{{ match['id'] }}" movecnt="{{ movecnt }}" view="{{ view }}">
   {% for cell in board %}
     {% if cell.value == "blk" %}
        <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable">&nbsp;</div>
@@ -80,7 +79,7 @@
     <p value="bKn"><img src="{{ url_for('static', filename='img/bBp.png') }}"></p>
     <p value="bRk"><img src="{{ url_for('static', filename='img/bKn.png') }}"></p>
   </div>
-  <form id="move" method="post" action="{{ url_for('match.domove', id=match['id']) }}" style="display: none;">
+  <form id="move" method="post" action="{{ url_for('match.domove', id=match['id'], view=view) }}" style="display: none;">
     <input name="move_src" id="move-src" value="" required>
     <input name="move_dst" id="move-dst" value="" required>
     <input name="prom_piece" id="prom-piece" value="blk" required>

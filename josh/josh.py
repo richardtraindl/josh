@@ -132,6 +132,7 @@ def update(id):
 @bp.route('/<int:id>/show')
 @login_required
 def show(id):
+    view = request.args.get('view')
     match = get_match(id)
     wplayer = get_player(id, 1)
     bplayer = get_player(id, 0)
@@ -152,8 +153,17 @@ def show(id):
             self.color = color
             self.value = value
 
+    if(view is None or int(view) == 0):
+        view = 0
+        start = 7
+        end = -1
+        step = -1
+    else:
+        start = 0
+        end = 8
+        step = 1
     board = []
-    for j in range(7, -1, -1):
+    for j in range(start, end, step):
         for i in range(8):
             idx = j * 8 * 4 + i * 4
             cell_id = chr(i + ord('a')) + chr(j + ord('1'))
@@ -189,11 +199,12 @@ def show(id):
         else:
             minutes.append(cmove.format_move())
 
-    return render_template('match/show.html', match=match, board=board, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, status=status, score=engine.score , isactive=isactive)
+    return render_template('match/show.html', match=match, board=board, view=view, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, status=status, score=engine.score , isactive=isactive)
 
 
 @bp.route('/<int:id>/domove', methods=('POST',))
 def domove(id):
+    view = request.args.get('view')
     match = get_match(id)
     moves = get_moves(id)
     wplayer = get_player(id, 1)
@@ -250,7 +261,10 @@ def domove(id):
     else:
         flash("oje " + reverse_lookup(engine.RETURN_CODES, error))
 
-    return redirect(url_for('match.show', id=id,))
+    if(view is None):
+        view = 0
+
+    return redirect(url_for('match.show', id=id, view=view,))
 
 
 class ImmanuelsThread(threading.Thread):
@@ -309,6 +323,7 @@ def calc_move_for_immanuel(engine):
 
 @bp.route('/<int:id>/undomove', methods=('GET',))
 def undomove(id):
+    view = request.args.get('view')
     match = get_match(id)
     moves = get_moves(id)
 
@@ -340,7 +355,10 @@ def undomove(id):
 
             cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
-    return redirect(url_for('match.show', id=id,))
+    if(view is None):
+        view = 0
+
+    return redirect(url_for('match.show', id=id, view=view,))
 
 
 @bp.route('/<int:id>/fetch', methods=('GET',))
@@ -364,6 +382,7 @@ def fetch(id):
 
 @bp.route('/<int:id>/pause', methods=('GET',))
 def pause(id):
+    view = request.args.get('view')
     match = get_match(id)
 
     if(match['status'] == 0):
@@ -383,11 +402,15 @@ def pause(id):
 
         cache.set(str(id) + "-clockstart", int(datetime.now().timestamp()), 1)
 
-    return redirect(url_for('match.show', id=id,))
+    if(view is None):
+        view = 0
+
+    return redirect(url_for('match.show', id=id, view=view,))
 
 
 @bp.route('/<int:id>/resume', methods=('GET',))
 def resume(id):
+    view = request.args.get('view')
     match = get_match(id)
 
     if(match['status'] == 1):
@@ -409,7 +432,10 @@ def resume(id):
             map_sqlmatch_to_engine(match, moves, engine)
             calc_move_for_immanuel(engine)
 
-    return redirect(url_for('match.show', id=id,))
+    if(view is None):
+        view = 0
+
+    return redirect(url_for('match.show', id=id, view=view,))
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
