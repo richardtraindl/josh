@@ -17,11 +17,14 @@
     </div>
 
   {% for match in matches %}
-    <div>
+    <div class="flex-container">
       <h3>
         Match Id: {{ match['id'] }}
-        <span style="font-size: 14px;">by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</span>
       </h3>
+      <p>by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</p>
+    </div>
+
+    <div class="matches">
       <p>
         {% if match['wplayer_ishuman'] == 1 %}
           <span class="fbold">{{ match['wplayer_name'] }}</span>
@@ -29,7 +32,7 @@
           {{ match['wplayer_name'] }}
         {% endif %}
 
-        &nbsp;:&nbsp;
+        &nbsp;vs.&nbsp;
 
         {% if match['bplayer_ishuman'] == 1 %}
           <span class="fbold">{{ match['bplayer_name'] }}</span>
@@ -41,7 +44,7 @@
       <p>Level: {{ match['level'] | maplevel }}</p>
 
       <p>
-        <a style="padding-right: 20px" href="{{ url_for('match.show', id=match['id']) }}">Play</a>
+        <a href="{{ url_for('match.show', id=match['id']) }}">Play</a>
         {% if g.user['id'] == match['user_id'] %}
           <a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a>
         {% endif %}

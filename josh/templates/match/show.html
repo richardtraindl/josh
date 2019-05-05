@@ -35,7 +35,7 @@
   </div>
 
   <div  id="player" class="row-grid">
-    <div style="padding-right: 3em; text-align: right;">
+    <div>
       <h3>
         {% if wplayer['ishuman'] %}
           <span class="fbold">{{ wplayer['name'] }}</span>
@@ -79,16 +79,16 @@
     <p value="bKn"><img src="{{ url_for('static', filename='img/bBp.png') }}"></p>
     <p value="bRk"><img src="{{ url_for('static', filename='img/bKn.png') }}"></p>
   </div>
-  <form id="move" method="post" action="{{ url_for('match.domove', id=match['id'], view=view) }}" style="display: none;">
+  <form id="move" method="post" action="{{ url_for('match.domove', id=match['id'], view=view) }}" class="invisible">
     <input name="move_src" id="move-src" value="" required>
     <input name="move_dst" id="move-dst" value="" required>
     <input name="prom_piece" id="prom-piece" value="blk" required>
     <input type="submit" value="submit" />
   </form>
 
-  <div style="padding-top: 0.9em;">
+  <div id="minutes-wrapper">
     <p>Minutes:</p>
-    
+
     <div id="minutes">
       {% for minute in minutes %}
         <p>{{ minute }}</p>

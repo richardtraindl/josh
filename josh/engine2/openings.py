@@ -17,7 +17,6 @@ def retrieve_move(match):
         str_move += index_to_coord(move.dstx, move.dsty)
         ok = False
         for childnode in node.children:
-            #print("childnode: " + str(childnode.str_move) + " str_move: " + str_move)
             if(childnode.str_move == str_move):
                     node = childnode
                     ok = True
@@ -37,10 +36,10 @@ def retrieve_move(match):
         candidate = node.children[idx]
         srcx, srcy = coord_to_index(candidate.str_move[:2])
         dstx, dsty = coord_to_index(candidate.str_move[3:])
-        return cGenMove(match, srcx, srcy, dstx, dstx, PIECES['blk'])
+        return cGenMove(match, srcx, srcy, dstx, dsty, PIECES['blk'])
 
 
-DEPTH = 0
+DEPTH = 4
 
 
 class cNode:

@@ -58,7 +58,13 @@ header p { padding-right: 20px; justify-items: end; text-align: right; }
 
 form { margin: 0px }
 input.danger { color: #cc2f2e; }
-input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
+input[type=submit] { align-self: start; min-width: 160px; margin: 0.6em 0 0 0 }
+
+.matches { margin: 0.4em 0; }
+.matches > * { padding-bottom: 0.4em; }
+
+#player { grid-template-columns: 50% 50%;  margin: 0.6em 0; }
+#player > div:first-child { text-align: right; }
 
 #board {
     width: 32em;
@@ -79,6 +85,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
 .white-cell { background-color: Linen; }
 .black-cell { background-color: Gray; }
 
+#minutes-wrapper { padding-top: 0.9em; }
 #minutes {
     width: 32em;
     margin: 0px auto;
@@ -97,7 +104,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0px }
     body { min-width: 19.6em; max-width: 19.6em; }
     #content-wrapper { padding: 0.3em; }
     header { grid-template-rows: auto auto; }
-    #player { justify-items: start; }
+    #player { grid-template-columns: auto; }
     #board { 
         margin: 0;
         padding: 0.2em 0 0 0;
