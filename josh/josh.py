@@ -57,23 +57,21 @@ def create():
         level = request.form['level']
 
         wplayer_name = request.form['wplayer_name']
-
         if(request.form.get('wplayer_ishuman')):
-            wplayer_ishuman = 1
+            wplayer_ishuman = True
         else:
-            wplayer_ishuman = 0
+            wplayer_ishuman = False
 
         bplayer_name = request.form['bplayer_name']
-
         if(request.form.get('bplayer_ishuman')):
-            bplayer_ishuman = 1
+            bplayer_ishuman = True
         else:
-            bplayer_ishuman = 0
+            bplayer_ishuman = False
 
         error = None
         if(not wplayer_name or not bplayer_name):
             error = 'White Player name and Black Player name are required.'
-        elif(wplayer_ishuman == 0 and bplayer_ishuman == 0):
+        elif(wplayer_ishuman == False and bplayer_ishuman == False):
             error = 'At least one Player has to be human.'
 
         if(error is not None):
@@ -89,30 +87,28 @@ def create():
 @login_required
 def update(id):
     match = get_match(id)
-    wplayer = get_player(id, 1)
-    bplayer = get_player(id, 0)
+    wplayer = get_player(id, True)
+    bplayer = get_player(id, False)
 
     if request.method == 'POST':
         level = request.form['level']
 
         wplayer_name = request.form['wplayer_name']
-
         if(request.form.get('wplayer_ishuman')):
-            wplayer_ishuman = 1
+            wplayer_ishuman = True
         else:
-            wplayer_ishuman = 0
+            wplayer_ishuman = False
 
         bplayer_name = request.form['bplayer_name']
-
         if(request.form.get('bplayer_ishuman')):
-            bplayer_ishuman = 1
+            bplayer_ishuman = True
         else:
-            bplayer_ishuman = 0
+            bplayer_ishuman =  False
 
         error = None
         if not wplayer_name or not bplayer_name:
             error = 'White Player name and Black Player name are required.'
-        elif(wplayer_ishuman == 0 and bplayer_ishuman == 0):
+        elif(wplayer_ishuman == False and bplayer_ishuman == False):
             error = 'At least one Player has to be human.'
 
         if error is not None:
@@ -134,8 +130,8 @@ def update(id):
 def show(id):
     view = request.args.get('view')
     match = get_match(id)
-    wplayer = get_player(id, 1)
-    bplayer = get_player(id, 0)
+    wplayer = get_player(id, True)
+    bplayer = get_player(id, False)
     moves = get_moves(id)
     movecnt = len(moves)
 
@@ -207,14 +203,14 @@ def domove(id):
     view = request.args.get('view')
     match = get_match(id)
     moves = get_moves(id)
-    wplayer = get_player(id, 1)
-    bplayer = get_player(id, 0)
+    wplayer = get_player(id, True)
+    bplayer = get_player(id, False)
 
     engine = cMatch()
     map_sqlmatch_to_engine(match, moves, engine)
 
-    if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
-       (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
+    if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == False) or
+       (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == False)):
         flash("Wrong Player")
         return redirect(url_for('match.show', id=id,))
 
@@ -255,8 +251,8 @@ def domove(id):
 
         cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
-        if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == 0) or
-           (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == 0)):
+        if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == False) or
+           (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == False)):
             calc_move_for_immanuel(engine)
     else:
         flash("oje " + reverse_lookup(engine.RETURN_CODES, error))
@@ -281,8 +277,8 @@ class ImmanuelsThread(threading.Thread):
             match = get_match(self.engine.id)
             movecnt = get_movecnt(self.engine.id)
             if(match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
-                wplayer = get_player(self.engine.id, 1)
-                bplayer = get_player(self.engine.id, 0)
+                wplayer = get_player(self.engine.id, True)
+                bplayer = get_player(self.engine.id, False)
 
                 wsecs = wplayer['consumedsecs']
                 bsecs = bplayer['consumedsecs']
@@ -334,8 +330,8 @@ def undomove(id):
         move = engine.undo_move()
 
         if(move is not None):
-            wplayer = get_player(id, 1)
-            bplayer = get_player(id, 0)
+            wplayer = get_player(id, True)
+            bplayer = get_player(id, False)
             wsecs = wplayer['consumedsecs']
             bsecs = bplayer['consumedsecs']
             if(engine.next_color() == COLORS['white']):
@@ -364,8 +360,8 @@ def undomove(id):
 @bp.route('/<int:id>/fetch', methods=('GET',))
 def fetch(id):
     match = get_match(id)
-    wplayer = get_player(id, 1)
-    bplayer = get_player(id, 0)
+    wplayer = get_player(id, True)
+    bplayer = get_player(id, False)
     movecnt = get_movecnt(id)
 
     wsecs = wplayer['consumedsecs']
@@ -387,8 +383,8 @@ def pause(id):
 
     if(match['status'] == 0):
         status = 1
-        wplayer = get_player(id, 1)
-        bplayer = get_player(id, 0)
+        wplayer = get_player(id, True)
+        bplayer = get_player(id, False)
         movecnt = get_movecnt(id)
 
         wsecs = wplayer['consumedsecs']
@@ -416,16 +412,16 @@ def resume(id):
     if(match['status'] == 1):
         status = 0
 
-        wplayer = get_player(id, 1)
-        bplayer = get_player(id, 0)
+        wplayer = get_player(id, True)
+        bplayer = get_player(id, False)
 
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
 
         cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         movecnt = get_movecnt(id)
-        if((movecnt % 2 == 0 and wplayer['ishuman'] == 0) or
-           (movecnt % 2 == 1 and bplayer['ishuman'] == 0)):
+        if((movecnt % 2 == 0 and wplayer['ishuman'] == False) or
+           (movecnt % 2 == 1 and bplayer['ishuman'] == False)):
             match = get_match(id)
             moves = get_moves(id)
             engine = cMatch()

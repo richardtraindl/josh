@@ -1,49 +1,60 @@
 
-
 from flask import g
 
 from josh.db import get_db
+from psycopg2.extras import DictCursor
 
 
 def get_match(id):
-    match = get_db().execute(
-        'SELECT m.id, status, level, created, board, user_id, guest_id, username'
-        ' FROM match m JOIN user u ON m.user_id = u.id'
-        ' WHERE m.id = ?',
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
+        'SELECT m.id, status, level, created, board, auth_user_id, auth_guest_id, username'
+        ' FROM match m JOIN auth_user u ON m.auth_user_id = u.id'
+        ' WHERE m.id = %s',
         (id,)
-    ).fetchone()
+    )
+    match = cur.fetchone()
+    cur.close()
     return match
 
 
 def get_matches():
-    db = get_db()
-    matches = db.execute(
-        'SELECT m.id, status, level, created, user_id, username,'
-        ' (SELECT name FROM player p WHERE p.match_id = m.id and p.iswhite = 1) as wplayer_name, '
-        ' (SELECT ishuman FROM player p WHERE p.match_id = m.id and p.iswhite = 1) as wplayer_ishuman, '
-        ' (SELECT name FROM player p WHERE p.match_id = m.id and p.iswhite = 0) as bplayer_name, '
-        ' (SELECT ishuman FROM player p WHERE p.match_id = m.id and p.iswhite = 0) as bplayer_ishuman'
-        ' FROM match m JOIN user u ON m.user_id = u.id'
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
+        'SELECT m.id, status, level, created, auth_user_id, username,'
+        ' (SELECT name FROM player p WHERE p.match_id = m.id and p.iswhite = true) as wplayer_name, '
+        ' (SELECT ishuman FROM player p WHERE p.match_id = m.id and p.iswhite = true) as wplayer_ishuman, '
+        ' (SELECT name FROM player p WHERE p.match_id = m.id and p.iswhite = false) as bplayer_name, '
+        ' (SELECT ishuman FROM player p WHERE p.match_id = m.id and p.iswhite = false) as bplayer_ishuman'
+        ' FROM match m JOIN auth_user u ON m.auth_user_id = u.id'
         ' ORDER BY created DESC'
-    ).fetchall()
+    )
+    matches = cur.fetchall()
+    cur.close()
     return matches
 
 
 def get_player(match_id, iswhite):
-    player = get_db().execute(
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
         'SELECT * FROM player p'
-        ' WHERE p.match_id = ? AND p.iswhite = ?',
+        ' WHERE p.match_id = %s AND p.iswhite = %s',
         (match_id, iswhite,)
-    ).fetchone()
+    )
+    player = cur.fetchone()
+    cur.close()
     return player
 
 
 def get_moves(match_id):
-    moves = get_db().execute(
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
         'SELECT * FROM move mv'
-        ' WHERE mv.match_id = ? ORDER BY count ASC',
+        ' WHERE mv.match_id = %s ORDER BY count ASC',
         (match_id,)
-    ).fetchall()
+    )
+    moves = cur.fetchall()
+    cur.close()
     return moves
 
 
@@ -56,98 +67,108 @@ def get_movecnt(match_id):
 
 
 def get_last_move(match_id):
-    move = get_db().execute(
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
         'SELECT * FROM move mv'
-        ' WHERE mv.match_id = ? ORDER BY count DESC LIMIT 1',
+        ' WHERE mv.match_id = %s ORDER BY count DESC LIMIT 1',
         (match_id,)
-    ).fetchone()
+    )
+    move = cur.fetchone()
+    cur.close()
     return move
 
 
 def new_match(level, wplayer_name, wplayer_ishuman, bplayer_name, bplayer_ishuman):
-    db = get_db()
-    cur = g.db.cursor()
-    cur.execute('INSERT INTO match (level, user_id) VALUES(?, ?)', (level, g.user['id']))
-    g.db.commit()
-    match_id = cur.lastrowid
+    dbcon = get_db()
+    cur = dbcon.cursor(cursor_factory=DictCursor)
+    cur.execute('INSERT INTO match (level, auth_user_id) VALUES(%s, %s)', (level, g.user['id']))
+    cur.execute('SELECT LASTVAL()')
+    matchid = cur.fetchone()['lastval']
+
+    iswhite = True
+    cur.execute(
+        'INSERT INTO player (match_id, name, iswhite, ishuman)'
+        ' VALUES (%s, %s, %s, %s)',
+        (matchid, wplayer_name, iswhite, wplayer_ishuman)
+    )
+
+    iswhite = False
+    cur.execute(
+        'INSERT INTO player (match_id, name, iswhite, ishuman)'
+        ' VALUES (%s, %s, %s, %s)',
+        (matchid, bplayer_name, iswhite, bplayer_ishuman)
+    )
+    dbcon.commit()
     cur.close()
 
-    db.execute(
-        'INSERT INTO player (match_id, name, iswhite, ishuman)'
-        ' VALUES (?, ?, ?, ?)',
-        (match_id, wplayer_name, 1, wplayer_ishuman)
-    )
-    db.commit()
-
-    db.execute(
-        'INSERT INTO player (match_id, name, iswhite, ishuman)'
-        ' VALUES (?, ?, ?, ?)',
-        (match_id, bplayer_name, 0, bplayer_ishuman)
-    )
-    db.commit()
-
-    return get_match(match_id)
+    return get_match(matchid)
 
 
 def update_player(match_id, iswhite, name, ishuman, consumedsecs):
-    db.execute(
-        'UPDATE player SET iswhite = ?, name = ?, ishuman = ?, consumedsecs = ?'
-        ' WHERE match_id = ? and iswhite = ?',
+    dbcon = get_db()
+    cur = dbcon.cursor()
+    cur.execute(
+        'UPDATE player SET iswhite = %s, name = %s, ishuman = %s, consumedsecs = %s'
+        ' WHERE match_id = %s and iswhite = %s',
         (iswhite, name, ishuman, consumedsecs, match_id, iswhite)
     )
-    db.commit()
+    dbcon.commit()
+    cur.close()
 
 
 def update_match(id, status, level, board, \
                  wplayer_name, wplayer_ishuman, wplayer_consumedsecs, \
                  bplayer_name, bplayer_ishuman, bplayer_consumedsecs):
 
-    db = get_db()
-    db.execute(
-        'UPDATE match SET status = ?, level = ?, board = ?'
-        ' WHERE id = ?',
+    dbcon = get_db()
+    cur = dbcon.cursor()
+    cur.execute(
+        'UPDATE match SET status = %s, level = %s, board = %s'
+        ' WHERE id = %s',
         (status, level, board, id)
     )
-    db.commit()
 
     if(wplayer_name is not None and wplayer_ishuman is not None):
-        db.execute(
-            'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
-            ' WHERE match_id = ? and iswhite = 1',
+        cur.execute(
+            'UPDATE player SET name = %s, ishuman = %s, consumedsecs = %s'
+            ' WHERE match_id = %s and iswhite = true',
             (wplayer_name, wplayer_ishuman, wplayer_consumedsecs, id)
         )
-        db.commit()
 
     if(bplayer_name is not None and bplayer_ishuman is not None):
-        db.execute(
-            'UPDATE player SET name = ?, ishuman = ?, consumedsecs = ?'
-            ' WHERE match_id = ? and iswhite = 0',
+        cur.execute(
+            'UPDATE player SET name = %s, ishuman = %s, consumedsecs = %s'
+            ' WHERE match_id = %s and iswhite = false',
             (bplayer_name, bplayer_ishuman, bplayer_consumedsecs, id)
         )
-        db.commit()
+    dbcon.commit()
+    cur.close()
 
 
 def new_move(match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece):
-    db = get_db()
-    db.execute(
+    dbcon = get_db()
+    cur = dbcon.cursor()
+    cur.execute(
         'INSERT INTO move (match_id, count, srcfield, dstfield, '
         'enpassfield, srcpiece, captpiece, prompiece)'
-        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        ' VALUES (%s,%s, %s, %s, %s, %s, %s, %s)',
         (match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece,)
     )
-    db.commit()
+    dbcon.commit()
+    cur.close()
 
 
 def delete_match(id):
-    db = get_db()
-    db.execute("PRAGMA foreign_keys = ON")
-    db.execute('DELETE FROM match WHERE id = ?', (id,))
-    db.commit()
+    cur = get_db().cursor()
+    cur.execute('DELETE FROM match WHERE id = %s', (id,))
+    cur.commit()
+    cur.close()
 
 
 def delete_move(id):
-    db = get_db()
-    db.execute("PRAGMA foreign_keys = ON")
-    db.execute('DELETE FROM move WHERE id = ?', (id,))
-    db.commit()
+    dbcon = get_db()
+    cur = dbcon.cursor()
+    cur.execute('DELETE FROM move WHERE id = %s', (id,))
+    dbcon.commit()
+    cur.close()
 

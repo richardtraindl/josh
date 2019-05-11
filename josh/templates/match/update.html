@@ -44,20 +44,20 @@
         <input name="wplayer_name" id="wplayer_name" value="{{ wplayer['name'] }}" required>
 
         <label for="wplayer_ishuman">Human</label>
-        {% if wplayer['ishuman'] == 1 %}
-            <input type="checkbox" name="wplayer_ishuman" value="1" checked>
+        {% if wplayer['ishuman'] %}
+            <input type="checkbox" name="wplayer_ishuman" checked>
         {% else %}
-            <input type="checkbox" name="wplayer_ishuman" value="0">
+            <input type="checkbox" name="wplayer_ishuman">
         {% endif %}
 
         <label for="bplayer_name">Black Player Name</label>
         <input name="bplayer_name" id="bplayer_name" value="{{ bplayer['name'] }}" required>
 
         <label for="bplayer_ishuman">Human</label>
-        {% if bplayer['ishuman'] == 1 %}
-            <input type="checkbox" name="bplayer_ishuman" value="1" checked>
+        {% if bplayer['ishuman'] %}
+            <input type="checkbox" name="bplayer_ishuman" checked>
         {% else %}
-            <input type="checkbox" name="bplayer_ishuman" value="0">
+            <input type="checkbox" name="bplayer_ishuman">
         {% endif %}
     </div>
 

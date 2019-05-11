@@ -45,7 +45,7 @@
 
       <p>
         <a href="{{ url_for('match.show', id=match['id']) }}">Play</a>
-        {% if g.user['id'] == match['user_id'] %}
+        {% if g.user['id'] == match['auth_user_id'] %}
           <a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a>
         {% endif %}
       </p>
