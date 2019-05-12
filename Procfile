@@ -1,2 +1,2 @@
 
-web: gunicorn josh.wsgi --log-file -
+web: gunicorn joshandfriends.wsgi --log-file -
