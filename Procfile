@@ -1,2 +1,2 @@
 
-gunicorn manage:josh
+web: gunicorn josh.wsgi
