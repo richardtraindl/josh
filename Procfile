@@ -1,2 +1,2 @@
 
-web: gunicorn wsgi --log-file -
+gunicorn manage:josh
