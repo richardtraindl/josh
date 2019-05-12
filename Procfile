@@ -1,3 +1,2 @@
 
-gunicorn runserver:app
-#web: gunicorn josh.wsgi --log-file -
+web: gunicorn josh.wsgi --log-file -
