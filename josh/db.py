@@ -1,5 +1,7 @@
 
 import psycopg2
+import urllib.parse as urlparse
+import os
 
 import click
 from flask import current_app, g
@@ -10,8 +12,14 @@ from .schema import sqldrops, sqlcreates
 
 def get_db():
     if('db' not in g):
+        url = urlparse.urlparse(os.environ['DATABASE_URL'])
+        dbname = url.path[1:]
+        user = url.username
+        password = url.password
+        host = url.hostname
+        port = url.port
         try:
-            g.db = psycopg2.connect("dbname=joshdb user=postgres host=localhost password=postgres")
+            g.db = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
         except:
             print("unable to connect to the database!")
     return g.db
