@@ -12,7 +12,7 @@ from .schema import sqldrops, sqlcreates
 
 def get_db():
     if('db' not in g):
-        url = urlparse.urlparse(os.environ['DATABASE_URL'])
+        url = urlparse.urlparse(current_app.config['DATABASE_URL']) # os.environ['DATABASE_URL'])
         dbname = url.path[1:]
         user = url.username
         password = url.password
