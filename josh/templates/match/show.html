@@ -10,7 +10,7 @@
 
 {% block content %}
   <div class="flex-container">
-    <h2><a href="{{ url_for('match.update', id=match['id']) }}"> Match Id: {{ match['id'] }}</a></h2>
+    <h2><a href="{{ url_for('match.show', id=match['id'], view=view) }}"> Match Id: {{ match['id'] }}</a></h2>
     <p>by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</p>
   </div>
 
@@ -32,6 +32,8 @@
     <p><a href="{{ url_for('match.show', id=match['id'], view=view | reverseview) }}">Switch Board</a></p>
 
     <p><a href="{{ url_for('match.undomove', id=match['id'], view=view) }}">Withdraw Move</a></p>
+
+    <p><a href="{{ url_for('match.update', id=match['id']) }}">Edit Settings</a></p>
   </div>
 
   <div  id="player" class="row-grid">
