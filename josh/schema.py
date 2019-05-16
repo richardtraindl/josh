@@ -15,9 +15,9 @@ sqlcreates = (
        auth_user_id INTEGER REFERENCES auth_user(id), \
        auth_guest_id INTEGER REFERENCES auth_user(id), \
        status INTEGER NOT NULL DEFAULT 0, \
-       level INTEGER NOT NULL DEFAULT 0, \
+       level INTEGER NOT NULL DEFAULT 1, \
        created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \
-       board VARCHAR(256) NOT NULL DEFAULT 'wRk;wKn;wBp;wQu;wKg;wBp;wKn;wRk;wPw;wPw;wPw;wPw;wPw;wPw;wPw;wPw;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;blk;bPw;bPw;bPw;bPw;bPw;bPw;bPw;bPw;bRk;bKn;bBp;bQu;bKg;bBp;bKn;bRk;');""",
+       board VARCHAR(64) NOT NULL DEFAULT '23456432111111110000000000000000000000000000000099999999ABCDECBA');""",
     """CREATE TABLE player (id SERIAL PRIMARY KEY, \
        match_id INTEGER REFERENCES match(id) ON DELETE CASCADE, \
        iswhite BOOLEAN NOT NULL, \
@@ -26,6 +26,7 @@ sqlcreates = (
        consumedsecs INTEGER NOT NULL DEFAULT 0);""",
     """CREATE TABLE move (id SERIAL PRIMARY KEY, \
         match_id INTEGER REFERENCES match(id) ON DELETE CASCADE, \
+        prevfields VARCHAR(64) NOT NULL, \
         count INTEGER NOT NULL, \
         srcfield VARCHAR(2) NOT NULL, \
         dstfield VARCHAR(2) NOT NULL, \

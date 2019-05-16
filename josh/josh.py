@@ -13,10 +13,10 @@ from josh.db import get_db
 from josh.dbaccess import *
 from josh.mapper import *
 
-from .engine2.values import *
-from .engine2.helper import coord_to_index, reverse_lookup
-from .engine2.match import cMatch
-from .engine2.calc import calc_move
+from .engine3.values import *
+from .engine3.helper import coord_to_index, reverse_lookup
+from .engine3.match import cMatch
+from .engine3.calc import calc_move
 
 bp = Blueprint('match', __name__)
 cache = SimpleCache()
@@ -114,12 +114,9 @@ def update(id):
         if error is not None:
             flash(error)
         else:
-            status = match['status']
-            board = match['board']
-            wsecs = wplayer['consumedsecs']
-            bsecs = bplayer['consumedsecs']
-            update_match(id, status, level, board, wplayer_name, \
-                         wplayer_ishuman, wsecs, bplayer_name, bplayer_ishuman, bsecs)
+            update_match(id, match['status'], level, match['board'], \
+                         wplayer_name, wplayer_ishuman, wplayer['consumedsecs'], \
+                         bplayer_name, bplayer_ishuman, bplayer['consumedsecs'])
             return redirect(url_for('match.show', id=id,))
 
     return render_template('match/update.html', match=match, wplayer=wplayer, bplayer=bplayer)
@@ -136,7 +133,7 @@ def show(id):
     movecnt = len(moves)
 
     engine = cMatch()
-    map_sqlmatch_to_engine(match, moves, engine)
+    map_match_from_db(match, moves, engine)
 
     status = engine.evaluate_status()
     if(status == cMatch.STATUS['active']):
@@ -161,13 +158,13 @@ def show(id):
     board = []
     for j in range(start, end, step):
         for i in range(8):
-            idx = j * 8 * 4 + i * 4
+            idx = (j * 8 + i)
             cell_id = chr(i + ord('a')) + chr(j + ord('1'))
             if((j + i) % 2 == 0):
                 cell_color = "black"
             else:
                 cell_color = "white"
-            cell = Cell(cell_id, cell_color, mboard[idx:idx+3])
+            cell = Cell(cell_id, cell_color, STR_PIECES[mboard[idx:idx+1]])
             board.append(cell)
 
     wsecs = wplayer['consumedsecs']
@@ -189,7 +186,7 @@ def show(id):
     else:
         cnt = min(movecnt, 9)
     for move in moves[(movecnt - cnt):]:
-        cmove = map_sql_move_to_engine(move)
+        cmove = map_move_from_db(move, engine)
         if(cmove.count % 2 == 1):
             minutes.append(str(cmove.count // 2 + 1) + ". " + cmove.format_move())
         else:
@@ -207,7 +204,7 @@ def domove(id):
     bplayer = get_player(id, False)
 
     engine = cMatch()
-    map_sqlmatch_to_engine(match, moves, engine)
+    map_match_from_db(match, moves, engine)
 
     if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == False) or
        (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == False)):
@@ -241,19 +238,19 @@ def domove(id):
         if(status == engine.STATUS['active']):
             status = 0
 
-        strboard = map_cboard_to_strboard(engine.board)
+        strboard = map_board_from_int_to_str(engine.board.fields)
 
         update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
-        move = map_engine_move_to_sql(cmove)
-        new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
+        move = map_move_from_engine(cmove, id)
+        new_move(move["match_id"], move["prevfields"], move["count"], move["srcfield"], move["dstfield"], \
                  move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
         cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == False) or
            (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == False)):
-            calc_move_for_immanuel(engine)
+            calc_move_for_immanuel(engine, id)
     else:
         flash("oje " + reverse_lookup(engine.RETURN_CODES, error))
 
@@ -264,28 +261,29 @@ def domove(id):
 
 
 class ImmanuelsThread(threading.Thread):
-    def __init__(self, name, engine):
+    def __init__(self, name, engine, matchid):
         threading.Thread.__init__(self)
         self.name = name
         self.engine = engine
         self.app = current_app._get_current_object()
+        self.matchid = matchid
 
     def run(self):
         with self.app.app_context():
             print("Thread starting " + str(self.name))
             candidates = calc_move(self.engine, None)
-            match = get_match(self.engine.id)
-            movecnt = get_movecnt(self.engine.id)
-            if(match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
-                wplayer = get_player(self.engine.id, True)
-                bplayer = get_player(self.engine.id, False)
+            match = get_match(self.matchid)
+            movecnt = get_movecnt(self.matchid)
+            if(match and movecnt and match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
+                wplayer = get_player(self.matchid, True)
+                bplayer = get_player(self.matchid, False)
 
                 wsecs = wplayer['consumedsecs']
                 bsecs = bplayer['consumedsecs']
                 if(self.engine.next_color() == COLORS['white']):
-                    wsecs = calc_total_secs(str(self.engine.id) + "-clockstart", wsecs)
+                    wsecs = calc_total_secs(str(self.engine.created_at) + "-clockstart", wsecs)
                 else:
-                    bsecs = calc_total_secs(str(self.engine.id) + "-clockstart", bsecs)
+                    bsecs = calc_total_secs(str(self.engine.created_at) + "-clockstart", bsecs)
 
                 gmove = candidates[0]
                 cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
@@ -294,25 +292,25 @@ class ImmanuelsThread(threading.Thread):
                 if(status == self.engine.STATUS['active']):
                     status = 0
 
-                strboard = map_cboard_to_strboard(self.engine.board)        
+                strboard = map_board_from_int_to_str(self.engine.board.fields)
 
-                update_match(self.engine.id, status, self.engine.level, strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
+                update_match(self.matchid, status, self.engine.level, strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
-                move = map_engine_move_to_sql(cmove)
-                new_move(move["match_id"], move["count"], move["srcfield"], move["dstfield"], \
+                move = map_move_from_engine(cmove, self.matchid)
+                new_move(move["match_id"], move["prevfields"], move["count"], move["srcfield"], move["dstfield"], \
                          move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
 
-                cache_set(str(self.engine.id) + "-clockstart", int(datetime.now().timestamp()), self.engine.level)
+                cache_set(str(self.engine.created_at) + "-clockstart", int(datetime.now().timestamp()), self.engine.level)
             else:
                 print("no move found or match is paused!")
 
 
-def calc_move_for_immanuel(engine):
+def calc_move_for_immanuel(engine, matchid):
     status = engine.evaluate_status()
     if(status != engine.STATUS['active']):
         return False, status
     else:
-        thread = ImmanuelsThread("immanuel-" + str(random.randint(0, 100000)), engine)
+        thread = ImmanuelsThread("immanuel-" + str(random.randint(0, 100000)), engine, matchid)
         thread.start()
         return True, engine.RETURN_CODES['ok']
 
@@ -325,11 +323,12 @@ def undomove(id):
 
     if(len(moves) > 0):
         engine = cMatch()
-        map_sqlmatch_to_engine(match, moves, engine)
+        map_match_from_db(match, moves, engine)
 
-        move = engine.undo_move()
+        cmove = engine.undo_move()
 
-        if(move is not None):
+        if(cmove is not None):
+            move = moves[-1:][0]
             wplayer = get_player(id, True)
             bplayer = get_player(id, False)
             wsecs = wplayer['consumedsecs']
@@ -343,11 +342,11 @@ def undomove(id):
             if(status == engine.STATUS['active']):
                 status = 0
 
-            strboard = map_cboard_to_strboard(engine.board)
+            strboard = map_board_from_int_to_str(engine.board.fields)
 
             update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
-            delete_move(move.id)
+            delete_move(move['id'])
 
             cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
@@ -425,8 +424,8 @@ def resume(id):
             match = get_match(id)
             moves = get_moves(id)
             engine = cMatch()
-            map_sqlmatch_to_engine(match, moves, engine)
-            calc_move_for_immanuel(engine)
+            map_match_from_db(match, moves, engine)
+            calc_move_for_immanuel(engine, id)
 
     if(view is None):
         view = 0

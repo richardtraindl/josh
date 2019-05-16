@@ -145,23 +145,24 @@ def update_match(id, status, level, board, \
     cur.close()
 
 
-def new_move(match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece):
+def new_move(match_id, prevfields, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece):
     dbcon = get_db()
     cur = dbcon.cursor()
     cur.execute(
-        'INSERT INTO move (match_id, count, srcfield, dstfield, '
+        'INSERT INTO move (match_id, prevfields, count, srcfield, dstfield, '
         'enpassfield, srcpiece, captpiece, prompiece)'
-        ' VALUES (%s,%s, %s, %s, %s, %s, %s, %s)',
-        (match_id, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece,)
+        ' VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s)',
+        (match_id, prevfields, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece,)
     )
     dbcon.commit()
     cur.close()
 
 
 def delete_match(id):
-    cur = get_db().cursor()
+    dbcon = get_db()
+    cur = dbcon.cursor()
     cur.execute('DELETE FROM match WHERE id = %s', (id,))
-    cur.commit()
+    dbcon.commit()
     cur.close()
 
 
