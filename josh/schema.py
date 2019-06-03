@@ -27,12 +27,8 @@ sqlcreates = (
     """CREATE TABLE move (id SERIAL PRIMARY KEY, \
         match_id INTEGER REFERENCES match(id) ON DELETE CASCADE, \
         prevfields VARCHAR(64) NOT NULL, \
-        count INTEGER NOT NULL, \
-        srcfield VARCHAR(2) NOT NULL, \
-        dstfield VARCHAR(2) NOT NULL, \
-        enpassfield VARCHAR(2), \
-        srcpiece VARCHAR(3) NOT NULL, \
-        captpiece VARCHAR(3) NOT NULL, \
+        src VARCHAR(2) NOT NULL, \
+        dst VARCHAR(2) NOT NULL, \
         prompiece VARCHAR(3));""",
     """CREATE TABLE comment (id SERIAL PRIMARY KEY, \
        match_id INTEGER REFERENCES match(id) ON DELETE CASCADE, \

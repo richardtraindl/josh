@@ -50,7 +50,7 @@ def get_moves(match_id):
     cur = get_db().cursor(cursor_factory=DictCursor)
     cur.execute(
         'SELECT * FROM move mv'
-        ' WHERE mv.match_id = %s ORDER BY count ASC',
+        ' WHERE mv.match_id = %s ORDER BY id ASC',
         (match_id,)
     )
     moves = cur.fetchall()
@@ -59,18 +59,22 @@ def get_moves(match_id):
 
 
 def get_movecnt(match_id):
-    move = get_last_move(match_id)
-    if(move is not None):
-        return move['count']
-    else:
-        return 0
+    cur = get_db().cursor(cursor_factory=DictCursor)
+    cur.execute(
+        'SELECT COUNT(*) FROM move mv'
+        ' WHERE mv.match_id = %s',
+        (match_id,)
+    )
+    result = cur.fetchone()
+    cur.close()
+    return result['count']
 
 
 def get_last_move(match_id):
     cur = get_db().cursor(cursor_factory=DictCursor)
     cur.execute(
         'SELECT * FROM move mv'
-        ' WHERE mv.match_id = %s ORDER BY count DESC LIMIT 1',
+        ' WHERE mv.match_id = %s ORDER BY id DESC LIMIT 1',
         (match_id,)
     )
     move = cur.fetchone()
@@ -145,14 +149,13 @@ def update_match(id, status, level, board, \
     cur.close()
 
 
-def new_move(match_id, prevfields, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece):
+def new_move(match_id, prevfields, src, dst, prompiece):
     dbcon = get_db()
     cur = dbcon.cursor()
     cur.execute(
-        'INSERT INTO move (match_id, prevfields, count, srcfield, dstfield, '
-        'enpassfield, srcpiece, captpiece, prompiece)'
-        ' VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s)',
-        (match_id, prevfields, newcount, srcfield, dstfield, enpassfield, srcpiece, captpiece, prompiece,)
+        'INSERT INTO move (match_id, prevfields, src, dst, prompiece)'
+        ' VALUES (%s, %s, %s, %s, %s)',
+        (match_id, prevfields, src, dst, prompiece)
     )
     dbcon.commit()
     cur.close()

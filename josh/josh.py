@@ -13,10 +13,10 @@ from josh.db import get_db
 from josh.dbaccess import *
 from josh.mapper import *
 
-from .engine3.values import *
-from .engine3.helper import coord_to_index, reverse_lookup
-from .engine3.match import cMatch
-from .engine3.calc import calc_move
+from .engine.values import *
+from .engine.helper import coord_to_index, reverse_lookup
+from .engine.match import cMatch
+from .engine.compute.calc import calc_move
 
 bp = Blueprint('match', __name__)
 cache = SimpleCache()
@@ -181,16 +181,14 @@ def show(id):
         isactive = 0
 
     minutes = []
-    if(movecnt % 2 == 0):
-        cnt = min(movecnt, 8)
-    else:
-        cnt = min(movecnt, 9)
-    for move in moves[(movecnt - cnt):]:
+    count = 1
+    for move in moves:
         cmove = map_move_from_db(move, engine)
-        if(cmove.count % 2 == 1):
-            minutes.append(str(cmove.count // 2 + 1) + ". " + cmove.format_move())
+        if(count % 2 == 1):
+            minutes.append(str(count // 2 + 1) + ". " + cmove.format())
         else:
-            minutes.append(cmove.format_move())
+            minutes.append(cmove.format())
+        count += 1
 
     return render_template('match/show.html', match=match, board=board, view=view, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, status=status, score=engine.score , isactive=isactive)
 
@@ -215,15 +213,15 @@ def domove(id):
     mvdst = request.form['move_dst']
     mvprompiece = request.form['prom_piece']
 
-    srcx, srcy = coord_to_index(mvsrc) 
-    dstx, dsty = coord_to_index(mvdst)
+    src = coord_to_index(mvsrc) 
+    dst = coord_to_index(mvdst)
     if(mvprompiece == "" or mvprompiece == "blk"):
         mvprompiece = None
         prompiece = PIECES['blk']
     else:
         prompiece = PIECES[mvprompiece]
 
-    isvalid, error = engine.is_move_valid(srcx, srcy, dstx, dsty, prompiece)
+    isvalid, error = engine.is_move_valid(src, dst, prompiece)
     if(isvalid):
         wsecs = wplayer['consumedsecs']
         bsecs = bplayer['consumedsecs']
@@ -232,7 +230,8 @@ def domove(id):
         else:
             bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
 
-        cmove = engine.do_move(srcx, srcy, dstx, dsty, prompiece)
+        cmove = engine.do_move(src, dst, prompiece)
+        print(hex(engine.board.fields).upper())
 
         status = engine.evaluate_status()
         if(status == engine.STATUS['active']):
@@ -243,8 +242,7 @@ def domove(id):
         update_match(id, status, match['level'], strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
         move = map_move_from_engine(cmove, id)
-        new_move(move["match_id"], move["prevfields"], move["count"], move["srcfield"], move["dstfield"], \
-                 move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
+        new_move(id, move['prevfields'], move['src'], move['dst'], move['prompiece'])
 
         cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
@@ -285,8 +283,8 @@ class ImmanuelsThread(threading.Thread):
                 else:
                     bsecs = calc_total_secs(str(self.engine.created_at) + "-clockstart", bsecs)
 
-                gmove = candidates[0]
-                cmove = self.engine.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prompiece)
+                cmove = candidates[0]
+                self.engine.do_move(cmove.src, cmove.dst, cmove.prompiece)
 
                 status = self.engine.evaluate_status()
                 if(status == self.engine.STATUS['active']):
@@ -297,8 +295,7 @@ class ImmanuelsThread(threading.Thread):
                 update_match(self.matchid, status, self.engine.level, strboard, wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
                 move = map_move_from_engine(cmove, self.matchid)
-                new_move(move["match_id"], move["prevfields"], move["count"], move["srcfield"], move["dstfield"], \
-                         move["enpassfield"], move["srcpiece"], move["captpiece"], move["prompiece"])
+                new_move(self.matchid, move['prevfields'], move['src'], move['dst'], move['prompiece'])
 
                 cache_set(str(self.engine.created_at) + "-clockstart", int(datetime.now().timestamp()), self.engine.level)
             else:

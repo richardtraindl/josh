@@ -1,6 +1,6 @@
 
-from .. engine3.match import cMatch
-from .. engine3.helper import reverse_lookup
+from .. engine.match import cMatch
+from .. engine.helper import reverse_lookup
 
 
 def fmttime(seconds):

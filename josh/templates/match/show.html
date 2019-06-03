@@ -64,18 +64,18 @@
     {% if cell.value == "blk" %}
        <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable">&nbsp;</div>
     {% else %}
-        <div id="{{ cell.id }}" class="{{ cell.color }}-cell droppable"><img class="draggable" src="{{ url_for('static', filename='img/' + cell.value + '.png') }}"></div>
+        <div id="{{ cell.id }}" value="{{ cell.value }}" class="{{ cell.color }}-cell droppable"><img class="draggable" src="{{ url_for('static', filename='img/' + cell.value + '.png') }}"></div>
     {% endif %}
   {% endfor %}
   </div>
 
-  <div id="white-pieces" class="promotion invisible">
+  <div id="white-pieces" class="promotion invisible flex-container">
     <p value="wQu"><img src="{{ url_for('static', filename='img/wQu.png') }}"></p>
     <p value="wRk"><img src="{{ url_for('static', filename='img/wRk.png') }}"></p>
     <p value="wBp"><img src="{{ url_for('static', filename='img/wBp.png') }}"></p>
     <p value="wKn"><img src="{{ url_for('static', filename='img/wKn.png') }}"></p>
   </div>
-  <div id="black-pieces" class="promotion invisible">
+  <div id="black-pieces" class="promotion invisible flex-container">
     <p value="bQu"><img src="{{ url_for('static', filename='img/bQu.png') }}"></p>
     <p value="bBp"><img src="{{ url_for('static', filename='img/bRk.png') }}"></p>
     <p value="bKn"><img src="{{ url_for('static', filename='img/bBp.png') }}"></p>
