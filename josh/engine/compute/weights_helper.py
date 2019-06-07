@@ -15,6 +15,9 @@ def lowest_piece(touches):
                 lowest = touch.piece
         return lowest
 
+def are_fairy_equal(piece1, piece2):
+    return PIECES_RANK[piece1] <= PIECES_RANK[piece2] or 
+           (PIECES_RANK[piece1] == PIECES_RANK[PIECES['wRk']] and PIECES_RANK[piece2] == PIECES_RANK[PIECES['wKn']])
 
 def find_touches_on_dstfield_after_move(match, piece, move):
     match.do_move(move.src, move.dst, move.prompiece)
@@ -184,12 +187,9 @@ def weight_for_attacking(match, piece, move, attacked, weight):
         return weight
     if(weight == cTactic.WEIGHTS['good-deal'] or 
        weight == cTactic.WEIGHTS['better-deal']):
-        if(PIECES_RANK[piece] < PIECES_RANK[attacked.piece] or  
-           len(attacked.supporter_beyond) == 0 or
-           ((PIECES_RANK[piece] == PIECES_RANK[attacked.piece] or
-             PIECES_RANK[piece] == PIECES_RANK[PIECES['wRk']] and PIECES_RANK[attacked.piece] == PIECES_RANK[PIECES['wKn']]) and 
-            len(attacked.supporter_beyond) <= len(attacked.attacker_beyond) and
-            match.is_soft_pin(attacked.field)[0])): 
+        if(PIECES_RANK[piece] < PIECES_RANK[attacked.piece] or 
+           len(attacked.supporter_beyond) == 0 or 
+           (are_fairy_equal(piece, attacked.piece) and match.is_soft_pin(attacked.field)[0])): 
             return cTactic.WEIGHTS['stormy']
         elif(PIECES_RANK[piece] < PIECES_RANK[attacked.piece] and 
              PIECES_RANK[piece] == PIECES_RANK[PIECES['wPw']] and
