@@ -1,5 +1,6 @@
 
 from .. values import *
+from .. board import c
 from .piece import cPiece
 
 
@@ -44,6 +45,25 @@ class cPawn(cPiece):
                     enemy = PIECES['wPw']
                 self.match.score -= SCORES[enemy]
         return move
+
+    def is_running(self):
+        if(self.color == COLORS['white']):
+            step = 8
+            opp_pawn = PIECES['bPw']
+        else:
+            step = -8
+            opp_pawn = PIECES['wPw']
+        for i in range(-1, 2, 1):
+            src = self.pos + i
+            while(cBoard.is_inbounds(self.pos, src, i)):
+                dst = self.match.board.search(src, step, 5)
+                if(dst):
+                    piece = self.match.board.readfield(dst)
+                    if(piece == opp_pawn):
+                        return False
+                else:
+                    break
+        return True
 
  # class end
 
