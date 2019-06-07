@@ -68,11 +68,11 @@ def is_supported_running_pawn(match, supported):
     if(match.is_endgame() == False):
         return False
     if(supported.piece == PIECES['wPw']):
-        cpawn = cWhitePawn(match, (supported.fieldx + supported.fieldy * 8))
+        cpawn = cWhitePawn(match, supported.field)
         if(cpawn.is_running()):
             return True
     elif(supported.piece == PIECES['bPw']):
-        cpawn = cBlackPawn3(match, (supported.fieldx + supported.fieldy * 8))
+        cpawn = cBlackPawn3(match, supported.field)
         if(cpawn.is_running()):
             return True
     return False
