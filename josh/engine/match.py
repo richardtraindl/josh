@@ -46,8 +46,7 @@ class cMatch:
         'king-attacked-error' : 17,
         'format-error' : 18,
         'out-of-bounds' : 19,
-        'general-error' : 20,
-    }
+        'general-error' : 20 }
 
     RETURN_MSGS = {
         RETURN_CODES['ok'] : "move okay",
@@ -60,14 +59,12 @@ class cMatch:
         RETURN_CODES['king-attacked-error'] : "king attacked error",
         RETURN_CODES['format-error'] : "format wrror",
         RETURN_CODES['out-of-bounds'] : "wrong square",
-        RETURN_CODES['general-error'] : "general error",
-    }
+        RETURN_CODES['general-error'] : "general error" }
 
     EVAL_MODES = {
         'ignore-pins' : 0,
         'only-pins-to-king' : 1,
-        'all-pins' : 2
-    }
+        'all-pins' : 2 }
     
     def __init__(self):
         self.created_at = datetime.now().timestamp()
@@ -166,22 +163,24 @@ class cMatch:
         return count >= 2
 
     def is_move_valid(self, src, dst, prompiece):
-        if(not self.board.is_inbounds(src, dst, None)):
-            return False, self.RETURN_CODES['out-of-bounds']
         piece = self.board.getfield(src)
+        cpiece = self.obj_for_piece(piece, src)
+        if(cpiece is None):
+            return False, self.RETURN_CODES['general-error']
+        ###
+        direction = cpiece.dir_for_move(src, dst)
+        step = cpiece.step_for_dir(direction)
+        if(not self.board.is_inbounds(src, dst, step)):
+            return False, self.RETURN_CODES['out-of-bounds']
         if(self.next_color() != self.color_of_piece(piece)):
             return False, self.RETURN_CODES['wrong-color']
         if(piece != PIECES['wKg'] and piece != PIECES['bKg']):
             if(self.is_king_after_move_attacked(src, dst)):
                 return False, self.RETURN_CODES['king-attacked-error']
-        cpiece = self.obj_for_piece(piece, src)
-        if(cpiece):
-            if(cpiece.is_move_valid(dst, prompiece)):
-                return True, self.RETURN_CODES['ok']
-            else:
-                return False, self.RETURN_CODES['piece-error']
+        if(cpiece.is_move_valid(dst, prompiece)):
+            return True, self.RETURN_CODES['ok']
         else:
-            return False, self.RETURN_CODES['general-error']
+            return False, self.RETURN_CODES['piece-error']
 
     def is_soft_pin(self, src):
         piece = self.board.getfield(src)
@@ -272,17 +271,16 @@ class cMatch:
             fields = fields >> 4
             #for idx in range(64):
             #piece = self.board.getfield(idx)
-            if(color == self.color_of_piece(piece)):
-                if(piece == PIECES['wPw'] and (idx // 8) == self.board.RANKS['7']):
-                    prompiece = PIECES['wQu']
-                elif(piece == PIECES['bPw'] and (idx // 8) == self.board.RANKS['2']):
-                    prompiece = PIECES['bQu']
-                else:
-                    prompiece = PIECES['blk']
-                for idx2 in range(64):
-                    flag = self.is_move_valid(idx, idx2, prompiece)[0]
-                    if(flag):
-                        return True
+            if(piece != PIECES['blk'] and color == self.color_of_piece(piece)):
+                cpiece = self.obj_for_piece(piece, idx)
+                for step in cpiece.MV_STEPS:
+                    count = 0
+                    dst = cpiece.pos + step[0]
+                    while(self.board.is_inbounds(cpiece.pos, dst, step[0]) and count < cpiece.MAXCNT):
+                        count += 1
+                        if(self.is_move_valid(cpiece.pos, dst, step[1])[0]):
+                            return True
+                        dst += step[0]
         return False
 
     def evaluate_status(self):

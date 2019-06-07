@@ -146,39 +146,36 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
 class SearchLimits:
     def __init__(self, match):
+        self.dpth_max = 20
         self.add_mvcnt = 2
         if(match.level == match.LEVELS['blitz']):
             self.dpth_stage1 = 2
+            self.dpth_stage2 = 3
+            self.dpth_stage3 = 5
+            self.mvcnt_stage1 = 6
+            self.mvcnt_stage2 = 4
+            self.mvcnt_stage3 = 2
+        if(match.level == match.LEVELS['low']):
+            self.dpth_stage1 = 2
             self.dpth_stage2 = 4
             self.dpth_stage3 = 6
-            self.mvcnt_stage1 = 6
-            self.mvcnt_stage2 = 3
+            self.mvcnt_stage1 = 8
+            self.mvcnt_stage2 = 4
             self.mvcnt_stage3 = 2
-            self.dpth_max = 10
-        elif(match.level == match.LEVELS['low']):
+        elif(match.level == match.LEVELS['medium']):
             self.dpth_stage1 = 2
             self.dpth_stage2 = 5
             self.dpth_stage3 = 7
-            self.mvcnt_stage1 = 8
-            self.mvcnt_stage2 = 5
-            self.mvcnt_stage3 = 3
-            self.dpth_max = 10
-        elif(match.level == match.LEVELS['medium']):
-            self.dpth_stage1 = 3
-            self.dpth_stage2 = 6
-            self.dpth_stage3 = 8
             self.mvcnt_stage1 = 10
-            self.mvcnt_stage2 = 4
-            self.mvcnt_stage3 = 2
-            self.dpth_max = 20
-        else: # high
-            self.dpth_stage1 = 4
+            self.mvcnt_stage2 = 6
+            self.mvcnt_stage3 = 3
+        elif(match.level == match.LEVELS['high']):
+            self.dpth_stage1 = 3
             self.dpth_stage2 = 6
             self.dpth_stage3 = 8
             self.mvcnt_stage1 = 12
             self.mvcnt_stage2 = 6
-            self.mvcnt_stage3 = 4
-            self.dpth_max = 20
+            self.mvcnt_stage3 = 3
 
         if(match.is_endgame()):
             if(match.board.wQu_cnt == 0 and match.board.bQu_cnt == 0):

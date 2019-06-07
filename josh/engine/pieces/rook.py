@@ -6,11 +6,8 @@ from .piece import cPiece
 
 class cRook(cPiece):
     DIRS_ARY = [DIRS['nth'], DIRS['sth'], DIRS['est'], DIRS['wst']]
-    STEPS = [8, -8, 1, -1]
-    GEN_STEPS = [ [[8, PIECES['blk']],   [16, 0, PIECES['blk']],  [24, PIECES['blk']],  [32, PIECES['blk']],  [40, PIECES['blk']],  [48, PIECES['blk']],  [56, PIECES['blk']]],
-                  [[-8, PIECES['blk']],  [-16, 0, PIECES['blk']], [-24, PIECES['blk']], [-32, PIECES['blk']], [-40, PIECES['blk']], [-48, PIECES['blk']], [-56, PIECES['blk']]],
-                  [[1, PIECES['blk']],   [2, PIECES['blk']],      [3, PIECES['blk']],  [4, PIECES['blk']],    [5, PIECES['blk']],   [6, PIECES['blk']],   [7, PIECES['blk']]],
-                  [[-1,  PIECES['blk']], [-2, PIECES['blk']],     [-3, PIECES['blk']], [-4, PIECES['blk']],   [-5, PIECES['blk']],  [-6, PIECES['blk']],  [-7, PIECES['blk']]] ]
+    STEPS    = [8, -8, 1, -1]
+    MV_STEPS = [[8, PIECES['blk']], [-8, PIECES['blk']],  [1, PIECES['blk']], [-1, PIECES['blk']]]
 
     def __init__(self, match, pos):
         super().__init__(match, pos)

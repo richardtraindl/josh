@@ -25,9 +25,14 @@ class cBoard:
         'H' : 7,
     }
 
-    BASE   = 0x23456432111111110000000000000000000000000000000099999999ABCDECBA
-    FULL   = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    SINGLE = 0xF000000000000000000000000000000000000000000000000000000000000000
+    BASE     = 0x42356324111111110000000000000000000000000000000099999999CABDEBAC
+    FULL     = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+    SINGLE   = 0xF000000000000000000000000000000000000000000000000000000000000000
+    BITS1000 = 0x8888888888888888888888888888888888888888888888888888888888888888
+    BITS1110 = 0xEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    BITS1100 = 0xCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+    BITS0111 = 0x7777777777777777777777777777777777777777777777777777777777777777
+    BITS0011 = 0x3333333333333333333333333333333333333333333333333333333333333333
 
     def __init__(self):
         self.fields = self.BASE
@@ -228,5 +233,27 @@ class cBoard:
            direction == DIRS['nth-2wst'] or direction == DIRS['2nth-wst']):
             return (src % 8) > (dst % 8)
         return False
+
+    @classmethod
+    def erase_whites(cls, fields):
+        mask = fields & cls.BITS1000
+        mask = mask | mask >> 1 | mask >> 2 | mask >> 3
+        return fields & mask
+
+    @classmethod
+    def erase_blacks(cls, fields):
+        mask = fields & cls.BITS1000
+        mask = (mask | mask >> 1 | mask >> 2 | mask >> 3)
+        return fields & (mask ^ cls.FULL)
+
+    @classmethod
+    def mask_pieces(cls, fields, piece):
+        negative = fields ^ PIECES_MASK[piece]
+        negative = negative | ((negative & cls.BITS1110) >> 1)
+        negative = negative | ((negative & cls.BITS1100) >> 2)
+        negative = negative | ((negative & cls.BITS0111) << 1)
+        negative = negative | ((negative & cls.BITS0011) << 2)
+        return fields & (negative ^ cls.FULL)
+
 # class end
 

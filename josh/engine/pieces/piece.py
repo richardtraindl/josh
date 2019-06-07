@@ -9,7 +9,7 @@ from .searchforpiece import is_field_touched, list_field_touches_beyond, list_al
 class cPiece:
     DIRS_ARY = []
     STEPS = []
-    GEN_STEPS = []
+    MV_STEPS = []
     MAXCNT = 7
 
     def __init__(self, match, pos):
@@ -145,10 +145,12 @@ class cPiece:
     def generate_moves(self, candidate, dbggmove, search_for_mate, mode):
         from ..compute.analyze_move import add_tactics
         moves = []
-        for direction in self.GEN_STEPS:
-            for step in direction:
-                excludes = []
-                dst = self.pos + step[0]
+        for step in self.MV_STEPS:
+            count = 0
+            excludes = []
+            dst = self.pos + step[0]
+            while(self.match.board.is_inbounds(self.pos, dst, step[0]) and count < self.MAXCNT):
+                count += 1
                 flag, errcode = self.match.is_move_valid(self.pos, dst, step[1])
                 if(flag):
                     if(mode):
@@ -160,9 +162,10 @@ class cPiece:
                         moves.append(priomove)
                     else:
                         moves.append(cMove(self.match.board.fields, self.pos, dst, step[1]))
-                elif(errcode == self.match.RETURN_CODES['out-of-bounds']):
+                    dst += step[0]
+                else:
                     break
-            
+
         if(mode and len(excludes) > 0):
             includes = []
             sorted(excludes, key=lambda x: x.tactic.weight)

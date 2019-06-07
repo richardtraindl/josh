@@ -4,9 +4,9 @@ from ..move import *
 from ..helper import coord_to_index, index_to_coord
 
 
-def retrieve_move_old(match):
+def retrieve_move(match):
     if(match.movecnt() >= DEPTH):
-        print("############ depth not supported ############")
+        print("### depth not supported ###")
         return None
 
     root = fill_openings()
@@ -25,9 +25,8 @@ def retrieve_move_old(match):
             continue
         else:
             node = None
-
     if(match.movecnt() > 0 and (node is None or node is root or len(node.children) == 0)):
-        print("############ No opening move found ############")
+        print("### No opening move found ###")
         return None
     else:
         if(match.movecnt() == 0):
@@ -42,7 +41,7 @@ def retrieve_move_old(match):
 DEPTH = 4
 
 
-class cNode_old:
+class cNode:
     def __init__(self, parent=None, str_move=""):
         self.parent = parent
         self.str_move = str_move
@@ -71,7 +70,7 @@ class cNode_old:
                 node = newnode
 
 
-def fill_openings_old():
+def fill_openings():
     root = cNode(None, "")
     cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "g8-f6"])
     cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "b8-c6"])
@@ -167,168 +166,3 @@ def fill_openings_old():
     cNode.populate_moves(root, ["g2-g3", "f8-g6", "f1-g2"])
     return root
 
-
-def retrieve_move(match):
-    if(match.movecnt() >= DEPTH):
-        print("############ depth not supported ############")
-        return None
-
-    root = fill_openings()
-    node = root
-    for move in match.move_list:
-        str_move = index_to_coord(move.src)
-        str_move += "-"
-        str_move += index_to_coord(move.dst)
-        ok = False
-        for childnode in node.children:
-            if(childnode.str_move == str_move):
-                    node = childnode
-                    ok = True
-                    break
-        if(ok):
-            continue
-        else:
-            node = None
-
-    if(match.movecnt() > 0 and (node is None or node is root or len(node.children) == 0)):
-        print("############ No opening move found ############")
-        return None
-    else:
-        if(match.movecnt() == 0):
-            node = root
-        idx = random.randint(0, len(node.children) - 1)
-        candidate = node.children[idx]
-        src = coord_to_index(candidate.str_move[:2])
-        dst = coord_to_index(candidate.str_move[3:])
-        return cGenMove(src, dst, PIECES['blk'])
-
-
-DEPTH = 4
-
-class cNode:
-    def __init__(self, parent, board):
-        self.parent = parent
-        self.board = board
-        self.children = []
-
-    @classmethod
-    def populate_moves(self, boards):
-        node = parent
-        for board in boards:
-            found = False
-            for child in node.children:
-                if(child.board == board):
-                    node = child
-                    found = True
-                    break
-            if(found == False):
-                newnode = cNode(node, board)
-                node.children.append(newnode)
-                node = newnode
-
-def fill_openings_new():
-    root = cNode(None, 0x23456432111111110000000000000000000000000000000099999999ABCDECBA)
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "g8-f6"])
-    """
-    0x234564321111011100000000 00001000 00000000 0000000099999999ABCDECBA
-    
-    0x234564321111011100000000 00001000 00009000 00000000 99990999ABCDECBA
-    0x234564021111011100000300 00001000 00009000 00000000 99990999ABCDECBA
-    
-    0x234564021111011100000300 00001000 00009000 00000B00 99990999ABCDEC0A
-    0x234564021111011100000300 00001000 00009000 00000000 99990999ABCDECBA
-    0x234564021111011100000300 00001000 00009000 00000000 99990999ABCDECBA
-    0x234564021111011100000300 00001000 00009000 00000000 99990999ABCDECBA"""
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "g1-f3", "e7-e6"]) 
-    
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "b1-c3", "g8-f6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "b1-c3", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "b1-c3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "b1-c3", "e7-e6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "f1-c4", "g8-f6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "f1-c4", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "f1-c4", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "f1-c4", "e7-e6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e5", "f1-c4", "f8-c5"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "g1-f3", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "g1-f3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "g1-f3", "e7-e6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "g1-f3", "g7-g6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "d2-d4", "c5-d4"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "f1-c4", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "f1-c4", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "f1-c4", "e7-e6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "b1-c3", "b8-c6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "b1-c3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "b1-c3", "e7-e6"])
-    cNode.populate_moves(root, ["e2-e4", "c7-c5", "b1-c3", "g7-g6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "d2-d4", "d7-d5"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "d2-d4", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "g1-f3", "d7-d5"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "g1-f3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "b1-c3", "d7-d5"])
-    cNode.populate_moves(root, ["e2-e4", "e7-e6", "b1-c3", "d7-d6"])
-    cNode.populate_moves(root, ["e2-e4", "d7-d6", "d2-d4", "e7-e5"])
-    cNode.populate_moves(root, ["e2-e4", "d7-d6", "d2-d4", "e7-e6"]) 
-    cNode.populate_moves(root, ["e2-e4", "d7-d6", "g1-f3", "e7-e6"]) 
-    cNode.populate_moves(root, ["e2-e4", "d7-d6", "f1-c4", "e7-e6"]) 
-    cNode.populate_moves(root, ["e2-e4", "d7-d6", "b1-c3", "e7-e6"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d5", "c2-c4", "d5-c4"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d5", "g1-f3"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d5", "c1-f4"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d6", "e2-e4"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d6", "c2-c4"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d6", "g1-f3"]) 
-    cNode.populate_moves(root, ["d2-d4", "d7-d6", "c1-f4"]) 
-    cNode.populate_moves(root, ["d2-d4", "e7-e6", "e2-e4", "d7-d5"])
-    cNode.populate_moves(root, ["d2-d4", "e7-e6", "c2-c4", "d7-d5"]) 
-    cNode.populate_moves(root, ["d2-d4", "e7-e6", "g1-f3"])
-    cNode.populate_moves(root, ["d2-d4", "e7-e6", "c1-f4"]) 
-    cNode.populate_moves(root, ["d2-d4", "g8-f6", "c2-c4"])
-    cNode.populate_moves(root, ["d2-d4", "g8-f6", "g1-f3"])
-    cNode.populate_moves(root, ["d2-d4", "g8-f6", "c1-f4"])
-    cNode.populate_moves(root, ["c2-c4", "e7-e5", "b1-c3"]) 
-    cNode.populate_moves(root, ["c2-c4", "e7-e5", "d2-d3"]) 
-    cNode.populate_moves(root, ["c2-c4", "e7-e5", "g2-g3"]) 
-    cNode.populate_moves(root, ["c2-c4", "c7-c5", "b1-c3"]) 
-    cNode.populate_moves(root, ["c2-c4", "c7-c5", "g1-f3"]) 
-    cNode.populate_moves(root, ["c2-c4", "c7-c5", "g2-g3"]) 
-    cNode.populate_moves(root, ["c2-c4", "c7-c5", "e2-e3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g8-f6", "d2-d4"])
-    cNode.populate_moves(root, ["c2-c4", "g8-f6", "b1-c3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g8-f6", "g1-f3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g8-f6", "g2-g3"])
-    cNode.populate_moves(root, ["c2-c4", "d7-d6", "d2-d4"]) 
-    cNode.populate_moves(root, ["c2-c4", "d7-d6", "b1-c3"]) 
-    cNode.populate_moves(root, ["c2-c4", "d7-d6", "g1-f3"]) 
-    cNode.populate_moves(root, ["c2-c4", "d7-d6", "g2-g3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g7-g6", "d2-d4"]) 
-    cNode.populate_moves(root, ["c2-c4", "g7-g6", "g1-f3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g7-g6", "b1-c3"]) 
-    cNode.populate_moves(root, ["c2-c4", "g7-g6", "g2-g3"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d5", "d2-d4"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d5", "d2-d3"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d5", "g2-g3"]) 
-    cNode.populate_moves(root, ["g1-f3", "c7-c5", "e2-e4"]) 
-    cNode.populate_moves(root, ["g1-f3", "c7-c5", "c2-c4"]) 
-    cNode.populate_moves(root, ["g1-f3", "c7-c5", "g2-g3"]) 
-    cNode.populate_moves(root, ["g1-f3", "c7-c5", "d2-d4"]) 
-    cNode.populate_moves(root, ["g1-f3", "g8-f6", "d2-d4"]) 
-    cNode.populate_moves(root, ["g1-f3", "g8-f6", "c2-c4"]) 
-    cNode.populate_moves(root, ["g1-f3", "g8-f6", "g2-g3"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d6", "e2-e4"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d6", "d2-d4"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d6", "c2-c4"]) 
-    cNode.populate_moves(root, ["g1-f3", "d7-d6", "g2-g3"]) 
-    cNode.populate_moves(root, ["g1-f3", "e7-e6", "e2-e4"]) 
-    cNode.populate_moves(root, ["g1-f3", "e7-e6", "d2-d4"]) 
-    cNode.populate_moves(root, ["g1-f3", "e7-e6", "c2-c4"]) 
-    cNode.populate_moves(root, ["g1-f3", "e7-e6", "g2-g3"]) 
-    cNode.populate_moves(root, ["g2-g3", "g7-g6", "f1-g2"])            
-    cNode.populate_moves(root, ["g2-g3", "e7-e5", "f1-g2"]) 
-    cNode.populate_moves(root, ["g2-g3", "d7-d5", "f1-g2"]) 
-    cNode.populate_moves(root, ["g2-g3", "c7-c5", "f1-g2"]) 
-    cNode.populate_moves(root, ["g2-g3", "f8-g6", "f1-g2"])
-    return root

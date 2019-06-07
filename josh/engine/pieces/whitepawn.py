@@ -11,11 +11,11 @@ class cWhitePawn(cPawn):
     def __init__(self, match, pos):
         super().__init__(match, pos)
         if((self.pos // 8) < 6):
-            self.GEN_STEPS = [ [[8, PIECES['blk']]], [[16, PIECES['blk']]], [[9, PIECES['blk']]], [[7, PIECES['blk']]] ]
+            self.MV_STEPS = [[8, PIECES['blk']], [16, PIECES['blk']], [9, PIECES['blk']], [7, PIECES['blk']]]
         else:
-            self.GEN_STEPS = [ [[8, PIECES['wQu']], [8, PIECES['wRk']], [8, PIECES['wBp']], [8, PIECES['wKn']]],
-                               [[9, PIECES['wQu']], [9, PIECES['wRk']], [9, PIECES['wBp']], [9, PIECES['wKn']]],
-                               [[7, PIECES['wQu']], [7, PIECES['wRk']], [7, PIECES['wBp']], [7, PIECES['wKn']]] ]
+            self.MV_STEPS = [[8, PIECES['wQu']], [8, PIECES['wRk']], [8, PIECES['wBp']], [8, PIECES['wKn']],
+                             [9, PIECES['wQu']], [9, PIECES['wRk']], [9, PIECES['wBp']], [9, PIECES['wKn']],
+                             [7, PIECES['wQu']], [7, PIECES['wRk']], [7, PIECES['wBp']], [7, PIECES['wKn']]]
 
     @classmethod
     def dir_for_move(cls, src, dst):

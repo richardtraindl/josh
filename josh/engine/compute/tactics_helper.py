@@ -78,8 +78,7 @@ def is_supported_running_pawn(match, supported):
     return False
 
 
-def castles(match, move):
-    piece = match.board.getfield(move.src)
+def castles(match, piece, move):
     if(piece == PIECES['wKg'] or piece == PIECES['bKg']):
         if(abs(move.src - move.dst) == 2):
             return True
@@ -93,8 +92,7 @@ def promotes(move):
         return False
 
 
-def captures(match, move):
-    piece = match.board.getfield(move.src)
+def captures(match, piece, move):
     color = match.color_of_piece(piece)
     dstpiece = match.board.getfield(move.dst)
     if(dstpiece != PIECES['blk']):
@@ -117,7 +115,7 @@ def forks(piece, from_dstfield_attacked):
     return count >= 2
 
 
-def defends_fork(match, move, piece, dstpiece):
+def defends_fork(match, piece, move, dstpiece):
     attacked = []
     supported = []
     if(dstpiece == PIECES['blk']):
@@ -142,11 +140,10 @@ def defends_fork(match, move, piece, dstpiece):
         return False
 
 
-def threatens_fork(match, move):
+def threatens_fork(match, piece, move):
     attacked = []
     supported = []
     is_fork_threat = False
-    piece = match.board.getfield(move.src)
     ###
     newmatch = copy.deepcopy(match)
     newmatch.do_move(move.src, move.dst, move.prompiece)
@@ -178,7 +175,7 @@ def threatens_fork(match, move):
     return is_fork_threat
 
 
-def flees(match, move):
+def flees(match, piece, move):
     lower_enmy_cnt_old = 0
     lower_enmy_cnt_new = 0
     piece = match.board.getfield(move.src)
@@ -209,35 +206,34 @@ def flees(match, move):
 
 
 def find_touches_after_move(match, move):
-    attacked = []
     supported = []
-    piece = match.board.getfield(move.src)
+    attacked = []
     ###
     match.do_move(move.src, move.dst, move.prompiece)
+    piece = match.board.getfield(move.dst)
     cpiece = match.obj_for_piece(piece, move.dst)
     cpiece.find_attacks_and_supports(attacked, supported)
-    if(cpiece.piece == PIECES['wKg'] or cpiece.piece == PIECES['bKg']):
-        if((move.src % 8) - (move.dst % 8) == -2):
-            crook = cRook(match, move.dst)
-            crook.find_attacks_and_supports(attacked, supported)
-        elif((move.src % 8) - (move.dst % 8) == 2):
-            crook = cRook(match, move.dst + 1)
-            crook.find_attacks_and_supports(attacked, supported)
     match.undo_move()
     ###
     return supported, attacked
 
 
-def find_touches_on_dstfield_after_move(match, move):
-    piece = match.board.getfield(move.src)
+def find_rook_touches_after_castling(match, move):
+    supported = []
+    attacked = []
+    ###
     match.do_move(move.src, move.dst, move.prompiece)
-    list_all_field_touches(match, move.dst, match.color_of_piece(piece))
+    if((move.src % 8) + 2 == (move.dst % 8)):
+        crook = cRook(match, move.dst - 1)
+    else:
+        crook = cRook(match, move.dst + 1)
+    crook.find_attacks_and_supports(attacked, supported)
     match.undo_move()
-    return frdlytouches, enmytouches
+    ###
+    return crook, supported, attacked
 
 
-def does_unpin(match, move):
-    piece = match.board.getfield(move.src)
+def does_unpin(match, piece, move):
     color = match.color_of_piece(piece)
     pinlines_before = search_lines_of_pin(match, color, move.src, move.dst)
     ###
@@ -329,9 +325,8 @@ def find_disclosures(match, move):
     return discl_supported, discl_attacked
 
 
-def blocks(match, move):
+def blocks(match, piece, move):
     STEPS = [8, 1, 9, -7]
-    piece = match.board.getfield(move.src)
     color = match.color_of_piece(piece)
     #frdlytouches_before_count = 0
     enmytouches_before_count = 0
@@ -375,9 +370,8 @@ def blocks(match, move):
         return False
 
 
-def running_pawn_in_endgame(match, move):
+def running_pawn_in_endgame(match, piece, move):
     if(match.is_endgame()):
-        piece = match.board.getfield(move.src)
         if(piece == PIECES['wPw']):
             cpawn = cWhitePawn(match, move.src)
             return cpawn.is_running()

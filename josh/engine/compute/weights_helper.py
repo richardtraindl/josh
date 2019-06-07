@@ -16,16 +16,14 @@ def lowest_piece(touches):
         return lowest
 
 
-def find_touches_on_dstfield_after_move(match, move):
-    piece = match.board.getfield(move.src)
+def find_touches_on_dstfield_after_move(match, piece, move):
     match.do_move(move.src, move.dst, move.prompiece)
     frdlytouches, enmytouches = list_all_field_touches(match, move.dst, match.color_of_piece(piece))
     match.undo_move()
     return frdlytouches, enmytouches
 
 
-def is_supporter_lower_attacker(match, move, supported):
-    piece = match.board.getfield(move.src)
+def is_supporter_lower_attacker(match, piece, move, supported):
     for attacker in supported.attacker_beyond:
         if(PIECES_RANK[piece] >= PIECES_RANK[attacker.piece]):
             return False
@@ -54,16 +52,14 @@ def calc_checks(match, maxcnt, count):
     return False
 
 
-def is_soft_pinned_move(match, move):
-    piece = match.board.getfield(move.src)
+def is_soft_pinned_move(match, piece, move):
     flag, pindir = match.is_soft_pin(move.src)
     cpiece = match.obj_for_piece(piece, move.src)
     mvdir = cpiece.dir_for_move(move.src, move.dst)
     return (flag and pindir != mvdir and pindir != REVERSE_DIRS[mvdir])
 
 
-def is_supply(match, move):
-    piece = match.board.getfield(move.src)
+def is_supply(match, piece, move):
     supplies = cSearchForRook.list_field_touches(match, move.src, match.color_of_piece(piece))
     supplies.extend(cSearchForBishop.list_field_touches(match, move.src, match.color_of_piece(piece)))
     for supply in supplies:
@@ -76,20 +72,18 @@ def is_supply(match, move):
     return False
 
 
-def is_touched_field_within_move(match, move, touched_field):
-    piece = match.board.getfield(move.src)
+def is_touched_field_within_move(match, piece, move, touched_field):
     cpiece = match.obj_for_piece(piece, move.src)
     mvdir1 = cpiece.dir_for_move(move.src, move.dst)
     mvdir2 = cpiece.dir_for_move(move.dst, touched_field)
-    return (mvdir1 == mvdir2 or REVERSE_DIRS[mvdir1] == mvdir2)
+    return (mvdir1 != DIRS['undef'] and (mvdir1 == mvdir2 or REVERSE_DIRS[mvdir1] == mvdir2))
 
 
-def weight_for_standard(match, move):
-    piece = match.board.getfield(move.src)
-    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, move)
+def weight_for_standard(match, piece, move):
+    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, piece, move)
     lowest_enemy_on_dstfield = lowest_piece(enmies_on_dstfield)
     ###
-    if(is_soft_pinned_move(match, move)):
+    if(is_soft_pinned_move(match, piece, move)):
         return cTactic.WEIGHTS['bad-deal']
     elif(len(enmies_on_dstfield) == 0):
         return cTactic.WEIGHTS['good-deal']
@@ -100,19 +94,18 @@ def weight_for_standard(match, move):
         return cTactic.WEIGHTS['bad-deal']
 
 
-def weight_for_capture(match, move, weight):
-    piece = match.board.getfield(move.src)
+def weight_for_capture(match, piece, move, weight):
     dstpiece = match.board.getfield(move.dst)
-    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, move)
+    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, piece, move)
     ###
     if(PIECES_RANK[piece] < PIECES_RANK[dstpiece]):
         return cTactic.WEIGHTS['stormy']
-    elif(is_soft_pinned_move(match, move) == False and len(enmies_on_dstfield) == 0):
+    elif(is_soft_pinned_move(match, piece, move) == False and len(enmies_on_dstfield) == 0):
         return cTactic.WEIGHTS['stormy']
-    elif(is_soft_pinned_move(match, move) == False and 
-         match.is_soft_pin((move.dst))[0] and is_supply(match, move)):
+    elif(is_soft_pinned_move(match, piece, move) == False and 
+         match.is_soft_pin((move.dst))[0] and is_supply(match, piece, move)):
         return cTactic.WEIGHTS['stormy']
-    elif(is_soft_pinned_move(match, move) == False and 
+    elif(is_soft_pinned_move(match, piece, move) == False and 
          PIECES_RANK[piece] == PIECES_RANK[dstpiece]):
         if(len(friends_on_dstfield) > len(enmies_on_dstfield)):
             return cTactic.WEIGHTS['better-deal']
@@ -122,8 +115,7 @@ def weight_for_capture(match, move, weight):
         return weight
 
 
-def weight_for_flee(match, move, weight):
-    piece = match.board.getfield(move.src)
+def weight_for_flee(match, piece, move, weight):
     friends_on_srcfield, enmies_on_srcfield = list_all_field_touches(match, move.src, match.color_of_piece(piece))
     lowest_enemy_on_srcfield = lowest_piece(enmies_on_srcfield)
     ###
@@ -137,8 +129,8 @@ def weight_for_flee(match, move, weight):
     return weight
 
 
-def weight_for_running_pawn(match, move, weight):
-    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, move)
+def weight_for_running_pawn(match, piece, move, weight):
+    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, piece, move)
     ###
     if((weight == cTactic.WEIGHTS['good-deal'] or 
         weight == cTactic.WEIGHTS['better-deal']) and 
@@ -165,14 +157,14 @@ def weight_for_discl_attacked(discl_attacked, weight):
         return weight
 
 
-def weight_for_supporting(match, move, supported, weight):
-    if(is_touched_field_within_move(match, move, supported.field)):
+def weight_for_supporting(match, piece, move, supported, weight):
+    if(is_touched_field_within_move(match, piece, move, supported.field)):
         return weight
     if(weight == cTactic.WEIGHTS['good-deal'] or 
        weight == cTactic.WEIGHTS['better-deal']):
         if(len(supported.attacker_beyond) > 0 and
            len(supported.attacker_beyond) > len(supported.supporter_beyond) and
-           (is_supporter_lower_attacker(match, move, supported) or
+           (is_supporter_lower_attacker(match, piece, move, supported) or
             match.is_soft_pin((supported.field))[0])):
             return cTactic.WEIGHTS['stormy']
     return weight
@@ -185,11 +177,10 @@ def weight_for_attacking_king(match, move, weight):
         return weight
 
 
-def weight_for_attacking(match, move, attacked, weight):
-    piece = match.board.getfield(move.src)
-    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, move)
+def weight_for_attacking(match, piece, move, attacked, weight):
+    friends_on_dstfield, enmies_on_dstfield = find_touches_on_dstfield_after_move(match, piece, move)
     ###
-    if(is_touched_field_within_move(match, move, attacked.field)):
+    if(is_touched_field_within_move(match, piece, move, attacked.field)):
         return weight
     if(weight == cTactic.WEIGHTS['good-deal'] or 
        weight == cTactic.WEIGHTS['better-deal']):

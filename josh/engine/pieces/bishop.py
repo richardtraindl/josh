@@ -6,11 +6,8 @@ from .piece import cPiece
 
 class cBishop(cPiece):
     DIRS_ARY = [DIRS['nth-est'], DIRS['sth-wst'], DIRS['nth-wst'], DIRS['sth-est']]
-    STEPS = [9, -9, 7, -7]
-    GEN_STEPS = [ [[9, PIECES['blk']],  [18, PIECES['blk']],  [27, PIECES['blk']],  [36, PIECES['blk']],  [45, PIECES['blk']],  [54, PIECES['blk']],  [63, PIECES['blk']]],
-                  [[-9, PIECES['blk']], [-18, PIECES['blk']], [-27, PIECES['blk']], [-36, PIECES['blk']], [-45, PIECES['blk']], [-54, PIECES['blk']], [-63, PIECES['blk']]],
-                  [[7, PIECES['blk']],  [14, PIECES['blk']],  [21, PIECES['blk']],  [28, PIECES['blk']],  [35, PIECES['blk']],  [42, PIECES['blk']],  [49, PIECES['blk']]],
-                  [[-7, PIECES['blk']], [-14, PIECES['blk']], [-21, PIECES['blk']], [-28, PIECES['blk']], [-35, PIECES['blk']], [-42, PIECES['blk']], [-49, PIECES['blk']]] ]
+    STEPS    = [9, -9, 7, -7]
+    MV_STEPS = [[9, PIECES['blk']], [-9, PIECES['blk']],  [7, PIECES['blk']], [-7, PIECES['blk']]]
 
     def __init__(self, match, pos):
         super().__init__(match, pos)

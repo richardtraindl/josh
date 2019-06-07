@@ -232,6 +232,9 @@ def domove(id):
 
         cmove = engine.do_move(src, dst, prompiece)
         print(hex(engine.board.fields).upper())
+        print(hex(cBoard.erase_whites(engine.board.fields)).upper())
+        print(hex(cBoard.erase_blacks(engine.board.fields)).upper())
+        print(hex(cBoard.mask_pieces(engine.board.fields, PIECES['wRk'])).upper())
 
         status = engine.evaluate_status()
         if(status == engine.STATUS['active']):

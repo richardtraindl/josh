@@ -4,15 +4,9 @@ from .piece import cPiece
 
 
 class cKnight(cPiece):
-    STEPS = [17, 10, -6, -15, -17, -10, 6, 15]
-    GEN_STEPS = [ [[17, PIECES['blk']]],
-                  [[10, PIECES['blk']]],
-                  [[-6, PIECES['blk']]], 
-                  [[-15, PIECES['blk']]],
-                  [[-17, PIECES['blk']]],
-                  [[-10, PIECES['blk']]],
-                  [[6, PIECES['blk']]],
-                  [[15, PIECES['blk']]] ]
+    STEPS    = [17, 10, -6, -15, -17, -10, 6, 15]
+    MV_STEPS = [[17, PIECES['blk']],  [10, PIECES['blk']],  [-6, PIECES['blk']], [-15, PIECES['blk']], 
+                [-17, PIECES['blk']], [-10, PIECES['blk']], [6, PIECES['blk']],  [15, PIECES['blk']]]
     MAXCNT = 1
 
     def __init__(self, match, pos):

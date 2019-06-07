@@ -5,17 +5,10 @@ from .searchforpiece import is_field_touched
 
 
 class cKing(cPiece):
-    STEPS = [8, 9, 1, -7, -8, -9, -1, 7]
-    GEN_STEPS = [ [[8, PIECES['blk']]],
-                  [[9, PIECES['blk']]],
-                  [[1, PIECES['blk']]], 
-                  [[-7, PIECES['blk']]],
-                  [[-8, PIECES['blk']]], 
-                  [[-9, PIECES['blk']]],
-                  [[-1, PIECES['blk']]],
-                  [[-7, PIECES['blk']]],
-                  [[2, PIECES['blk']]],
-                  [[-2, PIECES['blk']]] ]
+    STEPS    = [8, 9, 1, -7, -8, -9, -1, 7]
+    MV_STEPS = [[8, PIECES['blk']],  [9, PIECES['blk']],  [1, PIECES['blk']],  [-7, PIECES['blk']], 
+                [-8, PIECES['blk']], [-9, PIECES['blk']], [-1, PIECES['blk']], [ 7, PIECES['blk']],
+                [2, PIECES['blk']],  [-2, PIECES['blk']]]
     MAXCNT = 1
 
     def __init__(self, match, pos):
@@ -60,10 +53,10 @@ class cKing(cPiece):
         if(self.pos - dst != -2):
             return False
         if(self.color == COLORS['white']):
-            shorttest  = 0x0000600200000000000000000000000000000000000000000000000000000000
+            shorttest  = 0x0000600400000000000000000000000000000000000000000000000000000000
             shortmask  = 0x0000FFFF00000000000000000000000000000000000000000000000000000000
         else:
-            shorttest  = 0x000000000000000000000000000000000000000000000000000000000000E00A
+            shorttest  = 0x000000000000000000000000000000000000000000000000000000000000E00C
             shortmask  = 0x000000000000000000000000000000000000000000000000000000000000FFFF            
         fields = self.match.board.fields & shortmask
         if(fields != shorttest):
@@ -90,10 +83,10 @@ class cKing(cPiece):
         if(self.pos - dst != 2):
             return False
         if(self.color == COLORS['white']):
-            longtest  = 0x2000600000000000000000000000000000000000000000000000000000000000
+            longtest  = 0x4000600000000000000000000000000000000000000000000000000000000000
             longmask  = 0xFFFFF00000000000000000000000000000000000000000000000000000000000
         else:
-            longtest  = 0x00000000000000000000000000000000000000000000000000000000A000E000
+            longtest  = 0x00000000000000000000000000000000000000000000000000000000C000E000
             longmask  = 0x00000000000000000000000000000000000000000000000000000000FFFFF000            
         fields = self.match.board.fields & longmask
         if(fields != longtest):
