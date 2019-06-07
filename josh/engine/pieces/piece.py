@@ -145,18 +145,14 @@ class cPiece:
     def generate_moves(self, candidate, dbggmove, search_for_mate, mode):
         from ..compute.analyze_move import add_tactics
         moves = []
-        if(self.piece == PIECES['bQu']):
-            print(str(len(self.MV_STEPS)))
         for step in self.MV_STEPS:
-            if(self.piece == PIECES['bQu']):
-                print("step: " + str(step))
             count = 0
             excludes = []
             dst = self.pos + step[0]
             while(self.match.board.is_inbounds(self.pos, dst, step[0]) and count < self.MAXCNT):
                 count += 1
-                if(self.pos == 62 and dst == 46):
-                    print("bQu1")
+                if(self.piece == PIECES['bQu']):
+                    print(str(self.pos) + " " + str(dst))
                 flag, errcode = self.match.is_move_valid(self.pos, dst, step[1])
                 if(self.pos == 62 and dst == 46):
                     print("bQu2")
@@ -173,6 +169,8 @@ class cPiece:
                     dst += step[0]
                 else:
                     break
+                if(self.piece == PIECES['bQu']):
+                    print(str(self.pos) + " " + str(dst))
 
         if(mode and len(excludes) > 0):
             includes = []
