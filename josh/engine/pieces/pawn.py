@@ -58,7 +58,7 @@ class cPawn(cPiece):
             while(idx == 0 or cBoard.is_inbounds(self.pos, src, idx)):
                 dst = self.match.board.search(src, step, 5)
                 if(dst):
-                    piece = self.match.board.readfield(dst)
+                    piece = self.match.board.getfield(dst)
                     if(piece == opp_pawn):
                         return False
                 else:
