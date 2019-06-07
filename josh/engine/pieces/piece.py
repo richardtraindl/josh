@@ -145,7 +145,11 @@ class cPiece:
     def generate_moves(self, candidate, dbggmove, search_for_mate, mode):
         from ..compute.analyze_move import add_tactics
         moves = []
+        if(self.piece == PIECES['bQu']):
+            print(str(len(self.MV_STEPS)))
         for step in self.MV_STEPS:
+            if(self.piece == PIECES['bQu']):
+                print("step: " + str(step))
             count = 0
             excludes = []
             dst = self.pos + step[0]
