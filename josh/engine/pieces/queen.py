@@ -8,7 +8,8 @@ from .bishop import cBishop
 class cQueen(cPiece):
     DIRS_ARY = cRook.DIRS_ARY
     DIRS_ARY.extend(cBishop.DIRS_ARY)
-    STEPS    = [8, -8, 1, -1, 9, -9, 7, -7]  
+    STEPS    = cRook.STEPS
+    STEPS.extend(cBishop.STEPS)
     MV_STEPS = cRook.MV_STEPS
     MV_STEPS.extend(cBishop.MV_STEPS)
 
