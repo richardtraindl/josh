@@ -4,6 +4,7 @@ from operator import attrgetter
 
 from ..values import *
 from ..move import cPrioMove, cTactic
+from .openings import retrieve_move
 from .analyze_position import *
 
 
@@ -255,7 +256,9 @@ def select_maxcount(match, priomoves, depth, slimits, last_pmove):
             #return mincount
         #else:
         count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio2'])
-        return max(min(slimits.mvcnt_stage1, count), stormycnt)
+        if(count < slimits.mvcnt_stage1):
+            count = slimits.mvcnt_stage1
+        return max(count, stormycnt)
     elif(depth <= slimits.dpth_stage2):
         resort_exchange_or_stormy_moves(priomoves, cPrioMove.PRIOS['prio1'], last_pmove, False)
         stormycnt = count_up_within_stormy(priomoves)
@@ -263,7 +266,9 @@ def select_maxcount(match, priomoves, depth, slimits, last_pmove):
             #return mincount
         #else:
         count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio1'])
-        return max(min(slimits.mvcnt_stage2, count), stormycnt)
+        if(count < slimits.mvcnt_stage2):
+            count = slimits.mvcnt_stage2
+        return max(count, stormycnt)
     else:
         if(resort_exchange_or_stormy_moves(priomoves, cPrioMove.PRIOS['prio0'], last_pmove, True)):
             count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio0'])
@@ -291,11 +296,19 @@ def prnt_fmttime(msg, seconds):
 
 def calc_move(match, candidate):
     time_start = time.time()
-    slimits = SearchLimits(match)
-    maximizing = match.next_color() == COLORS['white']
-    alpha = SCORES[PIECES['wKg']] * 10
-    beta = SCORES[PIECES['bKg']] * 10
-    score, candidates = alphabeta(match, 1, slimits, alpha, beta, maximizing, None, candidate)
+    gmove = None #retrieve_move(match)
+    candidates = []
+
+    if(gmove):
+        candidates.append(gmove)
+        score = match.score
+    else:
+        slimits = SearchLimits(match)
+        maximizing = match.next_color() == COLORS['white']
+        alpha = SCORES[PIECES['wKg']] * 10
+        beta = SCORES[PIECES['bKg']] * 10
+        score, candidates = alphabeta(match, 1, slimits, alpha, beta, maximizing, None, candidate)
+
     msg = "result: " + str(score) + " match: " + str(match.created_at) + " "
     print(msg + concat_fmtmoves(match, candidates))
     prnt_fmttime("\ncalc-time: ", time.time() - time_start)

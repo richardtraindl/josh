@@ -275,7 +275,7 @@ class ImmanuelsThread(threading.Thread):
             candidates = calc_move(self.engine, None)
             match = get_match(self.matchid)
             movecnt = get_movecnt(self.matchid)
-            if(match and movecnt and match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
+            if(match and match['status'] == 0 and movecnt == self.engine.movecnt() and len(candidates) > 0):
                 wplayer = get_player(self.matchid, True)
                 bplayer = get_player(self.matchid, False)
 

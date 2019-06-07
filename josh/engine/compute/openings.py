@@ -11,7 +11,7 @@ def retrieve_move(match):
 
     root = fill_openings()
     node = root
-    for move in match.move_list:
+    for move in match.minutes:
         str_move = index_to_coord(move.src)
         str_move += "-"
         str_move += index_to_coord(move.dst)
@@ -35,7 +35,7 @@ def retrieve_move(match):
         candidate = node.children[idx]
         src = coord_to_index(candidate.str_move[:2])
         dst = coord_to_index(candidate.str_move[3:])
-        return cGenMove(src, dst, PIECES['blk'])
+        return cMove(src, dst, PIECES['blk'])
 
 
 DEPTH = 4
