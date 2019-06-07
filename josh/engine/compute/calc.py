@@ -178,10 +178,9 @@ class SearchLimits:
             self.mvcnt_stage2 = 6
             self.mvcnt_stage3 = 3
 
-        if(match.is_endgame()):
-            if(match.board.wQu_cnt == 0 and match.board.bQu_cnt == 0):
-                self.dpth_stage1 += 1
-                self.dpth_stage2 += 1
+        """if(match.is_endgame()):
+            self.dpth_stage1 += 1
+            self.dpth_stage2 += 1"""
 
 # class end
 
