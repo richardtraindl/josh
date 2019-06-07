@@ -166,9 +166,7 @@ class cPiece:
                         moves.append(priomove)
                     else:
                         moves.append(cMove(self.match.board.fields, self.pos, dst, step[1]))
-                    dst += step[0]
-                else:
-                    break
+                dst += step[0]
                 if(self.piece == PIECES['bQu']):
                     print(str(self.pos) + " " + str(dst))
 
