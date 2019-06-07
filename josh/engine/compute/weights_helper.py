@@ -16,7 +16,7 @@ def lowest_piece(touches):
         return lowest
 
 def are_fairy_equal(piece1, piece2):
-    return PIECES_RANK[piece1] <= PIECES_RANK[piece2] or 
+    return PIECES_RANK[piece1] <= PIECES_RANK[piece2] or \
            (PIECES_RANK[piece1] == PIECES_RANK[PIECES['wRk']] and PIECES_RANK[piece2] == PIECES_RANK[PIECES['wKn']])
 
 def find_touches_on_dstfield_after_move(match, piece, move):
