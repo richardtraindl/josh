@@ -151,11 +151,7 @@ class cPiece:
             dst = self.pos + step[0]
             while(self.match.board.is_inbounds(self.pos, dst, step[0]) and count < self.MAXCNT):
                 count += 1
-                if(self.piece == PIECES['bQu']):
-                    print(str(self.pos) + " " + str(dst))
                 flag, errcode = self.match.is_move_valid(self.pos, dst, step[1])
-                if(self.pos == 62 and dst == 46):
-                    print("bQu2")
                 if(flag):
                     if(mode):
                         move = cMove(self.match.board.fields, self.pos, dst, step[1])
@@ -167,8 +163,6 @@ class cPiece:
                     else:
                         moves.append(cMove(self.match.board.fields, self.pos, dst, step[1]))
                 dst += step[0]
-                if(self.piece == PIECES['bQu']):
-                    print(str(self.pos) + " " + str(dst))
 
         if(mode and len(excludes) > 0):
             includes = []
