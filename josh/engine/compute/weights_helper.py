@@ -165,7 +165,7 @@ def weight_for_supporting(match, piece, move, supported, weight):
         if(len(supported.attacker_beyond) > 0 and
            len(supported.attacker_beyond) > len(supported.supporter_beyond) and
            (is_supporter_lower_attacker(match, piece, move, supported) or
-            match.is_soft_pin((supported.field))[0])):
+            match.is_soft_pin(supported.field)[0])):
             return cTactic.WEIGHTS['stormy']
     return weight
 
@@ -185,9 +185,11 @@ def weight_for_attacking(match, piece, move, attacked, weight):
     if(weight == cTactic.WEIGHTS['good-deal'] or 
        weight == cTactic.WEIGHTS['better-deal']):
         if(PIECES_RANK[piece] < PIECES_RANK[attacked.piece] or  
-           (len(attacked.supporter_beyond) == 0 or
-            len(attacked.supporter_beyond) <= len(attacked.attacker_beyond) or
-            match.is_soft_pin((attacked.field))[0])): 
+           len(attacked.supporter_beyond) == 0 or
+           ((PIECES_RANK[piece] == PIECES_RANK[attacked.piece] or
+             PIECES_RANK[piece] == PIECES_RANK[PIECES['wRk']] and PIECES_RANK[attacked.piece] == PIECES_RANK[PIECES['wKn']]) and 
+            len(attacked.supporter_beyond) <= len(attacked.attacker_beyond) and
+            match.is_soft_pin(attacked.field)[0])): 
             return cTactic.WEIGHTS['stormy']
         elif(PIECES_RANK[piece] < PIECES_RANK[attacked.piece] and 
              PIECES_RANK[piece] == PIECES_RANK[PIECES['wPw']] and
