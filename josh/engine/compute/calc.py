@@ -252,9 +252,6 @@ def select_maxcount(match, priomoves, depth, slimits, last_pmove):
     if(depth <= slimits.dpth_stage1):
         resort_exchange_or_stormy_moves(priomoves, cPrioMove.PRIOS['prio1'], last_pmove, False)
         stormycnt = count_up_within_stormy(priomoves)
-        #if(mincount > slimits.mvcnt_stage1):
-            #return mincount
-        #else:
         count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio2'])
         if(count < slimits.mvcnt_stage1):
             count = slimits.mvcnt_stage1
@@ -262,13 +259,8 @@ def select_maxcount(match, priomoves, depth, slimits, last_pmove):
     elif(depth <= slimits.dpth_stage2):
         resort_exchange_or_stormy_moves(priomoves, cPrioMove.PRIOS['prio1'], last_pmove, False)
         stormycnt = count_up_within_stormy(priomoves)
-        #if(mincount > slimits.mvcnt_stage2):
-            #return mincount
-        #else:
         count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio1'])
-        if(count < slimits.mvcnt_stage2):
-            count = slimits.mvcnt_stage2
-        return max(count, stormycnt)
+        return max(min(count, slimits.mvcnt_stage2), stormycnt)
     else:
         if(resort_exchange_or_stormy_moves(priomoves, cPrioMove.PRIOS['prio0'], last_pmove, True)):
             count = count_up_to_prio(priomoves, cPrioMove.PRIOS['prio0'])
