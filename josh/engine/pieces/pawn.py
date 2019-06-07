@@ -1,6 +1,6 @@
 
 from .. values import *
-from .. board import c
+from .. board import cBoard
 from .piece import cPiece
 
 
