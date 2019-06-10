@@ -31,7 +31,11 @@ def cache_set(key, value, level):
         timeout = 30 * 60 * 60
     else:
         timeout = 60 * 60 * 60
-    cache.set(key, value, timeout = timeout)
+    cache.set(key, value, timeout) # timeout = timeout
+
+
+def clear_cache(key):
+    cache.set(key, int(datetime.now().timestamp()), 1)
 
 
 def calc_total_secs(key, secs):
@@ -176,11 +180,12 @@ def show(id):
     wsecs = wplayer['consumedsecs']
     bsecs = bplayer['consumedsecs']
     if(movecnt % 2 == 0):
-        wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+        wsecs = calc_total_secs(str(engine.created_at) + "-clockstart", wsecs)
     else:
-        bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+        bsecs = calc_total_secs(str(engine.created_at) + "-clockstart", bsecs)
         
-    clockstart = cache.get(str(id) + "-clockstart")
+    clockstart = cache.get(str(engine.created_at) + "-clockstart")
+    print("ddddddddddddddddddddddddddddd" + str(clockstart))
     if(clockstart is not None):
         isactive = 1
     else:
@@ -232,9 +237,9 @@ def domove(id):
         wsecs = wplayer['consumedsecs']
         bsecs = bplayer['consumedsecs']
         if(engine.next_color() == COLORS['white']):
-            wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+            wsecs = calc_total_secs(str(engine.created_at) + "-clockstart", wsecs)
         else:
-            bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+            bsecs = calc_total_secs(str(engine.created_at) + "-clockstart", bsecs)
 
         cmove = engine.do_move(src, dst, prompiece)
         print(hex(engine.board.fields).upper())
@@ -250,7 +255,7 @@ def domove(id):
         move = map_move_from_engine(cmove, id)
         new_move(id, move['prevfields'], move['src'], move['dst'], move['prompiece'])
 
-        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
+        cache_set(str(engine.created_at) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         if((engine.next_color() == COLORS['white'] and wplayer['ishuman'] == False) or
            (engine.next_color() == COLORS['black'] and bplayer['ishuman'] == False)):
@@ -337,9 +342,10 @@ def undomove(id):
             wsecs = wplayer['consumedsecs']
             bsecs = bplayer['consumedsecs']
             if(engine.next_color() == COLORS['white']):
-                wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+                wsecs = calc_total_secs(str(engine.created_at) + "-clockstart", wsecs)
             else:
-                bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+                bsecs = calc_total_secs(str(engine.created_at) + "-clockstart", bsecs)
+            engine.created_at
 
             status = engine.evaluate_status()
             if(status == engine.STATUS['active']):
@@ -351,7 +357,7 @@ def undomove(id):
 
             delete_move(move['id'])
 
-            cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
+            cache_set(str(engine.created_at) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
     if(view is None):
         view = 0
@@ -361,19 +367,19 @@ def undomove(id):
 
 @bp.route('/<int:id>/fetch', methods=('GET',))
 def fetch(id):
-    match = get_match(id)
+    """match = get_match(id)
     wplayer = get_player(id, True)
-    bplayer = get_player(id, False)
+    bplayer = get_player(id, False)"""
     movecnt = get_movecnt(id)
 
-    wsecs = wplayer['consumedsecs']
+    """wsecs = wplayer['consumedsecs']
     bsecs = bplayer['consumedsecs']
     if(movecnt % 2 == 0):
-        wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+        wsecs = calc_total_secs(str(match['created']) + "-clockstart", wsecs)
     else:
-        bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+        bsecs = calc_total_secs(str(match['created']) + "-clockstart", bsecs)"""
              
-    data = str(movecnt) + "|" + str(wsecs) + "|" + str(bsecs)
+    data = str(movecnt) + "|" #+ str(wsecs) + "|" + str(bsecs)
 
     return Response(data)
 
@@ -392,13 +398,13 @@ def pause(id):
         wsecs = wplayer['consumedsecs']
         bsecs = bplayer['consumedsecs']
         if(movecnt % 2 == 0):
-            wsecs = calc_total_secs(str(id) + "-clockstart", wsecs)
+            wsecs = calc_total_secs(str(match['created']) + "-clockstart", wsecs)
         else:
-            bsecs = calc_total_secs(str(id) + "-clockstart", bsecs)
+            bsecs = calc_total_secs(str(match['created']) + "-clockstart", bsecs)
 
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wsecs, bplayer['name'], bplayer['ishuman'], bsecs)
 
-        cache.set(str(id) + "-clockstart", int(datetime.now().timestamp()), 1)
+        clear_cache(str(match['created']) + "-clockstart")
 
     if(view is None):
         view = 0
@@ -419,7 +425,7 @@ def resume(id):
 
         update_match(id, status, match['level'], match['board'], wplayer['name'], wplayer['ishuman'], wplayer['consumedsecs'], bplayer['name'], bplayer['ishuman'], bplayer['consumedsecs'])
 
-        cache_set(str(id) + "-clockstart", int(datetime.now().timestamp()), match['level'])
+        cache_set(str(match['created']) + "-clockstart", int(datetime.now().timestamp()), match['level'])
 
         movecnt = get_movecnt(id)
         if((movecnt % 2 == 0 and wplayer['ishuman'] == False) or

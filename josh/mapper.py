@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 from josh.db import get_db
 
 from .engine.values import PIECES
@@ -11,6 +13,8 @@ from .engine.helper import coord_to_index, index_to_coord, reverse_lookup
 def map_match_from_db(match, moves, engine):
     engine.status = int(match['status'])
     engine.level = int(match['level'])
+    print(match['created'])
+    engine.created_at = match['created'] # datetime.strptime(, '%Y-%m-%d %H:%M:%S.%f')
     engine.board.fields = int(match['board'], 16)
 
     for move in moves:
