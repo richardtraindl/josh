@@ -139,7 +139,6 @@ def show(id):
     if(status == cMatch.STATUS['active']):
         status = match['status']
 
-    mboard = match['board']
     class Cell:
         def __init__(self, cell_id, color, value): 
             self.id = cell_id
@@ -151,20 +150,27 @@ def show(id):
         start = 7
         end = -1
         step = -1
+        instart = 0
+        inend = 8
+        instep = 1
     else:
         start = 0
         end = 8
         step = 1
+        instart = 7
+        inend = -1
+        instep = -1
     board = []
     for j in range(start, end, step):
-        for i in range(8):
+        for i in range(instart, inend, instep):
             idx = (j * 8 + i)
             cell_id = chr(i + ord('a')) + chr(j + ord('1'))
             if((j + i) % 2 == 0):
                 cell_color = "black"
             else:
                 cell_color = "white"
-            cell = Cell(cell_id, cell_color, STR_PIECES[mboard[idx:idx+1]])
+            piece = engine.board.getfield(idx)
+            cell = Cell(cell_id, cell_color, reverse_lookup(PIECES, piece))
             board.append(cell)
 
     wsecs = wplayer['consumedsecs']
@@ -232,9 +238,6 @@ def domove(id):
 
         cmove = engine.do_move(src, dst, prompiece)
         print(hex(engine.board.fields).upper())
-        print(hex(cBoard.erase_whites(engine.board.fields)).upper())
-        print(hex(cBoard.erase_blacks(engine.board.fields)).upper())
-        print(hex(cBoard.mask_pieces(engine.board.fields, PIECES['wRk'])).upper())
 
         status = engine.evaluate_status()
         if(status == engine.STATUS['active']):

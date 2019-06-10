@@ -1,7 +1,7 @@
 
 from .. values import *
 from .piece import cPiece
-from .searchforpiece import is_field_touched
+from .searchforpiece import is_field_touched, list_all_field_touches
 
 
 class cKing(cPiece):
@@ -145,5 +145,46 @@ class cKing(cPiece):
                 board.bKg_first_move_on = None
             board.bKg = move.src
         return move
+
+    def score_touches(self):
+        return 0
+
+    def is_safe(self):
+        count = 0
+        for step in self.STEPS:
+            dst = self.pos + step
+            if(self.match.board.is_inbounds(self.pos, dst, step)):
+                friends, enemies = list_all_field_touches(self.match, dst, self.color)
+                if(len(friends) < len(enemies)):
+                    return False
+                if(len(enemies) > 0):
+                    count += 1
+        if(count > 2):
+            return False
+        friends.clear()
+        enemies.clear()
+        friends, enemies = list_all_field_touches(self.match, self.pos, self.color)
+        if(len(enemies) == 0):
+            return True
+        if(len(enemies) >= 2):
+            return False
+        else:
+            enemy = enemies[0]
+            friends_beyond, enemies_beyond = list_all_field_touches(self.match, enemy.field, self.color)
+            if(len(friends_beyond) >= len(enemies_beyond)):
+                return True
+            cenemy = self.match.obj_for_piece(enemy.piece, enemy.field)
+            direction = cenemy.dir_for_move(self.pos, enemy.field)
+            if(direction == DIRS['undef']):
+                return True
+            else:
+                step = cenemy.step_for_dir(direction)
+            dst = self.pos + step
+            while(self.match.board.is_inbounds(self.pos, dst, step)):
+                blocking_friends, blocking_enemies = list_all_field_touches(self.match, dst, self.color)
+                if(len(blocking_friends) > 0):
+                    return True
+                dst += step
+        return False
 
 # class end

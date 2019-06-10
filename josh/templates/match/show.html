@@ -14,7 +14,7 @@
     <p>by {{ match['username'] }} on {{ match['created'].strftime('%Y-%m-%d') }}</p>
   </div>
 
-  <div class="flex-container" style="margin: 0.4em 0;">
+  <div id="info" class="flex-container">
     {% if status == 0 %}
       <p>Status: <a href="{{ url_for('match.pause', id=match['id'], view=view) }}">{{ status | mapstatus }}</a></p>
     {% else %}
@@ -44,8 +44,8 @@
         {% else %}
           {{ wplayer['name'] }}
         {% endif %}
-        <span id="white-time">{{ wsecs | fmttime }}</span>
       </h3>
+      <p id="white-time">{{ wsecs | fmttime }}</p>
     </div>
     <div>
       <h3>
@@ -54,8 +54,8 @@
         {% else %}
           {{ bplayer['name'] }}
         {% endif %}
-        <span id="black-time">{{ bsecs | fmttime }}</span>
       </h3>
+      <p id="black-time">{{ bsecs | fmttime }}</p>
     </div>
   </div>
 

@@ -1,7 +1,7 @@
 
 * { font-weight: normal; font-size: 1.0em; }
 html { font-family: serif; background: #eee; padding: 1em; }
-body { max-width: 40em; margin: 0 auto; background: white; }
+body { width: 40em; margin: 0 auto; background: white; }
 h1, h1 a { margin:0; padding: 0; font-size: 1.3em; }
 h2, h2 a { margin: 0.4em 0; padding: 0; font-size: 1.2em; text-decoration: underline; }
 h3, h3 a { margin: 0; padding: 0; font-size: 1.1em; }
@@ -46,12 +46,13 @@ header p { padding-right: 20px; justify-items: end; text-align: right; }
     display: flex; 
     flex-direction: row; 
     flex-wrap: wrap;  
-    /* justify-content: space-between; */
     align-content: space-between;
     align-items: center;
 }
 .flex-container > * { margin-right: 0.6em; }
- 
+
+#info { margin: 0.4em 0; }
+
 #level { width: 4em ;}
 
 #white-time, #black-time { font-size: 0.8em; }
@@ -72,8 +73,8 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0.6em 0 0 0 }
     margin: 0 auto;
     padding: 0.2em 0 0 0;
     display: grid;
-    grid-template-rows: repeat(8, 4em);
-    grid-template-columns: repeat(8, 4em);
+    grid-template-rows: repeat(8, 12.5%);
+    grid-template-columns: repeat(8, 12.5%);
 }
 #board img {
     display: block;
@@ -83,7 +84,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0.6em 0 0 0 }
 }
 
 .white-cell { background-color: Linen; }
-.black-cell { background-color: Gray; }
+.black-cell { background-color: Gray;  }
 
 #minutes-wrapper { padding-top: 0.9em; }
 #minutes {
@@ -100,21 +101,22 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0.6em 0 0 0 }
 .marked { opacity: 0.4; }
 .invisible { display: none; }
 
-@media only all and (max-width: 999px) { 
-    body { min-width: 19.6em; max-width: 19.6em; }
-    #content-wrapper { padding: 0.3em; }
+@media only all and (max-width: 40em) { 
+    body { min-width: 19.6em; max-width: 40em; width: 100%; }
+    #content-wrapper { width: 100%; padding: 0.3em; }
     header { grid-template-rows: auto auto; }
     #player { grid-template-columns: auto; }
     #board { 
-        margin: 0;
-        padding: 0.2em 0 0 0;
-        width: 19.2em;
-        height: 19.2em;
-        grid-template-rows: repeat(8, 2.4em);
-        grid-template-columns: repeat(8, 2.4em); 
+        width: auto;
+        height: auto;
+        margin: 0 auto;
+        grid-template-rows: repeat(8, 11vw);
+        grid-template-columns: repeat(8, 11vw);
     }
-    #board img { margin: 0; width: 2.4em; }
+    #board img { width: 8vw; }
     .twocols { grid-template-columns: auto; }
     .twocols > *:nth-child(odd) { margin: 0 0 0 0 }
     .twocols > *:nth-child(even) { margin: 0 0 0.6em 0 }
+    #info > p { width: 100%; }
+    #minutes { width: 100%; }
 }

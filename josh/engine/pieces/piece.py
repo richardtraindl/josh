@@ -130,16 +130,12 @@ class cPiece:
         match = self.match
         score = 0
         frdlytouches, enmytouches = list_all_field_touches(match, self.pos, self.color)
-        for friend in frdlytouches:
-            if(is_field_touched(match, friend.field, match.oppcolor_of_piece(friend.piece), match.EVAL_MODES['ignore-pins'])):
-                score += SUPPORTED_SCORES[self.piece]
-            else:
-                score += SUPPORTED_SCORES[self.piece] // 2
-        for enmy in enmytouches:
-            if(match.is_soft_pin(enmy.field)[0]):
-                score += ATTACKED_SCORES[enmy.piece] * 4
-            else:
-                score += ATTACKED_SCORES[enmy.piece]
+        if(match.is_soft_pin(self.pos)[0]):
+            score += ATTACKED_SCORES[self.piece]
+        if(len(frdlytouches) < len(enmytouches)):
+            score += ATTACKED_SCORES[self.piece]
+        elif(len(frdlytouches) > len(enmytouches)):
+            score += SUPPORTED_SCORES[self.piece]
         return score
 
     def generate_moves(self, candidate, dbggmove, search_for_mate, mode):

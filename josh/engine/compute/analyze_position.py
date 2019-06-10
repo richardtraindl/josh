@@ -1,5 +1,6 @@
 
 from ..match import *
+from ..board import cBoard
 from ..pieces.whitepawn import cWhitePawn
 from ..pieces.blackpawn import cBlackPawn
 from ..pieces.king import cKing
@@ -23,90 +24,67 @@ def score_traps_and_touches(match):
 
 def score_controled_horizontal_files(match):
     score = 0
-    whiterate = ATTACKED_SCORES[PIECES['bKn']]
-    blackrate = ATTACKED_SCORES[PIECES['wKn']]
+    row7_row8 = 0x000000000000000000000000000000000000000000000000FFFFFFFFFFFFFFFF
+    wrooks = match.board.fields
+    cBoard.mask_pieces(wrooks, PIECES['wRk'])
+    wqueens = match.board.fields
+    cBoard.mask_pieces(wqueens, PIECES['wQu'])
+    if(wrooks & row7_row8 or wqueens & row7_row8):
+        score += ATTACKED_SCORES[PIECES['bKn']]
 
-    for y in range(0, 2, 1):
-        wcnt = 0
-        bcnt = 0
-        for x in range(8):
-            piece = match.board.getfield((x + y * 8))
-            if(piece == PIECES['wRk'] or piece == PIECES['wQu']):
-                wcnt += 1
-            elif(piece == PIECES['bRk'] or piece == PIECES['bQu']):
-                bcnt += 1
-            else:
-                continue
-        if(bcnt > wcnt):
-            score += blackrate
-
-    for y in range(6, 8, 1):
-        wcnt = 0
-        bcnt = 0
-        for x in range(8):
-            piece = match.board.getfield((x + y * 8))
-            if(piece == PIECES['bRk'] or piece == PIECES['bQu']):
-                bcnt += 1
-            elif(piece == PIECES['wRk'] or piece == PIECES['wQu']):
-                wcnt += 1
-            else:
-                continue
-        if(wcnt > bcnt):
-            score += whiterate
-
+    row1_row2 = 0xFFFFFFFFFFFFFFFF000000000000000000000000000000000000000000000000
+    brooks = match.board.fields
+    cBoard.mask_pieces(brooks, PIECES['bRk'])
+    bqueens = match.board.fields
+    cBoard.mask_pieces(bqueens, PIECES['bQu'])
+    if(brooks & row1_row2 or bqueens & row1_row2):
+        score += ATTACKED_SCORES[PIECES['wKn']]
     return score
 
 
 def score_controled_vertical_files(match):
     score = 0
-    whiterate = ATTACKED_SCORES[PIECES['bKn']]
-    blackrate = ATTACKED_SCORES[PIECES['wKn']]
+    wpwcolumn = 0x0000000010000000100000001000000010000000100000001000000000000000
+    wrkcolumn = 0x4000000040000000400000004000000040000000400000004000000040000000
+    wqucolumn = 0x5000000050000000500000005000000050000000500000005000000050000000
+    wpawns = match.board.fields
+    cBoard.mask_pieces(wpawns, PIECES['wPw'])
+    if(wpawns & wpwcolumn == 0x0):
+        wrooks = match.board.fields
+        cBoard.mask_pieces(wrooks, PIECES['wRk'])
+        wqueens = match.board.fields
+        cBoard.mask_pieces(wqueens, PIECES['wQu'])
+        if(wrooks & wrkcolumn or wqueens & wqucolumn):
+            score += ATTACKED_SCORES[PIECES['bKn']]
 
-    for x in range(8):
-        wcnt = 0
-        bcnt = 0
-        wpwcnt = 0
-        bpwcnt = 0
-        for y in range(8):
-            piece = match.board.getfield((x + y * 8))
-            if(piece == PIECES['blk']):
-                continue
-            elif(piece == PIECES['wPw']):
-                wpwcnt += 1
-                continue
-            elif(piece == PIECES['bPw']):
-                bpwcnt += 1
-                continue
-            elif(piece == PIECES['wRk'] or piece == PIECES['wQu']):
-                wcnt += 1
-                continue
-            elif(piece == PIECES['bRk'] or piece == PIECES['bQu']):
-                bcnt += 1
-                continue
-            else:
-                continue
-
-        if(wpwcnt == 0 and bpwcnt == 0):
-            if(wcnt > bcnt):
-                score += whiterate
-            elif(bcnt > wcnt):
-                score += blackrate
+    bpwcolumn = 0x0000000090000000900000009000000090000000900000009000000000000000
+    brkcolumn = 0xC0000000C0000000C0000000C0000000C0000000C0000000C0000000C0000000
+    bqucolumn = 0xD0000000D0000000D0000000D0000000D0000000D0000000D0000000D0000000
+    bpawns = match.board.fields
+    cBoard.mask_pieces(bpawns, PIECES['bPw'])
+    if(bpawns & bpwcolumn == 0x0):
+        brooks = match.board.fields
+        cBoard.mask_pieces(brooks, PIECES['bRk'])
+        bqueens = match.board.fields
+        cBoard.mask_pieces(bqueens, PIECES['bQu'])
+        if(brooks & brkcolumn or bqueens & bqucolumn):
+            score += ATTACKED_SCORES[PIECES['wKn']]
     return score
 
 
-"""def score_kings_safety(match):
+def score_kings_safety(match):
     value = 0
     cking = cKing(match, match.board.wKg)
     if(cking.is_safe() == False):
-        value += ATTACKED_SCORES[PIECES['wQu']] * 10
+        value += ATTACKED_SCORES[PIECES['wQu']] * 5
     cking = cKing(match, match.board.bKg)
     if(cking.is_safe() == False):
-        value += ATTACKED_SCORES[PIECES['bQu']] * 10
-    return value"""
+        value += ATTACKED_SCORES[PIECES['bQu']] * 5
+    return value
 
 
 def score_penalty_for_lost_castlings(match):
-    value = 0
+    score = 0
     wcastling = False
     bcastling = False
     idx = 0
@@ -121,11 +99,11 @@ def score_penalty_for_lost_castlings(match):
                     bcastling = True
     if(wcastling == False and (match.board.wKg_first_move_on is not None or
        (match.board.wRkA_first_move_on is not None or match.board.wRkH_first_move_on is not None))):
-        value += ATTACKED_SCORES[PIECES['wRk']] * 2
+        score += ATTACKED_SCORES[PIECES['wRk']] * 2
     if(bcastling == False and (match.board.bKg_first_move_on is not None or
        (match.board.bRkA_first_move_on is not None or match.board.bRkH_first_move_on is not None))):
-        value += ATTACKED_SCORES[PIECES['bRk']] * 22
-    return value
+        score += ATTACKED_SCORES[PIECES['bRk']] * 2
+    return score
 
 
 """def score_penalty_for_multiple_moves(match):
@@ -167,23 +145,23 @@ def score_penalty_for_lost_castlings(match):
 
 
 def score_penalty_for_knight_bishop_on_baseline(match):
-    value = 0
+    score = 0
     for i in range(2):
         if(i == 0):
-            y = match.board.RANKS['1']
+            idx = match.board.RANKS['1'] * 8
             knight = PIECES['wKn']
             bishop = PIECES['wBp']
             rate = ATTACKED_SCORES[PIECES['wRk']]
         else:
-            y = match.board.RANKS['8']
+            idx = match.board.RANKS['8'] * 8
             knight = PIECES['bKn']
             bishop = PIECES['bBp']
             rate = ATTACKED_SCORES[PIECES['bRk']]
-        for x in range(8):
-            piece = match.board.getfield((x + y * 8))
+        for i in range(8):
+            piece = match.board.getfield(idx + i)
             if(piece == knight or piece == bishop):
-                value += rate
-    return value
+                score += rate
+    return score
 
 
 """def score_weak_pawns(match):
@@ -202,27 +180,26 @@ def score_penalty_for_knight_bishop_on_baseline(match):
 
 
 def score_penalty_for_weak_fianchetto(match):
-    value = 0
+    score = 0
     piece = match.board.getfield(match.board.COLS['B'] + match.board.RANKS['2'] * 8)
     if(piece == PIECES['blk']):
-        value += ATTACKED_SCORES[PIECES['wRk']]
+        score += ATTACKED_SCORES[PIECES['wRk']]
     piece = match.board.getfield(match.board.COLS['G'] + match.board.RANKS['2'] * 8)
     if(piece == PIECES['blk']):
-        value += ATTACKED_SCORES[PIECES['wRk']]
+        score += ATTACKED_SCORES[PIECES['wRk']]
     piece = match.board.getfield(match.board.COLS['B'] + match.board.RANKS['7'] * 8)
     if(piece == PIECES['blk']):
-        value += ATTACKED_SCORES[PIECES['bRk']]
+        score += ATTACKED_SCORES[PIECES['bRk']]
     piece = match.board.getfield(match.board.COLS['G'] + match.board.RANKS['7'] * 8)
     if(piece == PIECES['blk']):
-        value += ATTACKED_SCORES[PIECES['bRk']]
-    return value
+        score += ATTACKED_SCORES[PIECES['bRk']]
+    return score
 
 
 def score_opening(match):
     value = 0
     #value += score_penalty_for_multiple_moves(match)
     value += score_penalty_for_knight_bishop_on_baseline(match)
-    #value += score_kings_safety(match)
     value += score_penalty_for_lost_castlings(match)
     #value += score_weak_pawns(match)
     value += score_penalty_for_weak_fianchetto(match)
@@ -232,7 +209,6 @@ def score_opening(match):
 def score_middlegame(match):
     value = 0
     value += score_penalty_for_knight_bishop_on_baseline(match)
-    #value += score_kings_safety(match)
     #value += score_weak_pawns(match)
     return value
 
@@ -255,7 +231,6 @@ def score_endgame(match):
             if(cpawn.is_running()):
                 value += blackrate
                 value += blackrate * black_step_rates[y]
-    #value += score_kings_safety(match)
     return value
 
 
@@ -271,14 +246,15 @@ def score_position(match, movecnt):
     else:
         score = match.score
         score += score_traps_and_touches(match)
-        score += score_controled_horizontal_files(match)
+        score += score_kings_safety(match)
+        """score += score_controled_horizontal_files(match)
         score += score_controled_vertical_files(match)
         if(match.is_opening()):
             score += score_opening(match)
         elif(match.is_endgame()):
             score += score_endgame(match)
         else:
-            score += score_middlegame(match)
+            score += score_middlegame(match)"""
         return score
 
 
