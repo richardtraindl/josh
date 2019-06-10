@@ -185,7 +185,6 @@ def show(id):
         bsecs = calc_total_secs(str(engine.created_at) + "-clockstart", bsecs)
         
     clockstart = cache.get(str(engine.created_at) + "-clockstart")
-    print("ddddddddddddddddddddddddddddd" + str(clockstart))
     if(clockstart is not None):
         isactive = 1
     else:
