@@ -151,15 +151,15 @@ class SearchLimits:
         self.add_mvcnt = 2
         if(match.level == match.LEVELS['blitz']):
             self.dpth_stage1 = 2
-            self.dpth_stage2 = 3
-            self.dpth_stage3 = 5
+            self.dpth_stage2 = 4
+            self.dpth_stage3 = 4
             self.mvcnt_stage1 = 6
             self.mvcnt_stage2 = 6
             self.mvcnt_stage3 = 2
         if(match.level == match.LEVELS['low']):
             self.dpth_stage1 = 2
             self.dpth_stage2 = 4
-            self.dpth_stage3 = 7
+            self.dpth_stage3 = 6
             self.mvcnt_stage1 = 8
             self.mvcnt_stage2 = 6
             self.mvcnt_stage3 = 2
