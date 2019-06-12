@@ -78,13 +78,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
     dbggmove = cMove(None, 3, 51, PIECES['blk'])
     search_for_mate = False #depth <= 3
-    print("before generate_moves", end=", ")
     priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
-    print("before priomoves.sort", end=", ")
     priomoves.sort(key = attrgetter('prio'))
-    print("before select_movecnt", end=", ")
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
-    print("after select_movecnt", end=", ")
 
     if(depth == 1):
         print("************ maxcnt: " + str(maxcnt) + " ******************")
@@ -92,16 +88,17 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         if(len(priomoves) == 1):
             priomove = priomoves[0]
             candidates.append(priomove.move)
-            #candidates.append(None)
+            candidates.append(None)
+            print("!", end =", )
             if(priomove.has_domain(cTactic.DOMAINS['is-tactical-draw'])):
+                print("!!", end =", )
                 return 0, candidates
             else:
+                print("!!!", end =", )
                 return score_position(match, len(priomoves)), candidates
 
     if(len(priomoves) == 0 or maxcnt == 0):
-        print("len(priomoves) == 0 or maxcnt == 0", end=", ")
         candidates.append(None)
-        print("before score_position", end=", ")
         return score_position(match, len(priomoves)), candidates
 
     for priomove in priomoves:
@@ -111,18 +108,15 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         if(depth == 1):
             print("\ncalculate 1st: " + move.format())
         if(depth == 2):
-            print("calculate 2nd: " + str(move.src) + " " + str(move.dst) + " " + str(move.prompiece), end=", ")
-            #print("calculate 2nd: " + move.format())
-        print("before match.do_move", end=", ")
+            print("calculate 2nd: " + move.format())
+
         match.do_move(move.src, move.dst, move.prompiece)
-        print("after match.undo_move", end=", ")
         if(maximizing):
             newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
         else:
             newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
-        print("before match.undo_move", end=", ")
         match.undo_move()
-        print("after match.undo_move", end=", ")
+
         if(depth == 1):
             prnt_search(match, "CURRENT SEARCH: ", newscore, move, newcandidates)
             if(candidates):
