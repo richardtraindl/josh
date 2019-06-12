@@ -89,12 +89,12 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             priomove = priomoves[0]
             candidates.append(priomove.move)
             candidates.append(None)
-            print("!", end =", )
+            print("!", end =", ")
             if(priomove.has_domain(cTactic.DOMAINS['is-tactical-draw'])):
-                print("!!", end =", )
+                print("!!", end =", ")
                 return 0, candidates
             else:
-                print("!!!", end =", )
+                print("!!!", end =", ")
                 return score_position(match, len(priomoves)), candidates
 
     if(len(priomoves) == 0 or maxcnt == 0):
