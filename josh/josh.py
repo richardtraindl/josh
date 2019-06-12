@@ -450,13 +450,15 @@ def delete(id):
     return redirect(url_for('match.index'))
 
 
-@bp.route('/<int:id>/dbginfo', methods=('GET',))
+@bp.route('/debug', methods=('GET',))
 @login_required
-def dbginfo(id):
-    match = import_from_fields(0x0)
-    if(match):
-        matchid = new_match(cMatch.LEVELS['blitz'], "white", True, "Black", False)
-        return redirect(url_for('match.show', id=matchid,))
+def debug():
+    engine = import_from_fields(0x60111000000000400100000000000004000090000099e90000c0b00030)
+    if(engine):
+        match = new_match(cMatch.LEVELS['blitz'], "white", True, "Black", False)
+        update_match(match['id'], match['status'], engine.level, map_board_from_int_to_str(engine.board.fields), \
+                     "white", True, 0, "Black", False, 0)
+        return redirect(url_for('match.show', id=match['id'], view=0,))
     else:
         return redirect(url_for('match.index'))
 
