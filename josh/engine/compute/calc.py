@@ -112,14 +112,16 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             print("\ncalculate 1st: " + move.format())
         if(depth == 2):
             print("calculate 2nd: " + move.format())
-
+        print("before match.do_move", end=", ")
         match.do_move(move.src, move.dst, move.prompiece)
+        print("after match.undo_move", end=", ")
         if(maximizing):
             newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
         else:
             newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
+        print("before match.undo_move", end=", ")
         match.undo_move()
-
+        print("after match.undo_move", end=", ")
         if(depth == 1):
             prnt_search(match, "CURRENT SEARCH: ", newscore, move, newcandidates)
             if(candidates):
