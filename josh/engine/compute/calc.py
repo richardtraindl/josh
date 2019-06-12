@@ -112,7 +112,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             print("\ncalculate 1st: " + move.format())
         if(depth == 2):
             print("calculate 2nd: " + str(move.src) + " " + str(move.dst) + " " + str(move.prompiece), end=", ")
-            print("calculate 2nd: " + move.format())
+            #print("calculate 2nd: " + move.format())
         print("before match.do_move", end=", ")
         match.do_move(move.src, move.dst, move.prompiece)
         print("after match.undo_move", end=", ")
