@@ -6,7 +6,7 @@ from .dictionary import *
 class Session:
     def __init__(self, match=None):
         self.thread = None
-        self.thread_is_busy = False
+        self.thread_isbusy = False
         self.match = match
         self.wplayer_ishuman = True
         self.bplayer_ishuman = False
