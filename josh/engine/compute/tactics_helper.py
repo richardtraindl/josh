@@ -260,66 +260,52 @@ def defends_check(match):
         return is_field_touched(match, match.board.bKg, COLORS['white'], cMatch.EVAL_MODES['ignore-pins'])
 
 
-def find_disclosed_pieces(match, src, dst, discl_attacked, discl_supported):
-    piece = match.board.getfield(src)
-    color = match.color_of_piece(piece)
-    #
-    excldir = cRook.dir_for_move(src, dst)
-    for i in range(0, len(cRook.STEPS), 2):
-        if(excldir != cRook.DIRS_ARY[i] and excldir != cRook.DIRS_ARY[i + 1]):
-            first, second = match.board.search_bi_dirs(src, cRook.STEPS[0], cRook.MAXCNT)
-            if(first and second):
-                first_piece = match.board.getfield(first)
-                second_piece = match.board.getfield(second)
-                if(match.color_of_piece(first_piece) == match.color_of_piece(second_piece)):
-                    disclosed = discl_supported
-                else:
-                    disclosed = discl_attacked
-                if(match.color_of_piece(first_piece) == color and
-                   (PIECES_BARE[first_piece] == PIECES_BARE[PIECES['wRk']] or
-                    PIECES_BARE[first_piece] == PIECES_BARE[PIECES['wQu']])):
-                    disclosed.append(cTouch(PIECES[second], second))
-                elif(match.color_of_piece(second_piece) == color and
-                     (PIECES_BARE[second_piece] == PIECES_BARE[PIECES['wRk']] or
-                      PIECES_BARE[second_piece] == PIECES_BARE[PIECES['wQu']])):
-                    disclosed.append(cTouch(first_piece, first))
-    #
-    excldir = cBishop.dir_for_move(src, dst)
-    for i in range(0, len(cBishop.STEPS), 2):
-        if(excldir != cBishop.DIRS_ARY[i] and excldir != cBishop.DIRS_ARY[i + 1]):
-            first, second = match.board.search_bi_dirs(src, cBishop.STEPS[0], cBishop.MAXCNT)
-            if(first and second):
-                first_piece = match.board.getfield(first)
-                second_piece = match.board.getfield(second)
-                if(match.color_of_piece(first_piece) == match.color_of_piece(second_piece)):
-                    disclosed = discl_supported
-                else:
-                    disclosed = discl_attacked
-                if(match.color_of_piece(first_piece) == color and
-                   (PIECES_BARE[first_piece] == PIECES_BARE[PIECES['wBp']] or
-                    PIECES_BARE[first_piece] == PIECES_BARE[PIECES['wQu']])):
-                    disclosed.append(cTouch(second_piece, second))
-                elif(match.color_of_piece(second_piece) == color and
-                     (PIECES_BARE[second_piece] == PIECES_BARE[PIECES['wBp']] or
-                      PIECES_BARE[second_piece] == PIECES_BARE[PIECES['wQu']])):
-                    disclosed.append(cTouch(first_piece, first))
-
-
 def find_disclosures(match, move):
     discl_supported = []
     discl_attacked = []
     piece = match.board.getfield(move.src)
-    color = match.color_of_piece(piece)
+    cpiece = match.obj_for_piece(piece, move.src)
+    mv_dir = cpiece.dir_for_move(move.src, move.dst)
+    targets = [[cRook.STEPS[0], PIECES_BARE[PIECES['wRk']]],
+               [cRook.STEPS[2], PIECES_BARE[PIECES['wRk']]],
+               [cBishop.STEPS[0], PIECES_BARE[PIECES['wBp']]],
+               [cBishop.STEPS[2], PIECES_BARE[PIECES['wBp']]]]
     ###
     match.do_move(move.src, move.dst, move.prompiece)
-    find_disclosed_pieces(match, move.src, move.dst, discl_attacked, discl_supported)
+    for target in targets:
+        fst_field, snd_field = match.board.search_bi_dirs(move.src, target[0], 6)
+        if(fst_field is None or snd_field is None):
+            continue
+        if(fst_field == move.dst or snd_field  == move.dst):
+            continue
+        fst_piece = match.board.getfield(fst_field)
+        cfirst = match.obj_for_piece(fst_piece, fst_field)
+        """first_dir = cfirst.dir_for_move(target[0], move.src)
+        if(first_dir == mv_dir or REVERSE_DIRS[first_dir] == mv_dir):
+            continue"""
+        snd_piece = match.board.getfield(snd_field)
+        csecond = match.obj_for_piece(snd_piece, snd_field)
+        if(PIECES_BARE[cfirst.piece] == target[1] or
+           PIECES_BARE[cfirst.piece] == PIECES_BARE[PIECES['wQu']]):
+            if(cpiece.color == cfirst.color):
+                if(cfirst.color == csecond.color):
+                    discl_supported.append(cTouch(csecond.piece, csecond.pos))
+                else:
+                    discl_attacked.append(cTouch(csecond.piece, csecond.pos))
+        if(PIECES_BARE[csecond.piece] == target[1] or
+           PIECES_BARE[csecond.piece] == PIECES_BARE[PIECES['wQu']]):
+            if(cpiece.color == csecond.color):
+                if(csecond.color == cfirst.color):
+                    discl_supported.append(cTouch(cfirst.piece, cfirst.pos))
+                else:
+                    discl_attacked.append(cTouch(cfirst.piece, cfirst.pos))    
     match.undo_move()
     ###
     match.board.setfield(move.src, PIECES['blk'])
-    for ctouch_beyond in discl_attacked:
-        list_field_touches_beyond(match, ctouch_beyond, color)
-    for ctouch_beyond in discl_supported:
-        list_field_touches_beyond(match, ctouch_beyond, color)
+    for item in discl_attacked:
+        list_field_touches_beyond(match, item, match.color_of_piece(item.piece))
+    for item in discl_supported:
+        list_field_touches_beyond(match, item, match.color_of_piece(item.piece))
     match.board.setfield(move.src, piece)
     ###
     return discl_supported, discl_attacked
