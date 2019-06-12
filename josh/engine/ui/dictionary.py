@@ -1,11 +1,12 @@
+
 import re, os, threading, copy
-from engine2.values import *
-from engine2.match import *
-from engine2.move import *
-from engine2.calc import calc_move
-from engine2.pieces.king import cKing
-from engine2.debug import prnt_match_attributes, prnt_board, list_match_attributes, list_move_attributes
-from engine2.helper import coord_to_index, reverse_lookup
+from .. values import *
+from .. match import *
+from .. move import *
+from .. calc import calc_move
+from .. pieces.king import cKing
+from .. debug import prnt_match_attributes, prnt_board, list_match_attributes, list_move_attributes
+from .. helper import coord_to_index, reverse_lookup
 
 
 dictionary = []
@@ -55,35 +56,34 @@ class CalcThread(threading.Thread):
         self.session.thread_is_busy = True
         print("Thread starting...")
         second_candidate = None
-        if(len(self.match.move_list) > 0 and len(self.session.candidate_list) >= 2):
-            last_move = self.match.move_list[-1]
-            first_candidate = self.session.candidate_list[0]
-            if(first_candidate.srcx == last_move.srcx and
-               first_candidate.srcy == last_move.srcy and
-               first_candidate.dstx == last_move.dstx and
-               first_candidate.dsty == last_move.dsty and
-               first_candidate.prom_piece == last_move.prom_piece):
-                second_candidate = self.session.candidate_list[1]
+        if(len(self.match.minutes) > 0 and len(self.session.candidates) >= 2):
+            last_move = self.match.minutes[-1]
+            first_candidate = self.session.candidats[0]
+            if(first_candidate.src == last_move.src and
+               first_candidate.dst == last_move.dst and
+               first_candidate.prompiece == last_move.prompiece):
+                second_candidate = self.session.candidates[1]
         candidates = calc_move(self.match, second_candidate)
-        self.session.candidate_list.clear()
+        self.session.candidates.clear()
         if(len(candidates) > 0):
             gmove = candidates[0]
-            self.session.match.do_move(gmove.srcx, gmove.srcy, gmove.dstx, gmove.dsty, gmove.prom_piece)
+            self.session.match.do_move(gmove.src, gmove.dst, gmove.prompiece)
             if(len(candidates) >= 3):
-                self.session.candidate_list.append(candidates[1])
-                self.session.candidate_list.append(candidates[2])
+                self.session.candidates.append(candidates[1])
+                self.session.candidates.append(candidates[2])
             prnt_board(self.session.match, 0)
         else:
             print("no move found!")
-        self.session.thread_is_busy = False
+        self.session.thread_isbusy = False
 
 
 def calc_and_domove(session):
     match = session.match
     status = match.evaluate_status()
-    if(session.thread_is_busy == False and 
-       status == match.STATUS['open'] and 
-       match.is_next_color_human() == False):
+    if(session.thread_isbusy == False and session.status == 0 and
+       status == match.STATUS['active'] and 
+       ((match.next_color() == COLORS['white'] and session.wplayer_ishuman == False) or
+        (match.next_color() == COLORS['black'] and session.bplayer_ishuman == False))):
         session.thread = CalcThread(session)
         session.thread.start()
     else:
@@ -95,15 +95,15 @@ def calc_and_domove(session):
 
 def word_pause(session, params):
     match = session.match
-    if(match.evaluate_status() == match.STATUS['open']):
-        match.status = match.STATUS['paused']
+    if(match.evaluate_status() == match.STATUS['active'] and session.status == 0):
+        session.status = 1
     return True
 
 
 def word_resume(session, params):
     match = session.match
-    if(match.status == match.STATUS['paused'] or match.status == match.STATUS['setup']):
-        match.status = match.STATUS['open']
+    if(session.status == 1):
+        session.status = 0
     calc_and_domove(session)
     return True
 
@@ -135,12 +135,12 @@ def word_human(session, params):
         return True
     else:
         if(params == "white"):
-            session.match.white_player.is_human = True
+            session.wplayer_ishuman = True
         elif(params == "black"):
-            session.match.black_player.is_human = True
+            session.bplayer_ishuman = True
         elif(params == "all"):
-            session.match.white_player.is_human = True
-            session.match.black_player.is_human = True
+            session.wplayer_ishuman = True
+            session.bplayer_ishuman = True
         else:
             print("??? " + msg)
     return True
@@ -153,12 +153,12 @@ def word_engine(session, params):
         return True
     else:
         if(params == "white"):
-            session.match.white_player.is_human = False
+            session.wplayer_ishuman = False
         elif(params == "black"):
-            session.match.black_player.is_human = False
+            session.bplayer_ishuman = False
         elif(params == "all"):
-            session.match.white_player.is_human = False
-            session.match.black_player.is_human = False
+            session.wplayer_ishuman = False
+            session.bplayer_ishuman = False
         else:
             print("??? " + msg)
     return True
@@ -167,29 +167,30 @@ def word_engine(session, params):
 def word_move(session, params):
     match = session.match
     match.status = match.evaluate_status()
-    if(match.status != match.STATUS['open']):
+    if(match.status != match.STATUS['active']):
         print("??? " + reverse_lookup(match.STATUS, match.status))
         return True
-    elif(match.is_next_color_human() == False):
+    if(((match.next_color() == COLORS['white'] and session.wplayer_ishuman) or
+        (match.next_color() == COLORS['black'] and session.bplayer_ishuman))):
         print("??? wrong color")
         return True
 
-    prom_piece = "blk"
+    prompiece = "blk"
 
     matchobj = re.search(r"^\s*(?P<src>[a-hA-H][1-8])\s*[-xX]*\s*(?P<dst>[a-hA-H][1-8])\s*$", params)
     if(matchobj):
-        srcx, srcy = coord_to_index(matchobj.group("src"))
-        dstx, dsty = coord_to_index(matchobj.group("dst"))
+        src = coord_to_index(matchobj.group("src"))
+        dst = coord_to_index(matchobj.group("dst"))
     else:
         matchobj = re.search(r"^\s*(?P<src>[a-hA-H][1-8])\s*[-xX]*\s*(?P<dst>[a-hA-H][1-8])\s*[-,;]*\s*(?P<prom>\w+)\s*$", params)
         if(matchobj):
-            srcx, srcy = coord_to_index(matchobj.group("src"))
-            dstx, dsty = coord_to_index(matchobj.group("dst"))
-            prom_piece = matchobj.group("prom")
+            src = coord_to_index(matchobj.group("src"))
+            dst = coord_to_index(matchobj.group("dst"))
+            prompiece = matchobj.group("prom")
 
             valid = False
             for piece in PIECES:
-                if(piece == prom_piece):
+                if(piece == prompiece):
                     valid = True
                     break
             if(valid == False):
@@ -198,33 +199,26 @@ def word_move(session, params):
             matchobj = re.search(r"^\s*(?P<short>[0oO][-][0oO])\s*$", params)
             if(matchobj):
                 if(match.next_color() == COLORS['white']):
-                    srcx = match.board.wKg_x
-                    srcy = match.board.wKg_y
+                    src = match.board.wKg
                 else:
-                    srcx = match.board.bKg_x
-                    srcy = match.board.bKg_y
-                dstx = srcx + 2
-                dsty = srcy
+                    src = match.board.bKg
+                dst = src + 2
             else:
                 matchobj = re.search(r"^\s*(?P<long>[0oO][-][0oO][-][0oO])\s*$", params)
                 if(matchobj):
                     if(match.next_color() == COLORS['white']):
-                        srcx = match.board.wKg_x
-                        srcy = match.board.wKg_y
+                        src = match.board.wKg
                     else:
-                        srcx = match.board.bKg_x
-                        srcy = match.board.bKg_y
-                    dstx = srcx - 2
-                    dsty = srcy
+                        src = match.board.bKg
+                    dst = src - 2
                 else:
                     return True
 
-    if(match.is_move_valid(srcx, srcy, dstx, dsty, PIECES[prom_piece])[0]):
-        match.do_move(srcx, srcy, dstx, dsty, PIECES[prom_piece])
+    if(match.is_move_valid(src, dst, PIECES[prompiece])[0]):
+        match.do_move(src, dst, PIECES[prompiece])
         prnt_board(match, 0)
     else:
         print("invalid move!")
-
     return True
 
 
@@ -237,8 +231,8 @@ def word_undo(session, params):
     for i in range(count):
         match.undo_move()
     prnt_board(match, 0)
-    if(match.evaluate_status() == match.STATUS['open']):
-        match.status = match.STATUS['paused']
+    if(match.evaluate_status() == match.STATUS['active']):
+        session.status = 1
     return True
 
 
@@ -400,10 +394,10 @@ def word_delete(session, params):
 
 def word_setup(session, params):
     match = session.match
-    match.status = match.STATUS['setup']
+    session.status = 2
     match.score = 0
     match.board.clear()
-    match.move_list.clear()
+    match.minutes.clear()
     prnt_match_attributes(match, ", ")
     prnt_board(match, 0)
     print("board setup started - please set pieces")
@@ -412,12 +406,12 @@ def word_setup(session, params):
 
 def word_close(session, params):
     match = session.match
-    if(match.status == match.STATUS['setup']):
+    if(session.status ==2):
         match.update_attributes()
         if(match.board.verify() == False):
             print("invalid position")
         else:
-            match.status = match.STATUS['open']
+            session.status = 0
             prnt_match_attributes(session.match, ", ")
             prnt_board(match, 0)
             print("board setup finished")
@@ -429,7 +423,7 @@ def word_close(session, params):
 def word_piece(session, params):
     match = session.match
 
-    if(match.status == match.STATUS['setup']):
+    if(session.status == 2):
         tokens = params.split(" ")
         if(len(tokens) != 2):
             print("??? 2 params required.")
@@ -441,12 +435,12 @@ def word_piece(session, params):
             print("??? 1. param error")
             return True
 
-        x, y = coord_to_index(tokens[1])
-        if(match.board.is_inbounds(x, y) == False):
+        idx = coord_to_index(tokens[1])
+        if(idx < 0 or idx > 63):
             print("??? 2. param error")
             return True
         else:
-            match.board.writefield(x, y, piece)
+            match.board.setfield(idx, piece)
             prnt_board(match, 0)
     else:
         print("wrong status")
@@ -454,11 +448,6 @@ def word_piece(session, params):
 
 
 def word_debug(session, params):
-    match = session.match
-    king = cKing(match, match.board.wKg_x, match.board.wKg_y)
-    print("wKg - is_king_safe: " + str(king.is_safe()))
-    king = cKing(match, match.board.bKg_x, match.board.bKg_y)
-    print("bKg - is_king_safe: " + str(king.is_safe()))
     return True
 
 
