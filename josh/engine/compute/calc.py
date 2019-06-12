@@ -98,7 +98,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 return score_position(match, len(priomoves)), candidates
 
     if(len(priomoves) == 0 or maxcnt == 0):
+        print("len(priomoves) == 0 or maxcnt == 0", end=", ")
         candidates.append(None)
+        print("before score_position", end=", ")
         return score_position(match, len(priomoves)), candidates
 
     for priomove in priomoves:
