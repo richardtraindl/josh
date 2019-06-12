@@ -160,3 +160,22 @@ def list_move_attributes(move):
     attributes.append(ClassAttr(move.dst, "dst"))
     attributes.append(ClassAttr(move.prompiece, "prompiece"))
     return attributes
+
+
+def import_from_fields(fields=0x0):
+    match = cMatch()
+    match.board.fields = fields
+    for idx in range(64):
+        piece = match.board.getfield(idx)
+        if(piece == PIECES['wKg']):
+            match.board.wKg = idx
+            continue
+        if(piece == PIECES['bKg']):
+            match.board.bKg = idx
+    if(match.board.verify()):
+        return match
+    else:
+        return None
+
+
+

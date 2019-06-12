@@ -16,7 +16,9 @@ from josh.mapper import *
 from .engine.values import *
 from .engine.helper import coord_to_index, reverse_lookup
 from .engine.match import cMatch
+from .engine.debug import import_from_fields
 from .engine.compute.calc import calc_move
+
 
 bp = Blueprint('match', __name__)
 cache = SimpleCache()
@@ -279,6 +281,7 @@ class ImmanuelsThread(threading.Thread):
     def run(self):
         with self.app.app_context():
             print("Thread starting " + str(self.name))
+            print("debug info: " + hex(self.engine.board.fields))
             candidates = calc_move(self.engine, None)
             match = get_match(self.matchid)
             movecnt = get_movecnt(self.matchid)
@@ -437,7 +440,6 @@ def resume(id):
 
     if(view is None):
         view = 0
-
     return redirect(url_for('match.show', id=id, view=view,))
 
 
@@ -446,4 +448,15 @@ def resume(id):
 def delete(id):
     delete_match(id)
     return redirect(url_for('match.index'))
+
+
+@bp.route('/<int:id>/dbginfo', methods=('GET',))
+@login_required
+def dbginfo(id):
+    match = import_from_fields(0x0)
+    if(match):
+        matchid = new_match(cMatch.LEVELS['blitz'], "white", True, "Black", False)
+        return redirect(url_for('match.show', id=matchid,))
+    else:
+        return redirect(url_for('match.index'))
 
