@@ -137,7 +137,7 @@ def weight_for_running_pawn(match, piece, move, weight):
     ###
     if((weight == cTactic.WEIGHTS['good-deal'] or 
         weight == cTactic.WEIGHTS['better-deal']) and 
-        len(frdlytouches_on_dstfield) >= len(enmytouches_on_dstfield)):
+        len(friends_on_dstfield) >= len(enmies_on_dstfield)):
         return cTactic.WEIGHTS['good-deal']
     else:
         return weight
