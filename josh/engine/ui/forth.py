@@ -8,6 +8,8 @@ class Session:
         self.thread = None
         self.thread_is_busy = False
         self.match = match
+        self.wplayer_ishuman = True
+        self.bplayer_ishuman = False
         self.candidates = []
 
 
