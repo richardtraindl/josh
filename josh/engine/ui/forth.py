@@ -10,6 +10,7 @@ class Session:
         self.match = match
         self.wplayer_ishuman = True
         self.bplayer_ishuman = False
+        self.status = 0
         self.candidates = []
 
 
