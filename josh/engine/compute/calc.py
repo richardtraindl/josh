@@ -84,6 +84,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     priomoves.sort(key = attrgetter('prio'))
     print("before select_movecnt", end=", ")
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
+    print("after select_movecnt", end=", ")
 
     if(depth == 1):
         print("************ maxcnt: " + str(maxcnt) + " ******************")
