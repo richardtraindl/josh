@@ -78,8 +78,11 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
     dbggmove = cMove(None, 3, 51, PIECES['blk'])
     search_for_mate = False #depth <= 3
+    print("before generate_moves", end=", ")
     priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
+    print("before priomoves.sort", end=", ")
     priomoves.sort(key = attrgetter('prio'))
+    print("before select_movecnt", end=", ")
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
 
     if(depth == 1):
@@ -93,11 +96,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 return 0, candidates
             else:
                 return score_position(match, len(priomoves)), candidates
-    if(depth > slimits.dpth_stage3):
-        print(str(depth) + ", ", end="")
 
     if(len(priomoves) == 0 or maxcnt == 0):
-        #candidates.append(None)
+        candidates.append(None)
         return score_position(match, len(priomoves)), candidates
 
     for priomove in priomoves:
