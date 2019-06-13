@@ -197,24 +197,24 @@ def score_penalty_for_weak_fianchetto(match):
 
 
 def score_opening(match):
-    value = 0
-    #value += score_penalty_for_multiple_moves(match)
-    value += score_penalty_for_knight_bishop_on_baseline(match)
-    value += score_penalty_for_lost_castlings(match)
-    #value += score_weak_pawns(match)
-    value += score_penalty_for_weak_fianchetto(match)
-    return value
+    score = 0
+    #score += score_penalty_for_multiple_moves(match)
+    score += score_penalty_for_knight_bishop_on_baseline(match)
+    score += score_penalty_for_lost_castlings(match)
+    #score += score_weak_pawns(match)
+    score += score_penalty_for_weak_fianchetto(match)
+    return score
 
 
 def score_middlegame(match):
-    value = 0
-    value += score_penalty_for_knight_bishop_on_baseline(match)
-    #value += score_weak_pawns(match)
-    return value
+    score = 0
+    score += score_penalty_for_knight_bishop_on_baseline(match)
+    #score += score_weak_pawns(match)
+    score value
 
 
 def score_endgame(match):
-    value = 0
+    score = 0
     whiterate = ATTACKED_SCORES[PIECES['bPw']]
     white_step_rates = [ 0, 0, 1, 2, 3, 4, 5, 0]
     blackrate = ATTACKED_SCORES[PIECES['wPw']]
@@ -225,13 +225,13 @@ def score_endgame(match):
             cpawn = cWhitePawn(match, idx)
             if(cpawn.is_running()):
                 value += whiterate
-                value += whiterate * white_step_rates[y]
+                value += whiterate * white_step_rates[(idx // 8)]
         elif(piece == PIECES['bPw']):
             cpawn = cBlackPawn(match, idx)
             if(cpawn.is_running()):
                 value += blackrate
-                value += blackrate * black_step_rates[y]
-    return value
+                value += blackrate * black_step_rates[(idx // 8)]
+    return score
 
 
 def score_position(match, movecnt):
@@ -247,14 +247,14 @@ def score_position(match, movecnt):
         score = match.score
         score += score_traps_and_touches(match)
         score += score_kings_safety(match)
-        """score += score_controled_horizontal_files(match)
+        score += score_controled_horizontal_files(match)
         score += score_controled_vertical_files(match)
         if(match.is_opening()):
             score += score_opening(match)
         elif(match.is_endgame()):
             score += score_endgame(match)
         else:
-            score += score_middlegame(match)"""
+            score += score_middlegame(match)
         return score
 
 
