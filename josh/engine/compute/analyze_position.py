@@ -210,7 +210,7 @@ def score_middlegame(match):
     score = 0
     score += score_penalty_for_knight_bishop_on_baseline(match)
     #score += score_weak_pawns(match)
-    score score
+    return score
 
 
 def score_endgame(match):
