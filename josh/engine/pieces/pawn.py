@@ -55,10 +55,12 @@ class cPawn(cPiece):
             opp_pawn = PIECES['wPw']
         for idx in range(-1, 2, 1):
             src = self.pos + idx
-            while(dst := self.match.board.search(src, step, 5)):
+            dst = self.match.board.search(src, step, 5)
+            while(dst):
                 piece = self.match.board.getfield(dst)
                 if(piece == opp_pawn):
                     return False
+                dst = self.match.board.search(dst, step, 5)
         return True
 
  # class end
