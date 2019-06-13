@@ -224,13 +224,13 @@ def score_endgame(match):
         if(piece == PIECES['wPw']):
             cpawn = cWhitePawn(match, idx)
             if(cpawn.is_running()):
-                value += whiterate
-                value += whiterate * white_step_rates[(idx // 8)]
+                score += whiterate
+                score += whiterate * white_step_rates[(idx // 8)]
         elif(piece == PIECES['bPw']):
             cpawn = cBlackPawn(match, idx)
             if(cpawn.is_running()):
-                value += blackrate
-                value += blackrate * black_step_rates[(idx // 8)]
+                score += blackrate
+                score += blackrate * black_step_rates[(idx // 8)]
     return score
 
 
