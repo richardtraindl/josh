@@ -135,7 +135,7 @@ def add_tactics(priomove, match, candidate, dbggmove, search_for_mate):
     if(blocks(match, piece, move)):
         priomove.tactics.append(cTactic(cTactic.DOMAINS['blocks'], weight))
 
-    if(running_pawn_in_endgame(match, piece, move)):
+    if(running_pawn(match, piece, move)):
         running_weight = weight_for_running_pawn(match, piece, move, weight)
         priomove.tactics.append(cTactic(cTactic.DOMAINS['is-running-pawn'], running_weight))
 
