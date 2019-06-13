@@ -77,7 +77,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         minscore = beta
 
     dbggmove = cMove(None, 3, 51, PIECES['blk'])
-    search_for_mate = False #depth <= 3
+    search_for_mate = match.is_endgame()
     priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
     priomoves.sort(key = attrgetter('prio'))
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
