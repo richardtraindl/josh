@@ -72,7 +72,7 @@ def is_supported_running_pawn(match, supported):
         if(cpawn.is_running()):
             return True
     elif(supported.piece == PIECES['bPw']):
-        cpawn = cBlackPawn3(match, supported.field)
+        cpawn = cBlackPawn(match, supported.field)
         if(cpawn.is_running()):
             return True
     return False

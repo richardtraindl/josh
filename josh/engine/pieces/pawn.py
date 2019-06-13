@@ -53,9 +53,10 @@ class cPawn(cPiece):
         else:
             step = -8
             opp_pawn = PIECES['wPw']
+        return False
         for idx in range(-1, 2, 1):
             src = self.pos + idx
-            while(idx == 0 or cBoard.is_inbounds(self.pos, src, idx)):
+            while(True): # cBoard.is_inbounds(self.pos, src, idx)
                 dst = self.match.board.search(src, step, 5)
                 if(dst):
                     piece = self.match.board.getfield(dst)
