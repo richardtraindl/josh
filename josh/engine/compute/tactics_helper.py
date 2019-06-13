@@ -356,15 +356,15 @@ def blocks(match, piece, move):
         return False
 
 
-def running_pawn_in_endgame(match, piece, move):
-    if(match.is_endgame()):
-        if(piece == PIECES['wPw']):
-            cpawn = cWhitePawn(match, move.src)
-            return cpawn.is_running()
-        elif(piece == PIECES['bPw']):
-            cpawn = cBlackPawn(match, move.src)
-            return cpawn.is_running()
-    return False
+def running_pawn(match, piece, move):
+    if(piece == PIECES['wPw']):
+        cpawn = cWhitePawn(match, move.src)
+        return cpawn.is_running()
+    elif(piece == PIECES['bPw']):
+        cpawn = cBlackPawn(match, move.src)
+        return cpawn.is_running()
+    else:
+        return False
 
 
 def defends_invasion(match, move):
