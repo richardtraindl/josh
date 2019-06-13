@@ -53,7 +53,6 @@ class cPawn(cPiece):
         else:
             step = -8
             opp_pawn = PIECES['wPw']
-        return False
         for idx in range(-1, 2, 1):
             src = self.pos + idx
             while(True): # cBoard.is_inbounds(self.pos, src, idx)
