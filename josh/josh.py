@@ -453,7 +453,7 @@ def delete(id):
 @bp.route('/debug', methods=('GET',))
 @login_required
 def debug():
-    engine = import_from_fields(0x60111000000000400100000000000004000090000099e90000c0b00030)
+    engine = import_from_fields(0x40000600000511110000000000d13000090000900c09a0094009090e0000b0c)
     if(engine):
         match = new_match(cMatch.LEVELS['blitz'], "white", True, "Black", False)
         update_match(match['id'], match['status'], engine.level, map_board_from_int_to_str(engine.board.fields), \
