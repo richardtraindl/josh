@@ -398,3 +398,19 @@ def is_tactical_draw(match, move):
 def is_progress(match, move):
     return False
 
+
+def is_approach_of_opp_king(match, piece, move):
+    if(cMatch.color_of_piece(piece) == COLORS['white']):
+        oppkg = match.board.bKg
+    else:
+        oppkg = match.board.wKg
+    kgx = oppkg % 8
+    kgy = oppkg // 8
+    x1 = move.src % 8
+    y1 = move.src // 8
+    x2 = move.dst % 8
+    y2 = move.dst // 8
+    diff1 = abs(kgx - x1) + abs(kgy - y1)
+    diff2 = abs(kgx - x2) + abs(kgy - y2)
+    return diff2 < diff1
+

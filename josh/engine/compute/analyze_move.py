@@ -145,6 +145,9 @@ def add_tactics(priomove, match, candidate, dbggmove, search_for_mate):
     if(is_progress(match, move)):
         priomove.tactics.append(cTactic(cTactic.DOMAINS['is-progress'], weight))
 
+    if(match.is_endgame() and is_approach_of_opp_king(match, piece, move)):
+        priomove.tactics.append(cTactic(cTactic.DOMAINS['approach-opp-king'], weight))
+
     if(dbggmove and dbggmove.src == move.src and dbggmove.dst == move.dst):
         priomove.prio = 1
         excludes.clear()

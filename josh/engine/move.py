@@ -60,7 +60,9 @@ class cTactic:
     'controles-file' :        170,
     'castles' :               180,
     'is-progress' :           190,
-    'is-undefined' :          200 }
+    'opposition' :            200,
+    'approach-opp-king' :     210,
+    'is-undefined' :          220 }
 
     WEIGHTS = {
         'stormy' : 1,
@@ -92,6 +94,8 @@ class cTactic:
         DOMAINS['is-progress'] :            210,
         DOMAINS['supports'] :               211,
         DOMAINS['attacks'] :                212,
+        DOMAINS['opposition'] :             213,
+        DOMAINS['approach-opp-king'] :      214,
         ### level 3 ###
         DOMAINS['is-undefined'] :           500 }
 
