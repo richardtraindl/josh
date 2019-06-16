@@ -92,7 +92,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 0.6em 0 0 0 }
     margin: 0px auto;
     padding: 0.2em 0 0 0;
     display: grid; 
-    grid-template-columns: max-content max-content; 
+    grid-template-columns: auto auto; 
 }
 #minutes * { padding-right: 3em; text-align: left; }
 
