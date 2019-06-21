@@ -149,7 +149,7 @@ class SearchLimits:
     def __init__(self, match):
         self.add_mvcnt = 2
         if(match.level == match.LEVELS['blitz']):
-            self.dpth_max = 12
+            self.dpth_max = 8
             self.dpth_stage1 = 2
             self.dpth_stage2 = 4
             #self.dpth_stage3 = 4
@@ -157,7 +157,7 @@ class SearchLimits:
             self.mvcnt_stage2 = 6
             #self.mvcnt_stage3 = 2
         if(match.level == match.LEVELS['low']):
-            self.dpth_max = 16
+            self.dpth_max = 12
             self.dpth_stage1 = 2
             self.dpth_stage2 = 5
             #self.dpth_stage3 = 6
@@ -165,7 +165,7 @@ class SearchLimits:
             self.mvcnt_stage2 = 6
             #self.mvcnt_stage3 = 2
         elif(match.level == match.LEVELS['medium']):
-            self.dpth_max = 20
+            self.dpth_max = 16
             self.dpth_stage1 = 2
             self.dpth_stage2 = 6
             #self.dpth_stage3 = 8
