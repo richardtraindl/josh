@@ -197,9 +197,8 @@ def show(id):
     for move in moves:
         cmove = map_move_from_db(move, engine)
         if(count % 2 == 1):
-            minutes.append(str(count // 2 + 1) + ". " + cmove.format())
-        else:
-            minutes.append(cmove.format())
+            minutes.append(str(count // 2 + 1) + ".")
+        minutes.append(cmove.format())
         count += 1
 
     return render_template('match/show.html', match=match, board=board, view=view, wplayer=wplayer, movecnt=movecnt, minutes=minutes, wsecs=wsecs, bplayer=bplayer, bsecs=bsecs, status=status, score=engine.score , isactive=isactive)
@@ -453,7 +452,7 @@ def delete(id):
 @bp.route('/debug', methods=('GET',))
 @login_required
 def debug():
-    engine = import_from_fields(0x40000600000511110000000000d13000090000900c09a0094009090e0000b0c)
+    engine = import_from_fields(0X600000001000101010010420A000100909900000900E9000000C00900000000)
     if(engine):
         match = new_match(cMatch.LEVELS['blitz'], "white", True, "Black", False)
         update_match(match['id'], match['status'], engine.level, map_board_from_int_to_str(engine.board.fields), \
