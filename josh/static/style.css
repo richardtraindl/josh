@@ -128,5 +128,5 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 8px 0 0 0 }
     .twocols > *:nth-child(odd) { margin: 0 0 0 0 }
     .twocols > *:nth-child(even) { margin: 0 0 1vw 0 }
     #minutes { width: 100%; }
-    #minutes * { padding-right: 1vw; }
+    #minutes * { padding-right: 4vw; }
 }
