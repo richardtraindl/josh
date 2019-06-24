@@ -130,3 +130,6 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 8px 0 0 0 }
 
 @media (max-resolution: 25dpcm) { body { background-color: lightblue; } }
 @media (max-resolution: 50dpcm) { body { background-color: green; } }
+@media (max-resolution: 100dpcm) { body { background-color: yellow; } }
+@media (max-resolution: 150dpcm) { body { background-color: magenta; } }
+
