@@ -1,7 +1,7 @@
 
 * { font-weight: normal; font-size: 16px; }
 html { font-family: serif; background: #eee; padding: 12px; }
-body { width: 720px; min-width: 512px; margin: 0 auto; background-color: White; }
+body { width: 720px; min-width: 512px; margin: 0 auto; background-color: white; }
 h1, h1 a { margin:0; padding: 0; font-size: 28px; }
 h2, h2 a { margin: 6px 0; padding: 0; font-size: 24px; text-decoration: underline; }
 h3, h3 a { margin: 0; padding: 0; font-size: 20px; }
@@ -82,8 +82,8 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 8px 0 0 0 }
     width: 48px;
 }
 
-.white-cell { background-color: Linen; }
-.black-cell { background-color: Gray;  }
+.white-cell { background-color: linen; }
+.black-cell { background-color: gray;  }
 
 #minutes-wrapper { 
     padding: 20px 0 0 0; 
@@ -98,7 +98,7 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 8px 0 0 0 }
 #minutes * { padding-right: 20px; text-align: left; }
 
 .fbold { font-weight: bold; }
-.red-bold { color: Red; font-weight: bold; }
+.red-bold { color: red; font-weight: bold; }
 .marked { opacity: 0.4; }
 .invisible { display: none; }
 
@@ -128,5 +128,5 @@ input[type=submit] { align-self: start; min-width: 160px; margin: 8px 0 0 0 }
     #minutes * { padding-right: 4vw; }
 }
 
-@media (max-resolution: 100dpcm) { background-color: Lightblue; }
-@media (max-resolution: 200dpcm) { background-color: Green; }
+@media (max-resolution: 100dpcm) { body { background-color: lightblue; } }
+@media (max-resolution: 200dpcm) { body { background-color: green; } }
