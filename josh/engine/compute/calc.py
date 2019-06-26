@@ -65,7 +65,46 @@ def append_newmove(move, candidates, newcandidates):
             break
 
 
-def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate):
+def mpcalc(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate):
+    color = match.next_color()
+    candidates = []
+    newcandidates = []
+    count = 0
+    starttime = time.time()
+
+    if(maximizing):
+        maxscore = alpha
+    else:
+        minscore = beta
+
+    dbggmove = None
+    search_for_mate = match.is_endgame()
+    priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
+    priomoves.sort(key = attrgetter('prio'))
+    maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
+    processes = []
+    output = mp.Queue()
+    #pool = mp.Pool(processes=maxcnt)
+
+    idx = 0
+    for priomove in priomoves[:maxcnt]:
+        newmatch = copy.deepcopy(match)
+        if(maximizing):
+            processes.append(mp.Process(target=alphabeta, args=(newmatch, depth, slimits, maxscore, beta, False, priomove, None, output, idx)))
+        else:
+            processes.append(mp.Process(target=alphabeta, args=(newmatch, depth, slimits, alpha, minscore, False, priomove, None, output, idx)))
+        idx += 1
+        print("-----------------1")
+    for proc in processes:
+        print("processes start")
+        proc.start()
+    for proc in processes:
+        print("processes stop")
+        proc.join()
+    return output.get()
+
+
+def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate, output, idx):
     color = match.next_color()
     candidates = []
     newcandidates = []
@@ -102,6 +141,8 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             pool = mp.Pool(processes=maxcnt)
 
     for priomove in priomoves:
+        if(idx and idx != count):
+            continue
         move = priomove.move
         count += 1
 
@@ -112,17 +153,10 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
         match.do_move(move.src, move.dst, move.prompiece)
 
-        if(depth == 1):
-            newmatch = copy.deepcopy(match)
-            if(maximizing):
-                newscore, newcandidates = pool.apply(alphabeta, args=(newmatch, depth + 1, slimits, maxscore, beta, False, priomove, None,))
-            else:
-                newscore, newcandidates = pool.apply(alphabeta, args=(newmatch, depth + 1, slimits, alpha, minscore, True, priomove, None,))
+        if(maximizing):
+            newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None, output, None)
         else:
-            if(maximizing):
-                newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
-            else:
-                newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
+            newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None, output, None)
         match.undo_move()
 
         if(depth == 1):
@@ -135,11 +169,11 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
         if(maximizing):
             if(newscore > maxscore):
-                maxscore = newscore
-                if(maxscore >= beta):
-                    break # beta cut-off
-                else:
-                    append_newmove(move, candidates, newcandidates)
+               maxscore = newscore
+               if(maxscore >= beta):
+                   break # beta cut-off
+               else:
+                   append_newmove(move, candidates, newcandidates)
         else:
             if(newscore < minscore):
                 minscore = newscore
@@ -150,10 +184,14 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         if(count >= maxcnt):
             break
 
-    if(maximizing):
-        return maxscore, candidates
-    else:
-        return minscore, candidates
+        if(maximizing):
+            if(depth == 1):
+                output.put([maxscore, candidates])
+            return maxscore, candidates
+        else:
+            if(depth == 1):
+                output.put([minscore, candidates])
+            return minscore, candidates
 
 
 class SearchLimits:
@@ -321,7 +359,7 @@ def calc_move(match, candidate):
         maximizing = match.next_color() == COLORS['white']
         alpha = SCORES[PIECES['wKg']] * 10
         beta = SCORES[PIECES['bKg']] * 10
-        score, candidates = alphabeta(match, 1, slimits, alpha, beta, maximizing, None, candidate)
+        score, candidates = mpcalc(match, 1, slimits, alpha, beta, maximizing, None, candidate)
 
     msg = "result: " + str(score) + " match: " + str(match.created_at) + " "
     print(msg + concat_fmtmoves(match, candidates))
