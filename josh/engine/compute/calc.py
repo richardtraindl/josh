@@ -311,7 +311,7 @@ def calc_move(match, candidate):
         maximizing = match.next_color() == COLORS['white']
         alpha = SCORES[PIECES['wKg']] * 10
         beta = SCORES[PIECES['bKg']] * 10
-        score, candidates = alphabeta(match, 0, slimits, alpha, beta, maximizing, None, candidate)
+        score, candidates = alphabeta(match, 1, slimits, alpha, beta, maximizing, None, candidate)
 
     msg = "result: " + str(score) + " match: " + str(match.created_at) + " "
     print(msg + concat_fmtmoves(match, candidates))
