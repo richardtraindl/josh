@@ -98,6 +98,8 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 return 0, candidates
             else:
                 return score_position(match, len(priomoves)), candidates
+        else:
+            pool = mp.Pool(processes=maxcnt)
 
     for priomove in priomoves:
         move = priomove.move
@@ -111,7 +113,6 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         match.do_move(move.src, move.dst, move.prompiece)
 
         if(depth == 1):
-            pool = mp.Pool(processes=maxcnt)
             newmatch = copy.deepcopy(match)
             if(maximizing):
                 newscore, newcandidates = pool.apply(alphabeta, args=(newmatch, depth + 1, slimits, maxscore, beta, False, priomove, None,))
