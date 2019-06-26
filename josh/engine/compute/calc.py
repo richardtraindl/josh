@@ -311,34 +311,7 @@ def calc_move(match, candidate):
         maximizing = match.next_color() == COLORS['white']
         alpha = SCORES[PIECES['wKg']] * 10
         beta = SCORES[PIECES['bKg']] * 10
-        #***
-        dbggmove = None
-        search_for_mate = match.is_endgame()
-        priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
-        priomoves.sort(key = attrgetter('prio'))
-        maxcnt = select_movecnt(match, priomoves, 1, slimits, None)
-        print("************ maxcnt: " + str(maxcnt) + " ******************")
-        prnt_priomoves(match, priomoves)
-        if(len(priomoves) == 0 or maxcnt == 0):
-            score, candidates = score_position(match, len(priomoves)), candidates
-        elif(len(priomoves) == 1):
-            priomove = priomoves[0]
-            candidates.append(priomove.move)
-            if(priomove.has_domain(cTactic.DOMAINS['is-tactical-draw'])):
-                 score, candidates = 0, candidates
-            else:
-                 score, candidates = score_position(match, len(priomoves)), candidates
-        else:
-            pool = mp.Pool(processes=maxcnt)
-            results = []
-            for priomove in priomoves[:maxcnt]:
-                move = priomove.move
-                newmatch = copy.deepcopy(match)
-                newmatch.do_move(move.src, move.dst, move.prompiece)
-                results.append(pool.apply(alphabeta, args=(newmatch, 2, slimits, beta, alpha, not maximizing, None, candidate,)))
-            print(results)
-            ###candidates 
-        #***
+        score, candidates = alphabeta(match, 0, slimits, alpha, beta, maximizing, None, candidate)
 
     msg = "result: " + str(score) + " match: " + str(match.created_at) + " "
     print(msg + concat_fmtmoves(match, candidates))
