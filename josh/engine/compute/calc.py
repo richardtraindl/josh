@@ -83,6 +83,10 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     priomoves.sort(key = attrgetter('prio'))
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
 
+    if(len(priomoves) == 0 or maxcnt == 0):
+        #candidates.append(None)
+        return score_position(match, len(priomoves)), candidates
+
     if(depth == 1):
         print("************ maxcnt: " + str(maxcnt) + " ******************")
         prnt_priomoves(match, priomoves)
@@ -95,10 +99,6 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             else:
                 return score_position(match, len(priomoves)), candidates
 
-    if(len(priomoves) == 0 or maxcnt == 0):
-        #candidates.append(None)
-        return score_position(match, len(priomoves)), candidates
-
     for priomove in priomoves:
         move = priomove.move
         count += 1
@@ -109,10 +109,19 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             print("calculate 2nd: " + move.format())
 
         match.do_move(move.src, move.dst, move.prompiece)
-        if(maximizing):
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
+
+        if(depth == 1):
+            pool = mp.Pool(processes=maxcnt)
+            newmatch = copy.deepcopy(match)
+            if(maximizing):
+                newscore, newcandidates = pool.apply(alphabeta, args=(newmatch, depth + 1, slimits, maxscore, beta, False, priomove, None,))
+            else:
+                newscore, newcandidates = pool.apply(alphabeta, args=(newmatch, depth + 1, slimits, alpha, minscore, True, priomove, None,))
         else:
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
+            if(maximizing):
+                newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
+            else:
+                newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
         match.undo_move()
 
         if(depth == 1):
