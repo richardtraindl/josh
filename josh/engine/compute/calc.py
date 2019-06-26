@@ -9,7 +9,7 @@ from .openings import retrieve_move
 from .analyze_position import *
 
 
-def prnt_priomoves(match, priomoves, last_pmove):
+def prnt_priomoves(match, priomoves):
     print("------------------------------------------------")
     idx = 1
     for priomove in priomoves:
@@ -85,7 +85,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
     if(depth == 1):
         print("************ maxcnt: " + str(maxcnt) + " ******************")
-        prnt_priomoves(match, priomoves, last_pmove)
+        prnt_priomoves(match, priomoves)
         if(len(priomoves) == 1):
             priomove = priomoves[0]
             candidates.append(priomove.move)
@@ -318,7 +318,7 @@ def calc_move(match, candidate):
         priomoves.sort(key = attrgetter('prio'))
         maxcnt = select_movecnt(match, priomoves, 1, slimits, None)
         print("************ maxcnt: " + str(maxcnt) + " ******************")
-        prnt_priomoves(match, priomoves, last_pmove)
+        prnt_priomoves(match, priomoves)
         if(len(priomoves) == 0 or maxcnt == 0):
             score, candidates = score_position(match, len(priomoves)), candidates
         elif(len(priomoves) == 1):
