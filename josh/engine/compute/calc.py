@@ -316,7 +316,7 @@ def calc_move(match, candidate):
         search_for_mate = match.is_endgame()
         priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
         priomoves.sort(key = attrgetter('prio'))
-        maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
+        maxcnt = select_movecnt(match, priomoves, 1, slimits, None)
         print("************ maxcnt: " + str(maxcnt) + " ******************")
         prnt_priomoves(match, priomoves, last_pmove)
         if(len(priomoves) == 0 or maxcnt == 0):
