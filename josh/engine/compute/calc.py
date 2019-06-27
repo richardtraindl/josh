@@ -66,45 +66,88 @@ def append_newmove(move, candidates, newcandidates):
 
 
 def mpcalc(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate):
-    color = match.next_color()
     candidates = []
     newcandidates = []
-    count = 0
-    starttime = time.time()
-
-    if(maximizing):
-        maxscore = alpha
-    else:
-        minscore = beta
 
     dbggmove = None
     search_for_mate = match.is_endgame()
     priomoves = generate_moves(match, candidate, dbggmove, search_for_mate, True)
     priomoves.sort(key = attrgetter('prio'))
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
-    processes = []
-    output = mp.Queue()
-    #pool = mp.Pool(processes=maxcnt)
+    print("************ maxcnt: " + str(maxcnt) + " ******************")
+    prnt_priomoves(match, priomoves)
 
-    idx = 0
-    for priomove in priomoves[:maxcnt]:
-        newmatch = copy.deepcopy(match)
-        if(maximizing):
-            processes.append(mp.Process(target=alphabeta, args=(newmatch, depth, slimits, maxscore, beta, False, priomove, None, output, idx)))
+    if(len(priomoves) == 0 or maxcnt == 0):
+        return score_position(match, len(priomoves)), candidates
+    elif(len(priomoves) == 1):
+        priomove = priomoves[0]
+        candidates.append(priomove.move)
+        if(priomove.has_domain(cTactic.DOMAINS['is-tactical-draw'])):
+            return 0, candidates
         else:
-            processes.append(mp.Process(target=alphabeta, args=(newmatch, depth, slimits, alpha, minscore, False, priomove, None, output, idx)))
-        idx += 1
-        print("-----------------1")
-    for proc in processes:
-        print("processes start")
-        proc.start()
-    for proc in processes:
-        print("processes stop")
-        proc.join()
-    return output.get()
+            return score_position(match, len(priomoves)), candidates
+    else:
+        pool = mp.Pool(processes=maxcnt)
+        newmatch = copy.deepcopy(match)
+        results = [pool.apply_async(alphabeta_stage1, args=(newmatch, priomove, depth, slimits, alpha, beta, maximizing, priomove, None,)) for priomove in priomoves[:maxcnt]]
+        pool.close()
+        pool.join()
+        results = [p.get() for p in results]
+        if(maximizing):
+            candidate = [SCORES[PIECES['wKg']], None]
+        else:
+            candidate = [SCORES[PIECES['bKg']], None]
+        for result in results:
+            if(maximizing):
+                if(result[0] > candidate[0]):
+                    candidate = result
+            else:
+                if(result[0] < candidate[0]):
+                    candidate = result
+        return candidate
 
 
-def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate, output, idx):
+def alphabeta_stage1(match, priomove, depth, slimits, alpha, beta, maximizing, last_pmove, candidate):
+    candidates = []
+    newcandidates = []
+
+    if(maximizing):
+        maxscore = alpha
+    else:
+        minscore = beta
+
+    move = priomove.move
+    print("\ncalculate 1st: " + move.format())
+    match.do_move(move.src, move.dst, move.prompiece)
+    if(maximizing):
+        newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
+    else:
+        newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
+    match.undo_move()
+
+    prnt_search(match, "CURRENT SEARCH: ", newscore, move, newcandidates)
+    if(candidates):
+        if(maximizing):
+            prnt_search(match, "CANDIDATE:      ", maxscore, None, candidates)
+        else:
+            prnt_search(match, "CANDIDATE:      ", minscore, None, candidates)
+
+    if(maximizing):
+        if(newscore > maxscore):
+           maxscore = newscore
+           append_newmove(move, candidates, newcandidates)
+    else:
+        if(newscore < minscore):
+            minscore = newscore
+            append_newmove(move, candidates, newcandidates)
+
+    if(maximizing):
+        return maxscore, candidates
+    else:
+        return minscore, candidates
+
+
+def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candidate):
     color = match.next_color()
     candidates = []
     newcandidates = []
@@ -123,40 +166,17 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     maxcnt = select_movecnt(match, priomoves, depth, slimits, last_pmove)
 
     if(len(priomoves) == 0 or maxcnt == 0):
-        #candidates.append(None)
         return score_position(match, len(priomoves)), candidates
 
-    if(depth == 1):
-        print("************ maxcnt: " + str(maxcnt) + " ******************")
-        prnt_priomoves(match, priomoves)
-        if(len(priomoves) == 1):
-            priomove = priomoves[0]
-            candidates.append(priomove.move)
-            #candidates.append(None)
-            if(priomove.has_domain(cTactic.DOMAINS['is-tactical-draw'])):
-                return 0, candidates
-            else:
-                return score_position(match, len(priomoves)), candidates
-        else:
-            pool = mp.Pool(processes=maxcnt)
-
     for priomove in priomoves:
-        if(idx and idx != count):
-            continue
         move = priomove.move
         count += 1
 
-        if(depth == 1):
-            print("\ncalculate 1st: " + move.format())
-        if(depth == 2):
-            print("calculate 2nd: " + move.format())
-
         match.do_move(move.src, move.dst, move.prompiece)
-
         if(maximizing):
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None, output, None)
+            newscore, newcandidates = alphabeta(match, depth + 1, slimits, maxscore, beta, False, priomove, None)
         else:
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None, output, None)
+            newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, minscore, True, priomove, None)
         match.undo_move()
 
         if(depth == 1):
@@ -181,17 +201,14 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                     break # alpha cut-off
                 else:
                     append_newmove(move, candidates, newcandidates)
+
         if(count >= maxcnt):
             break
 
-        if(maximizing):
-            if(depth == 1):
-                output.put([maxscore, candidates])
-            return maxscore, candidates
-        else:
-            if(depth == 1):
-                output.put([minscore, candidates])
-            return minscore, candidates
+    if(maximizing):
+        return maxscore, candidates
+    else:
+        return minscore, candidates
 
 
 class SearchLimits:
