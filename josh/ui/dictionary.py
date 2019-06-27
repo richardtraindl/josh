@@ -38,7 +38,7 @@ def init_words():
     new_word("close", word_close, "closes setup")
     new_word("piece", word_piece, "sets a piece on the board during setups")
     new_word("mv", word_move, "moves piece(s), e.g. move e2-e4")
-    new_word("undo", word_undo, "undos last move")
+    new_word("undo", word_undo, "undoes last move")
     new_word("list", word_list, "lists all saved matches")
     new_word("save", word_save, "saves match")
     new_word("load", word_load, "loads match with id, e.g. load 3")
