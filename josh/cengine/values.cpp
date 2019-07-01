@@ -1,13 +1,13 @@
 
 #include <map>
 #include <string>
+#include "./helper.cpp"
 
 using namespace std;
 
-
-typedef map<string, int> MapStrInt;
-typedef map<int, int> MapIntInt;
-typedef map<int, string> MapIntStr;
+// typedef map<string, int> MapStrInt;
+// typedef map<int, int> MapIntInt;
+// typedef map<int, string> MapIntStr;
 
 const MapStrInt PIECES = {
     {'blk', 0x0}, 
