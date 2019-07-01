@@ -5,9 +5,11 @@
 using namespace std;
 
 
-typedef map<string, int> ValMap;
+typedef map<string, int> MapStrInt;
+typedef map<int, int> MapIntInt;
+typedef map<int, string> MapIntStr;
 
-const ValMap PIECES = {
+const MapStrInt PIECES = {
   {'blk', 0x0}, 
   {'wPw' , 0x1}, 
   {'wKn', 0x2}, 
@@ -23,15 +25,15 @@ const ValMap PIECES = {
   {'bKg', 0xE}
 };
 
-PIECES_BARE = {
-    PIECES['blk'] : 0,
-    PIECES['wPw'] : 1,
-    PIECES['bPw'] : 1,
-    PIECES['wKn'] : 2,
-    PIECES['bKn'] : 2,
-    PIECES['wBp'] : 3,
-    PIECES['bBp'] : 3,
-    PIECES['wRk'] : 4,
+const MapIntInt PIECES_BARE = {
+    PIECES['blk']. 0,
+    PIECES['wPw'], 1,
+    PIECES['bPw'], 1,
+    PIECES['wKn'], 2,
+    PIECES['bKn'], 2,
+    PIECES['wBp'], 3,
+    PIECES['bBp'], 3,
+    PIECES['wRk'], 4,
     PIECES['bRk'] : 4,
     PIECES['wQu'] : 5,
     PIECES['bQu'] : 5,
@@ -39,7 +41,8 @@ PIECES_BARE = {
     PIECES['bKg'] : 6 
 }
 
-PIECES_RANK = {
+  const MapIntInt PIECES_RANK = {
+ = {
     PIECES['blk'] : 0,
     PIECES['wPw'] : 1,
     PIECES['bPw'] : 1,
@@ -55,7 +58,8 @@ PIECES_RANK = {
     PIECES['bKg'] : 20 
 }
 
-PIECES_MASK = {
+const MapIntInt PIECES_MASK = {
+ = {
     PIECES['blk'] : 0x0,
     PIECES['wPw'] : 0x1111111111111111111111111111111111111111111111111111111111111111,
     PIECES['wKn'] : 0x2222222222222222222222222222222222222222222222222222222222222222,
@@ -71,7 +75,8 @@ PIECES_MASK = {
     PIECES['bKg'] : 0xEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 }
 
-PIECES_NMASK = {
+const MapIntInt PIECES_NMASK = {
+ = {
     PIECES['blk'] : 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,
     PIECES['wPw'] : 0xEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE,
     PIECES['wKn'] : 0xDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD,
@@ -87,7 +92,8 @@ PIECES_NMASK = {
     PIECES['bKg'] : 0x1111111111111111111111111111111111111111111111111111111111111111 
 }
 
-STR_PIECES = {
+const MapIntStr STR_PIECES = {
+ = {
     '0': 'blk',
     '1': 'wPw',
     '2': 'wKn',
@@ -103,19 +109,22 @@ STR_PIECES = {
     'E': 'bKg'
 }
 
-COLORS = {
+const MapStrInt COLORS = {
+ = {
     'undef' : 0,
     'white' : 1,
     'black' : 9 
 }
 
-REVERSED_COLORS = { 
+const MapIntInt REVERSED_COLORS = {
+ = { 
     COLORS['undef'] : COLORS['undef'],
     COLORS['white'] : COLORS['black'],
     COLORS['black'] : COLORS['white'] 
 }
 
-PIECES_COLOR = {
+const MapIntInt PIECES_COLOR = {
+ = {
     PIECES['blk'] : COLORS['undef'],
     PIECES['wPw'] : COLORS['white'],
     PIECES['wKn'] : COLORS['white'],
@@ -131,7 +140,8 @@ PIECES_COLOR = {
     PIECES['bKg'] : COLORS['black']
 }
 
-DIRS = {
+const MapStrInt DIRS = {
+ = {
     'nth' : 0,
     'sth' : 1,
     'est' : 2,
@@ -151,7 +161,8 @@ DIRS = {
     'undef' : 17
 }
 
-REVERSE_DIRS = {
+const MapIntInt REVERSE_DIRS = {
+ = {
     DIRS['nth'] : DIRS['sth'],
     DIRS['sth'] : DIRS['nth'],
     DIRS['est'] : DIRS['wst'],
@@ -171,7 +182,8 @@ REVERSE_DIRS = {
     DIRS['undef'] : DIRS['undef'] 
 }
 
-DIR_FOR_STEP = {
+const MapIntInt DIR_FOR_STEP = {
+ = {
      8 : DIRS['nth'],
      16 : DIRS['nth'],
     -8 : DIRS['sth'],
@@ -194,7 +206,8 @@ DIR_FOR_STEP = {
     15 : DIRS['2nth-wst']
 }
 
-SCORES = { 
+const MapIntInt SCORES = {
+ = { 
     PIECES['blk'] : 0,
     PIECES['wPw'] : -100,
     PIECES['wKn'] : -340,
@@ -210,7 +223,8 @@ SCORES = {
     PIECES['bKg'] : 20000
 }
 
-SUPPORTED_SCORES = {
+const MapIntInt SUPPORTED_SCORES = {
+ = {
     PIECES['blk'] : 0,
     PIECES['wPw'] : 6,
     PIECES['wKn'] : 18,
@@ -226,7 +240,8 @@ SUPPORTED_SCORES = {
     PIECES['bKg'] : 0
 }
 
-ATTACKED_SCORES = {
+const MapIntInt ATTACKED_SCORES = {
+ = {
     PIECES['blk'] : 0,
     PIECES['wPw'] : -6,
     PIECES['wKn'] : -18,
