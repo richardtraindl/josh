@@ -1,8 +1,6 @@
 
 #include <string>
-
-/* from .values import *
-from .helper import reverse_lookup, index_to_coord */
+#include "./helper.cpp"
 
 using namespace std;
 
@@ -55,86 +53,92 @@ class cTactic{
         int addition;
 
     public:
-        DOMAINS = {
-    'defends-check' :         10,
-    'captures' :              20,
-    'attacks-king' :          30,
-    'attacks' :               40,
-    'supports' :              50,
-    'supports-running-pawn' : 60,
-    'flees' :                 70,
-    'forks' :                 80,
-    'threatens-fork' :        90,
-    'defends-fork' :          100,
-    'unpins' :                110,
-    'blocks' :                120,
-    'promotes' :              130, 
-    'is-tactical-draw' :      140,
-    'prev-candidate' :        150,
-    'is-running-pawn' :       160, 
-    'controles-file' :        170,
-    'castles' :               180,
-    'is-progress' :           190,
-    'opposition' :            200,
-    'approach-opp-king' :     210,
-    'is-undefined' :          220 }
+        const MapStrInt DOMAINS = {
+            {'defends-check' :         10},
+            {'captures' :              20},
+            {'attacks-king' :          30},
+            {'attacks' :               40},
+            {'supports' :              50},
+            {'supports-running-pawn' : 60},
+            {'flees' :                 70},
+            {'forks' :                 80},
+            {'threatens-fork' :        90},
+            {'defends-fork' :          100},
+            {'unpins' :                110},
+            {'blocks' :                120},
+            {'promotes' :              130}, 
+            {'is-tactical-draw' :      140},
+            {'prev-candidate' :        150},
+            {'is-running-pawn' :       160}, 
+            {'controles-file' :        170},
+            {'castles' :               180},
+            {'is-progress' :           190},
+            {'opposition' :            200},
+            {'approach-opp-king' :     210},
+            {'is-undefined' :          220}
+        };
 
-    WEIGHTS = {
-        'stormy' : 1,
-        'better-deal' : 2,
-        'good-deal' : 3,
-        'downgraded' : 4,
-        'upgraded' : 5,
-        'bad-deal' : 6 }
+        const MapStrInt WEIGHTS = {
+            {'stormy' : 1},
+            {'better-deal' : 2},
+            {'good-deal' : 3},
+            {'downgraded' : 4},
+            {'upgraded' : 5},
+            {'bad-deal' : 6}
+        };
 
-    DOMAINS_TO_PRIOS = {
-        ### level 1 ###
-        DOMAINS['promotes'] :               90,
-        DOMAINS['captures'] :               91,
-        DOMAINS['is-running-pawn'] :        92,
-        DOMAINS['is-tactical-draw'] :       93,
-        DOMAINS['defends-check']  :         94,
-        DOMAINS['prev-candidate']  :        95,
-        ### level 2 ###
-        DOMAINS['castles'] :                200,
-        DOMAINS['attacks-king'] :           201,
-        DOMAINS['forks'] :                  202, 
-        DOMAINS['threatens-fork'] :         203,
-        DOMAINS['defends-fork'] :           204, 
-        DOMAINS['unpins'] :                 205, 
-        DOMAINS['supports-running-pawn'] :  206, 
-        DOMAINS['flees'] :                  207, 
-        DOMAINS['blocks'] :                 208,
-        DOMAINS['controles-file'] :         209, 
-        DOMAINS['is-progress'] :            210,
-        DOMAINS['supports'] :               211,
-        DOMAINS['attacks'] :                212,
-        DOMAINS['opposition'] :             213,
-        DOMAINS['approach-opp-king'] :      214,
-        ### level 3 ###
-        DOMAINS['is-undefined'] :           500 }
+        const MapStrInt DOMAINS_TO_PRIOS = {
+            // ### level 1 ###
+            {DOMAINS['promotes'] :               90},
+            {DOMAINS['captures'] :               91},
+            {DOMAINS['is-running-pawn'] :        92},
+            {DOMAINS['is-tactical-draw'] :       93},
+            {DOMAINS['defends-check']  :         94},
+            {DOMAINS['prev-candidate']  :        95},
+            // ### level 2 ###
+            {DOMAINS['castles'] :                200},
+            {DOMAINS['attacks-king'] :           201},
+            {DOMAINS['forks'] :                  202}, 
+            {DOMAINS['threatens-fork'] :         203},
+            {DOMAINS['defends-fork'] :           204}, 
+            {DOMAINS['unpins'] :                 205}, 
+            {DOMAINS['supports-running-pawn'] :  206}, 
+            {DOMAINS['flees'] :                  207}, 
+            {DOMAINS['blocks'] :                 208},
+            {DOMAINS['controles-file'] :         209}, 
+            {DOMAINS['is-progress'] :            210},
+            {DOMAINS['supports'] :               211},
+            {DOMAINS['attacks'] :                212},
+            {DOMAINS['opposition'] :             213},
+            {DOMAINS['approach-opp-king'] :      214},
+            // ### level 3 ###
+            {DOMAINS['is-undefined'] :           500}
+        };
 
-    WEIGHTS_TO_ADJUST = {
-        WEIGHTS['stormy'] : -70,
-        WEIGHTS['better-deal'] : -10,
-        WEIGHTS['good-deal'] : 0,
-        WEIGHTS['upgraded'] : 0,
-        WEIGHTS['downgraded'] : 60,
-        WEIGHTS['bad-deal'] : 130 }
-}
+        const MapStrInt WEIGHTS_TO_ADJUST = {
+            {WEIGHTS['stormy'] : -70}},
+            {WEIGHTS['better-deal'] : -10},
+            {WEIGHTS['good-deal'] : 0},
+            {WEIGHTS['upgraded'] : 0},
+            {WEIGHTS['downgraded'] : 60},
+            {WEIGHTS['bad-deal'] : 130}
+        };
+};
 
 
 class cPrioMove:
-    PRIOS = {
-        'prio0' : 100,
-        'prio1' : 200,
-        'prio2' : 250,
-        'prio3' : 300 }
+    private:
+        cMove move
+        // tactics = []
+        int prio = PRIOS['prio3']
 
-    def __init__(self, move=None, prio=PRIOS['prio3']):
-        self.move = move
-        self.tactics = []
-        self.prio = prio
+    public:
+        const MapStrInt PRIOS = {
+            {'prio0', 100},
+            {'prio1', 200},
+            {'prio2', 250},
+            {'prio3', 300} 
+        };
 
     def evaluate_priority(self):
         count = 0
