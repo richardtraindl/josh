@@ -1,45 +1,61 @@
-from .values import *
-from .helper import reverse_lookup, index_to_coord
+
+#include <string>
+
+/* from .values import *
+from .helper import reverse_lookup, index_to_coord */
+
+using namespace std;
+
+class cMove{
+    private:
+        int prevfields;
+        int src;
+        int dst;
+        int prompiece;
+
+    public:
+        int getPrevfield(idx){
+            return this.prevfields >> ((63 - idx) * 4)) & 0xF
+        };
+
+        string format(){
+            piece = this.getPrevfield(this.src);
+            if(piece == PIECE_WKG || piece == PIECES_BKG){
+                if(this.src - this.dst == -2){
+                    return "0-0";
+                if(this.src - this.dst == 2):
+                    return "0-0-0";
+            dstpiece = this.getPrevfield(this.dst)
+            if(dstpiece == PIECES_BLK){
+                hyphen = "-";
+            }
+            else{
+                hyphen = "x";
+            }
+            trailing = "";
+            if(piece == PIECES_WPW || piece == PIECES_BPW){
+                if(this.prompiece != NULL and this.prompiece != PIECES_BLK){
+                    trailing = ", " + reverse_lookup(PIECES, this.prompiece);
+                }
+                else{
+                    if(dstpiece == PIECES_BLK && (this.src % 8) != (this.dst % 8)){
+                        trailing = " e.p.";
+                    }
+                }
+            }
+            return index_to_coord(this.src) + hyphen + index_to_coord(this.dst) + trailing;
+        };
+}
 
 
-class cMove:
-    def __init__(self, prevfields=None, src=None, dst=None, prompiece=None):
-        self.prevfields = prevfields
-        self.src = src
-        self.dst = dst
-        self.prompiece = prompiece
+class cTactic{
+    private:
+        int domain;
+        int weight;
+        int addition;
 
-    def getprevfield(self, idx):
-        return (self.prevfields >> ((63 - idx) * 4)) & 0xF
-
-    def format(self):
-        piece = self.getprevfield(self.src)
-        if(piece == PIECES['wKg'] or piece == PIECES['bKg']):
-            if(self.src - self.dst == -2):
-                return "0-0"
-            if(self.src - self.dst == 2):
-                return "0-0-0"
-        dstpiece = self.getprevfield(self.dst)
-        if(dstpiece == PIECES['blk']):
-            hyphen = "-"
-        else:
-            hyphen = "x"
-        trailing = ""
-        if(piece == PIECES['wPw'] or piece == PIECES['bPw']):
-            if(self.prompiece is not None and self.prompiece != PIECES['blk']):
-                trailing = ", " + reverse_lookup(PIECES, self.prompiece)
-            else:
-                if(dstpiece == PIECES['blk'] and (self.src % 8) != (self.dst % 8)):
-                    trailing = " e.p."
-        return index_to_coord(self.src) + \
-               hyphen + \
-               index_to_coord(self.dst) + \
-               trailing
-# class end
-
-
-class cTactic:
-    DOMAINS = {
+    public:
+        DOMAINS = {
     'defends-check' :         10,
     'captures' :              20,
     'attacks-king' :          30,
@@ -105,12 +121,7 @@ class cTactic:
         WEIGHTS['upgraded'] : 0,
         WEIGHTS['downgraded'] : 60,
         WEIGHTS['bad-deal'] : 130 }
-
-    def __init__(self, domain, weight=None, addition=None):
-        self.domain = domain
-        self.weight = weight
-        self.addition = addition
-# class end
+}
 
 
 class cPrioMove:
