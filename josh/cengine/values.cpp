@@ -90,67 +90,67 @@ const MapIntInt PIECES_NMASK = {
 };
 
 const MapIntStr STR_PIECES = {
-    {'0': 'blk',
-    {'1': 'wPw',
-    {'2': 'wKn',
-    {'3': 'wBp',
-    {'4': 'wRk',
-    {'5': 'wQu',
-    {'6': 'wKg',
-    {'9': 'bPw',
-    {'A': 'bKn',
-    {'B': 'bBp',
-    {'C': 'bRk',
-    {'D': 'bQu',
-    {'E': 'bKg'
+    {'0', 'blk'},
+    {'1', 'wPw'},
+    {'2', 'wKn'},
+    {'3', 'wBp'},
+    {'4', 'wRk'},
+    {'5', 'wQu'},
+    {'6', 'wKg'},
+    {'9', 'bPw'},
+    {'A', 'bKn'},
+    {'B', 'bBp'},
+    {'C', 'bRk'},
+    {'D', 'bQu'},
+    {'E', 'bKg'}
 };
 
 const MapStrInt COLORS = {
-    {'undef' : 0,
-    {'white' : 1,
-    {'black' : 9 
+    {'undef', 0},
+    {'white', 1},
+    {'black', 9 }
 };
 
 const MapIntInt REVERSED_COLORS = {
-    {COLORS['undef'] : COLORS['undef'],
-    {COLORS['white'] : COLORS['black'],
-    {COLORS['black'] : COLORS['white'] 
+    {COLORS['undef'], COLORS['undef']},
+    {COLORS['white'], COLORS['black']},
+    {COLORS['black'], COLORS['white']} 
 };
 
 const MapIntInt PIECES_COLOR = {
-    {PIECES['blk'] : COLORS['undef'],
-    {PIECES['wPw'] : COLORS['white'],
-    {PIECES['wKn'] : COLORS['white'],
-    {PIECES['wBp'] : COLORS['white'],
-    {PIECES['wRk'] : COLORS['white'],
-    {PIECES['wQu'] : COLORS['white'],
-    {PIECES['wKg'] : COLORS['white'],
-    {PIECES['bPw'] : COLORS['black'],
-    {PIECES['bKn'] : COLORS['black'],
-    {PIECES['bBp'] : COLORS['black'],
-    {PIECES['bRk'] : COLORS['black'],
-    {PIECES['bQu'] : COLORS['black'],
-    {PIECES['bKg'] : COLORS['black']
+    {PIECES['blk'], COLORS['undef']},
+    {PIECES['wPw'], COLORS['white']},
+    {PIECES['wKn'], COLORS['white']},
+    {PIECES['wBp'], COLORS['white']},
+    {PIECES['wRk'], COLORS['white']},
+    {PIECES['wQu'], COLORS['white']},
+    {PIECES['wKg'], COLORS['white']},
+    {PIECES['bPw'], COLORS['black']},
+    {PIECES['bKn'], COLORS['black']},
+    {PIECES['bBp'], COLORS['black']},
+    {PIECES['bRk'], COLORS['black']},
+    {PIECES['bQu'], COLORS['black']},
+    {PIECES['bKg'], COLORS['black'}
 };
 
 const MapStrInt DIRS = {
-    {'nth' : 0,
-    {'sth' : 1,
-    {'est' : 2,
-    {'wst' : 3,
-    {'nth-est' : 4,
-    {'sth-wst' : 5,
-    {'nth-wst' : 6,
-    {'sth-est' : 7,
-    {'2nth-est' : 9,
-    {'nth-2est' : 10,
-    {'sth-2est' :  11,
-    {'2sth-est' :  12, 
-    {'2sth-wst' : 13, 
-    {'sth-2wst' : 14,
-    {'nth-2wst' : 15,
-    {'2nth-wst' : 16,
-    {'undef' : 17
+    {'nth', 0},
+    {'sth', 1},
+    {'est', 2},
+    {'wst', 3},
+    {'nth-est', 4},
+    {'sth-wst', 5},
+    {'nth-wst', 6},
+    {'sth-est', 7},
+    {'2nth-est', 9},
+    {'nth-2est', 10},
+    {'sth-2est', 11},
+    {'2sth-est,  12},
+    {'2sth-wst', 13}, 
+    {'sth-2wst', 14},
+    {'nth-2wst', 15},
+    {'2nth-wst', 16},
+    {'undef', 17}
 };
 
 const MapIntInt REVERSE_DIRS = {
