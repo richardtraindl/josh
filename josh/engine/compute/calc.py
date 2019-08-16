@@ -108,14 +108,16 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 prnt_search(match, "CANDIDATE:      ", score, None, candidates)
 
         if(maximizing):
-            if(max(newscore, score) >= beta):
-               break # beta cut-off
+            maxscore = max(newscore, score)
+            if(maxscore >= beta):
+                break # beta cut-off
             else:
                 if(newscore > score):
                     score = newscore
                     append_newmove(move, candidates, newcandidates)
         else:
-            if(min(newscore, score) <= alpha):
+            minscore = min(newscore, score)
+            if(minscore <= alpha):
                 break # alpha cut-off
             else:
                 if(newscore < score):
