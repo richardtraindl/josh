@@ -73,9 +73,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     starttime = time.time()
 
     if(maximizing):
-        score = alpha
+        score = SCORES[PIECES['wKg']] * 10
     else:
-        score = beta
+        score = SCORES[PIECES['bKg']] * 10
 
     dbggmove = cMove(None, 3, 51, PIECES['blk'])
     search_for_mate = match.is_endgame()
@@ -108,22 +108,26 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 prnt_search(match, "CANDIDATE:      ", score, None, candidates)
 
         if(maximizing):
-            maxscore = max(newscore, score)
-            alpha = max(alpha, maxscore)
+            update = False
+            if(newsore > score):
+                score = newscore
+                update = True
+            alpha = max(alpha, score)
             if(alpha >= beta):
                 break # beta cut-off
             else:
-                if(newscore > score):
-                    score = newscore
+                if(update):
                     append_newmove(move, candidates, newcandidates)
         else:
-            minscore = min(newscore, score)
-            beta = min(beta, minscore)
-            if(beta >= alpha):
+            update = False
+            if(newsore < score):
+                score = newscore
+                update = True
+            beta = min(beta, score)
+            if(alpha >= beta):
                 break # alpha cut-off
             else:
-                if(newscore < score):
-                    score = newscore
+                if(update):
                     append_newmove(move, candidates, newcandidates)
 
         if(count >= maxcnt):
