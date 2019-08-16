@@ -109,7 +109,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
 
         if(maximizing):
             update = False
-            if(newsore > score):
+            if(newscore > score):
                 score = newscore
                 update = True
             alpha = max(alpha, score)
@@ -120,7 +120,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                     append_newmove(move, candidates, newcandidates)
         else:
             update = False
-            if(newsore < score):
+            if(newscore < score):
                 score = newscore
                 update = True
             beta = min(beta, score)
