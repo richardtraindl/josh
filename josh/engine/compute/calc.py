@@ -86,9 +86,15 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     if(len(priomoves) == 0 or maxcnt == 0):
         return score_position(match, len(priomoves)), candidates
 
+    if(depth == 1):
+        prnt_priomoves(match, priomoves)
+
     for priomove in priomoves:
         move = priomove.move
         count += 1
+
+        if(depth == 1):
+            print("CURRENT SEARCH: " + priomove.move.format())
 
         match.do_move(move.src, move.dst, move.prompiece)
         if(maximizing):
@@ -98,7 +104,6 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         match.undo_move()
 
         if(depth == 1):
-            prnt_search(match, "CURRENT SEARCH: ", newscore, move, newcandidates)
             if(candidates):
                 prnt_search(match, "CANDIDATE:      ", score, None, candidates)
 
