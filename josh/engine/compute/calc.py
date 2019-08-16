@@ -112,23 +112,21 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             if(newscore > score):
                 score = newscore
                 update = True
-            alpha = max(alpha, score)
-            if(alpha >= beta):
+            if(score >= beta):
                 break # beta cut-off
-            else:
-                if(update):
-                    append_newmove(move, candidates, newcandidates)
+            alpha = max(alpha, score)
+            if(update):
+                append_newmove(move, candidates, newcandidates)
         else:
             update = False
             if(newscore < score):
                 score = newscore
                 update = True
-            beta = min(beta, score)
-            if(alpha >= beta):
+            if(score <= alpha):
                 break # alpha cut-off
-            else:
-                if(update):
-                    append_newmove(move, candidates, newcandidates)
+            beta = min(beta, score)
+            if(update):
+                append_newmove(move, candidates, newcandidates)
 
         if(count >= maxcnt):
             break
