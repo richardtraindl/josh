@@ -142,7 +142,7 @@ class SearchLimits:
             self.dpth_stage1 = 2
             self.dpth_stage2 = 4
             #self.dpth_stage3 = 4
-            self.mvcnt_stage1 = 6
+            self.mvcnt_stage1 = 8
             self.mvcnt_stage2 = 6
             #self.mvcnt_stage3 = 2
         if(match.level == match.LEVELS['low']):
@@ -150,7 +150,7 @@ class SearchLimits:
             self.dpth_stage1 = 2
             self.dpth_stage2 = 5
             #self.dpth_stage3 = 6
-            self.mvcnt_stage1 = 8
+            self.mvcnt_stage1 = 10
             self.mvcnt_stage2 = 6
             #self.mvcnt_stage3 = 2
         elif(match.level == match.LEVELS['medium']):
