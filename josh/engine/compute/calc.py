@@ -100,14 +100,13 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
         newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, beta, not maximizing, priomove, None)
         match.undo_move()
 
-        if(depth == 1):
-            if(candidates):
-                prnt_search(match, "CANDIDATE:      ", score, None, candidates)
-
         if(maximizing):
             if(newscore > bestscore):
                 bestscore = newscore
                 append_newmove(move, candidates, newcandidates)
+                if(depth == 1):
+                    if(candidates):
+                        prnt_search(match, "CANDIDATE:      ", bestscore, None, candidates)
                 alpha = max(alpha, bestscore)
                 if(bestscore >= beta):
                     break # beta cut-off
@@ -115,6 +114,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             if(newscore < bestscore):
                 bestscore = newscore
                 append_newmove(move, candidates, newcandidates)
+                if(depth == 1):
+                    if(candidates):
+                        prnt_search(match, "CANDIDATE:      ", bestscore, None, candidates)
                 beta = min(beta, bestscore)
                 if(bestscore <= alpha):
                     break # alpha cut-off
