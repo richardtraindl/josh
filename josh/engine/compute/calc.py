@@ -73,9 +73,9 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
     starttime = time.time()
 
     if(maximizing):
-        score = SCORES[PIECES['wKg']] * 10
+        bestscore = SCORES[PIECES['wKg']] * 10
     else:
-        score = SCORES[PIECES['bKg']] * 10
+        bestscore = SCORES[PIECES['bKg']] * 10
 
     dbggmove = cMove(None, 3, 51, PIECES['blk'])
     search_for_mate = match.is_endgame()
@@ -97,10 +97,7 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
             print("CURRENT SEARCH: " + priomove.move.format())
 
         match.do_move(move.src, move.dst, move.prompiece)
-        if(maximizing):
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, score, beta, False, priomove, None)
-        else:
-            newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, score, True, priomove, None)
+        newscore, newcandidates = alphabeta(match, depth + 1, slimits, alpha, beta, not maximizing, priomove, None)
         match.undo_move()
 
         if(depth == 1):
@@ -108,30 +105,23 @@ def alphabeta(match, depth, slimits, alpha, beta, maximizing, last_pmove, candid
                 prnt_search(match, "CANDIDATE:      ", score, None, candidates)
 
         if(maximizing):
-            update = False
-            if(newscore > score):
-                score = newscore
-                update = True
-            if(score >= beta):
-                break # beta cut-off
-            alpha = max(alpha, score)
-            if(update):
+            if(newscore > bestscore):
+                bestscore = newscore
                 append_newmove(move, candidates, newcandidates)
+                alpha = max(alpha, bestscore)
+                if(bestscore >= beta):
+                    break # beta cut-off
         else:
-            update = False
-            if(newscore < score):
-                score = newscore
-                update = True
-            if(score <= alpha):
-                break # alpha cut-off
-            beta = min(beta, score)
-            if(update):
+            if(newscore < bestscore):
+                bestscore = newscore
                 append_newmove(move, candidates, newcandidates)
-
+                beta = min(beta, bestscore)
+                if(bestscore <= alpha):
+                    break # alpha cut-off
         if(count >= maxcnt):
             break
 
-    return score, candidates
+    return bestscore, candidates
 
 
 class SearchLimits:
