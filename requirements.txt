@@ -10,4 +10,4 @@ psycopg2==2.8.2
 python-dateutil==2.8.0
 python-editor==1.0.4
 six==1.12.0
-Werkzeug==0.15.2
+Werkzeug==0.15.3
